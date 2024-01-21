@@ -201,13 +201,16 @@ def bd_attack_img_trans_generate(args):
     return train_bd_transform, test_bd_transform
 
 
-def bd_attack_label_trans_generate(args):
+def bd_attack_label_trans_generate(args, is_ood_dataset=False):
     '''
     # idea : use args to choose which backdoor label transform you want
     from args generate backdoor label transformation
 
     '''
-    if args.attack_label_trans == 'all2one':
+    if is_ood_dataset:
+        target_label = int(1) # 1 is in dist label
+        bd_label_transform = AllToOne_attack(target_label)
+    elif args.attack_label_trans == 'all2one':
         target_label = int(args.attack_target)
         bd_label_transform = AllToOne_attack(target_label)
     elif args.attack_label_trans == 'all2all':

@@ -198,6 +198,90 @@ def get_transform_self(dataset_name, input_height, input_width, train=True, pref
         transforms_list.append(get_dataset_normalization(dataset_name))
     return transforms.Compose(transforms_list)
 
+def dataset_and_transform_generate_ood(args):
+    if not args.dataset.startswith('test'):
+        test_img_transform = get_transform(args.dataset, *(args.img_size[:2]), train=False)
+    else:
+        # test folder datset, use the mnist transform for convenience
+        test_img_transform = get_transform('mnist', *(args.img_size[:2]), train=False)
+
+    test_label_transform = None
+
+    test_dataset_without_transform = None
+
+    if (test_dataset_without_transform is None):
+
+        if args.dataset.startswith('test'):  # for test only
+            from torchvision.datasets import ImageFolder
+            test_dataset_without_transform = ImageFolder('../data/test')
+        elif args.dataset == 'mnist':
+            from torchvision.datasets import MNIST
+            test_dataset_without_transform = MNIST(
+                args.dataset_path,
+                train=False,
+                transform=None,
+                download=True,
+            )
+
+
+        elif args.dataset == 'cifar10':
+            from torchvision.datasets import CIFAR10
+            # test_dataset_without_transform = CIFAR10(
+            #     args.dataset_path,
+            #     train=False,
+            #     transform=None,
+            #     download=True,
+            # )
+
+            testset_clean_10 = CIFAR10(
+                args.dataset_path, 
+                train=False, 
+                download=True, 
+                transform=None
+            )
+            for i in range(len(testset_clean_10.targets)):
+                testset_clean_10.targets[i] = 1
+            testset_clean_100 = CIFAR100(
+                args.dataset_path, 
+                train=False, 
+                download=True, 
+                transform=None
+            )
+            for i in range(len(testset_clean_100.targets)):
+                testset_clean_100.targets[i] = 0
+                
+            test_dataset_without_transform = torch.utils.data.ConcatDataset([testset_clean_10, testset_clean_100])
+
+        elif args.dataset == 'cifar100':
+            from torchvision.datasets import CIFAR100
+            # test_dataset_without_transform = CIFAR100(
+            #     root=args.dataset_path,
+            #     train=False,
+            #     download=True,
+            # )
+
+            testset_clean_100 = CIFAR100(
+                args.dataset_path, 
+                train=False, 
+                download=True, 
+                transform=None
+            )
+            for i in range(len(testset_clean_100.targets)):
+                testset_clean_100.targets[i] = 1
+            testset_clean_10 = CIFAR10(
+                args.dataset_path, 
+                train=False, 
+                download=True, 
+                transform=None
+            )
+            for i in range(len(testset_clean_10.targets)):
+                testset_clean_10.targets[i] = 0
+                
+            test_dataset_without_transform = torch.utils.data.ConcatDataset([testset_clean_100, testset_clean_10])
+
+    return test_dataset_without_transform, \
+           test_img_transform, \
+           test_label_transform
 
 def dataset_and_transform_generate(args):
     '''
