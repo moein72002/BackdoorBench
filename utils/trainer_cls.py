@@ -1869,6 +1869,7 @@ class BackdoorModelTrainer(ModelTrainerCLS_v2):
         with torch.no_grad():
             for batch_idx, (x, labels, original_index, poison_indicator, original_targets) in enumerate(test_dataloader):
                 x = x.to(device, non_blocking=self.non_blocking)
+                print(f"labels[:5]: {labels[:5]}")
                 labels = labels.to(device, non_blocking=self.non_blocking)
                 pred = model(x)
 
