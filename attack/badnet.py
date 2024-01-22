@@ -164,9 +164,16 @@ class BadNet(NormalCase):
             save_folder_path=f"{args.save_path}/bd_test_dataset",
         )
 
+        print(f"len(bd_test_dataset): {len(bd_test_dataset)}")
+        print(f"bd_test_dataset[0]: {bd_test_dataset[0]}")
+
         bd_test_dataset.subset(
             np.where(test_poison_index == 1)[0]
         )
+
+        print("after subset")
+        print(f"len(bd_test_dataset): {len(bd_test_dataset)}")
+        print(f"bd_test_dataset[0]: {bd_test_dataset[0]}")
 
         test_poison_index_ood = np.concatenate((np.zeros(10000), np.ones(10000)))
 
