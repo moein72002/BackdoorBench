@@ -1984,7 +1984,7 @@ class BackdoorModelTrainer(ModelTrainerCLS_v2):
             bd_test_epoch_original_index_list, \
             bd_test_epoch_poison_indicator_list, \
             bd_test_epoch_original_targets_list = self.test_given_dataloader_on_mix(self.test_dataloader_dict["bd_test_dataloader"], verbose=1)
-            test_auc = self.test_ood_given_dataloader(self.test_dataloader_dict["bd_test_ood_dataloader"], verbose=1) #TODO
+            test_auc = self.test_ood_given_dataloader(self.test_dataloader_dict["bd_test_dataloader_ood"], verbose=1) #TODO
 
             bd_test_loss_avg_over_batch = bd_metrics["test_loss_avg_over_batch"]
             test_asr = all_acc(bd_test_epoch_predict_list, bd_test_epoch_label_list)
