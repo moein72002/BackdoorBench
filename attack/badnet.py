@@ -78,9 +78,10 @@ class BadNet(NormalCase):
         label_counts = {}
 
         # Enumerate through the train_dataset
-        for i, (data, label) in enumerate(dataset):
+        for i, (data, label, original_index, poison_indicator, original_target) in enumerate(dataset):
             # Count the occurrences of each label
             label_counts[label] = label_counts.get(label, 0) + 1
+            print(data, label, original_index, poison_indicator, original_target)
 
         # Print the count of unique labels
         print(f"\nCount of Unique Labels of {dataset_name}:")
