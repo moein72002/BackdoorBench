@@ -74,19 +74,19 @@ class BadNet(NormalCase):
         mix_defaults.update({k: v for k, v in args.__dict__.items() if v is not None})
         args.__dict__ = mix_defaults
 
-    def count_unique_labels_of_dataset(self, dataset, dataset_name):
-        label_counts = {}
-
-        # Enumerate through the train_dataset
-        for i, (data, label, original_index, poison_indicator, original_target) in enumerate(dataset):
-            # Count the occurrences of each label
-            label_counts[label] = label_counts.get(label, 0) + 1
-            print(data, label, original_index, poison_indicator, original_target)
-
-        # Print the count of unique labels
-        print(f"\nCount of Unique Labels of {dataset_name}:")
-        for label, count in label_counts.items():
-            print(f"{label}: {count}")
+    # def count_unique_labels_of_dataset(self, dataset, dataset_name):
+    #     label_counts = {}
+    #
+    #     # Enumerate through the train_dataset
+    #     for i, (data, label, original_index, poison_indicator, original_target) in enumerate(dataset):
+    #         # Count the occurrences of each label
+    #         label_counts[label] = label_counts.get(label, 0) + 1
+    #         print(data, label, original_index, poison_indicator, original_target)
+    #
+    #     # Print the count of unique labels
+    #     print(f"\nCount of Unique Labels of {dataset_name}:")
+    #     for label, count in label_counts.items():
+    #         print(f"{label}: {count}")
 
     def stage1_non_training_data_prepare(self):
         logging.info(f"stage1 start")
