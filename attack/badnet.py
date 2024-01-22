@@ -152,6 +152,9 @@ class BadNet(NormalCase):
             train=False,
         )
 
+        print(f"len(test_poison_index): {len(test_poison_index)}")
+        print(f"test_poison_index[:10]: {test_poison_index[:10]}")
+
         ### generate test dataset for ASR
         bd_test_dataset = prepro_cls_DatasetBD_v2(
             deepcopy(test_dataset_without_transform),
@@ -177,6 +180,7 @@ class BadNet(NormalCase):
 
         # self.count_unique_labels_of_dataset(bd_test_dataset_ood, "bd_test_dataset_ood")
         print(f"bd_test_dataset_ood[0]: {bd_test_dataset_ood[0]}")
+        print(f"len(bd_test_dataset_ood): {len(bd_test_dataset_ood)}")
 
         # TODO: check here
         bd_test_dataset_ood.subset(
@@ -184,6 +188,7 @@ class BadNet(NormalCase):
         )
 
         print("after subset")
+        print(f"len(bd_test_dataset_ood): {len(bd_test_dataset_ood)}")
         print(f"bd_test_dataset_ood[0]: {bd_test_dataset_ood[0]}")
         # self.count_unique_labels_of_dataset(bd_test_dataset_ood, "bd_test_dataset_ood")
 
