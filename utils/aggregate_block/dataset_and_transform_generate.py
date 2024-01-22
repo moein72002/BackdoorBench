@@ -199,6 +199,9 @@ def get_transform_self(dataset_name, input_height, input_width, train=True, pref
     return transforms.Compose(transforms_list)
 
 def dataset_and_transform_generate_ood(args):
+    from torchvision.datasets import CIFAR10, CIFAR100
+    
+
     if not args.dataset.startswith('test'):
         test_img_transform = get_transform(args.dataset, *(args.img_size[:2]), train=False)
     else:
