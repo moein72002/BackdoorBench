@@ -175,7 +175,8 @@ class BadNet(NormalCase):
             save_folder_path=f"{args.save_path}/bd_test_dataset",
         )
 
-        self.count_unique_labels_of_dataset(bd_test_dataset_ood, "bd_test_dataset_ood")
+        # self.count_unique_labels_of_dataset(bd_test_dataset_ood, "bd_test_dataset_ood")
+        print(f"bd_test_dataset_ood[0]: {bd_test_dataset_ood[0]}")
 
         # TODO: check here
         bd_test_dataset_ood.subset(
@@ -183,7 +184,8 @@ class BadNet(NormalCase):
         )
 
         print("after subset")
-        self.count_unique_labels_of_dataset(bd_test_dataset_ood, "bd_test_dataset_ood")
+        print(f"bd_test_dataset_ood[0]: {bd_test_dataset_ood[0]}")
+        # self.count_unique_labels_of_dataset(bd_test_dataset_ood, "bd_test_dataset_ood")
 
         bd_test_dataset_with_transform = dataset_wrapper_with_transform(
             bd_test_dataset,
