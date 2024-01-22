@@ -74,6 +74,19 @@ class BadNet(NormalCase):
         mix_defaults.update({k: v for k, v in args.__dict__.items() if v is not None})
         args.__dict__ = mix_defaults
 
+    def count_unique_labels_of_dataset(self, dataset, dataset_name):
+        label_counts = {}
+
+        # Enumerate through the train_dataset
+        for i, (data, label) in enumerate(dataset):
+            # Count the occurrences of each label
+            label_counts[label] = label_counts.get(label, 0) + 1
+
+        # Print the count of unique labels
+        print(f"\nCount of Unique Labels of {dataset_name}:")
+        for label, count in label_counts.items():
+            print(f"{label}: {count}")
+
     def stage1_non_training_data_prepare(self):
         logging.info(f"stage1 start")
 
@@ -161,10 +174,15 @@ class BadNet(NormalCase):
             save_folder_path=f"{args.save_path}/bd_test_dataset",
         )
 
+        self.count_unique_labels_of_dataset(bd_test_dataset_ood, "bd_test_dataset_ood")
+
         # TODO: check here
         bd_test_dataset_ood.subset(
             np.where(test_poison_index_ood == 1)[0]
         )
+
+        print("after subset")
+        self.count_unique_labels_of_dataset(bd_test_dataset_ood, "bd_test_dataset_ood")
 
         bd_test_dataset_with_transform = dataset_wrapper_with_transform(
             bd_test_dataset,
