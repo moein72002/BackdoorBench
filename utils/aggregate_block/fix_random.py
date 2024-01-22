@@ -17,6 +17,7 @@ def fix_random(
     :param random_seed:
     :return: None
     '''
+    pass
     # random.seed(random_seed)
     # np.random.seed(random_seed)
     # torch.manual_seed(random_seed)
