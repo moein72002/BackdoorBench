@@ -19,7 +19,7 @@ import logging
 from utils.aggregate_block.save_path_generate import generate_save_folder
 from utils.aggregate_block.dataset_and_transform_generate import get_num_classes, get_input_shape
 from utils.aggregate_block.fix_random import fix_random
-from utils.aggregate_block.dataset_and_transform_generate import dataset_and_transform_generate
+from utils.aggregate_block.dataset_and_transform_generate import dataset_and_transform_generate, dataset_and_transform_generate_ood
 from utils.bd_dataset_v2 import dataset_wrapper_with_transform, get_labels
 from utils.aggregate_block.model_trainer_generate import generate_cls_model
 from utils.aggregate_block.train_settings_generate import argparser_opt_scheduler, argparser_criterion
@@ -151,6 +151,10 @@ class NormalCase:
         test_img_transform, \
         test_label_transform = dataset_and_transform_generate(args)
 
+        test_dataset_without_transform_ood, \
+        test_img_transform_ood, \
+        test_label_transform_ood = dataset_and_transform_generate_ood(args)
+
         logging.debug("dataset_and_transform_generate done")
 
         clean_train_dataset_with_transform = dataset_wrapper_with_transform(
@@ -169,6 +173,14 @@ class NormalCase:
 
         clean_test_dataset_targets = get_labels(test_dataset_without_transform)
 
+        clean_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
+            test_dataset_without_transform_ood,
+            test_img_transform_ood,
+            test_label_transform_ood,
+        )
+
+        clean_test_dataset_targets_ood = get_labels(test_dataset_without_transform_ood)
+
         return train_dataset_without_transform, \
                train_img_transform, \
                train_label_transform, \
@@ -178,7 +190,12 @@ class NormalCase:
                clean_train_dataset_with_transform, \
                clean_train_dataset_targets, \
                clean_test_dataset_with_transform, \
-               clean_test_dataset_targets
+               clean_test_dataset_targets, \
+               test_dataset_without_transform_ood, \
+               test_img_transform_ood, \
+               test_label_transform_ood, \
+               clean_test_dataset_with_transform_ood, \
+               clean_test_dataset_targets_ood
 
     def stage1_non_training_data_prepare(self):
 
