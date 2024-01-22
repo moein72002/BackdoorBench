@@ -138,6 +138,18 @@ class NormalCase:
 
         self.args = args
 
+    def count_unique_labels_of_dataset(self, dataset, dataset_name):
+        label_counts = {}
+
+        # Enumerate through the train_dataset
+        for i, (data, label) in enumerate(dataset):
+            # Count the occurrences of each label
+            label_counts[label] = label_counts.get(label, 0) + 1
+
+        # Print the count of unique labels
+        print(f"\nCount of Unique Labels of {dataset_name}:")
+        for label, count in label_counts.items():
+            print(f"{label}: {count}")
     def benign_prepare(self):
 
         assert 'args' in self.__dict__
@@ -154,6 +166,8 @@ class NormalCase:
         test_dataset_without_transform_ood, \
         test_img_transform_ood, \
         test_label_transform_ood = dataset_and_transform_generate_ood(args)
+
+        self.count_unique_labels_of_dataset(test_dataset_without_transform_ood, "test_dataset_without_transform_ood")
 
         logging.debug("dataset_and_transform_generate done")
 
