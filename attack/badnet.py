@@ -257,6 +257,7 @@ class BadNet(NormalCase):
             bd_train=bd_train_dataset_with_transform,
             bd_test=bd_test_dataset_with_transform,
             save_path=args.save_path,
+            bd_test_ood=bd_test_dataset_with_transform_ood
         )
 
 

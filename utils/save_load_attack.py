@@ -72,6 +72,7 @@ def save_attack_result(
     clean_data : str,
     bd_test : prepro_cls_DatasetBD_v2, # MUST be dataset without transform
     save_path : str,
+    bd_test_ood : prepro_cls_DatasetBD_v2,
     bd_train : Optional[prepro_cls_DatasetBD_v2] = None, # MUST be dataset without transform
 ):
     '''
@@ -101,6 +102,7 @@ def save_attack_result(
             'clean_data': clean_data,
             'bd_train': bd_train.retrieve_state() if bd_train is not None else None,
             'bd_test': bd_test.retrieve_state(),
+            'bd_test_ood': bd_test_ood.retrieve_state()
         }
 
     logging.info(f"saving...")
@@ -232,6 +234,16 @@ def load_attack_result(
             test_label_transform,
         )
 
+        bd_test_dataset_ood = prepro_cls_DatasetBD_v2(test_dataset_without_transform)
+        bd_test_dataset_ood.set_state(
+            load_file['bd_test']
+        )
+        bd_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
+            bd_test_dataset_ood,
+            test_img_transform,
+            test_label_transform,
+        )
+
         new_dict = copy.deepcopy(load_file['model'])
         for k, v in load_file['model'].items():
             if k.startswith('module.'):
@@ -246,6 +258,7 @@ def load_attack_result(
                 'clean_test' : clean_test_dataset_with_transform,
                 'bd_train': bd_train_dataset_with_transform,
                 'bd_test': bd_test_dataset_with_transform,
+                'bd_test_ood': bd_test_dataset_with_transform_ood
             }
 
         print(f"loading...")
