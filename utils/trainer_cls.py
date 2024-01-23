@@ -1869,8 +1869,8 @@ class BackdoorModelTrainer(ModelTrainerCLS_v2):
         with torch.no_grad():
             for batch_idx, (x, labels, original_index, poison_indicator, original_targets) in enumerate(test_dataloader):
                 x = x.to(device, non_blocking=self.non_blocking)
-                print(f"labels[:5]: {labels[:5]}")
-                labels = labels.to(device, non_blocking=self.non_blocking)
+                print(f"original_targets[:5]: {original_targets[:5]}")
+                original_targets = original_targets.to(device, non_blocking=self.non_blocking)
                 pred = model(x)
 
                 #TODO: check below
@@ -1879,7 +1879,7 @@ class BackdoorModelTrainer(ModelTrainerCLS_v2):
                 print(f"normality_scores.size(): {normality_scores.size()}")
 
                 if verbose == 1:
-                    batch_label_list.append(labels.detach().clone().cpu())
+                    batch_label_list.append(original_targets.detach().clone().cpu())
                     batch_normality_scores_list.append(normality_scores.detach().clone().cpu())
 
         auc = roc_auc_score(torch.cat(batch_label_list).detach().cpu().numpy(), torch.cat(batch_normality_scores_list).detach().cpu().numpy())
