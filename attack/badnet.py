@@ -219,6 +219,7 @@ class BadNet(NormalCase):
                               clean_test_dataset_with_transform, \
                               bd_train_dataset_with_transform, \
                               bd_test_dataset_with_transform, \
+                              clean_test_dataset_with_transform_ood, \
                               bd_test_dataset_with_transform_ood
 
     def stage2_training(self):
@@ -230,6 +231,7 @@ class BadNet(NormalCase):
         clean_test_dataset_with_transform, \
         bd_train_dataset_with_transform, \
         bd_test_dataset_with_transform, \
+        clean_test_dataset_with_transform_ood, \
         bd_test_dataset_with_transform_ood, \
             = self.stage1_results
 
@@ -267,6 +269,8 @@ class BadNet(NormalCase):
             DataLoader(clean_test_dataset_with_transform, batch_size=args.batch_size, shuffle=False, drop_last=False,
                        pin_memory=args.pin_memory, num_workers=args.num_workers, ),
             DataLoader(bd_test_dataset_with_transform, batch_size=args.batch_size, shuffle=False, drop_last=False,
+                       pin_memory=args.pin_memory, num_workers=args.num_workers, ),
+            DataLoader(clean_test_dataset_with_transform_ood, batch_size=args.batch_size, shuffle=False, drop_last=False,
                        pin_memory=args.pin_memory, num_workers=args.num_workers, ),
             DataLoader(bd_test_dataset_with_transform_ood, batch_size=args.batch_size, shuffle=False, drop_last=False,
                        pin_memory=args.pin_memory, num_workers=args.num_workers, ),

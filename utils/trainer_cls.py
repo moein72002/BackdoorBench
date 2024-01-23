@@ -1853,7 +1853,7 @@ class BackdoorModelTrainer(ModelTrainerCLS_v2):
                    torch.cat(batch_poison_indicator_list), \
                    torch.cat(batch_original_targets_list)
         
-    def test_ood_given_dataloader(self, test_dataloader, device = None, verbose = 0):
+    def test_ood_given_dataloader(self, test_dataloader, device = None, verbose = 0, clean_dataset = True):
 
         if device is None:
             device = self.device
@@ -1867,20 +1867,37 @@ class BackdoorModelTrainer(ModelTrainerCLS_v2):
             batch_normality_scores_list = []
 
         with torch.no_grad():
-            for batch_idx, (x, labels, original_index, poison_indicator, original_targets) in enumerate(test_dataloader):
-                x = x.to(device, non_blocking=self.non_blocking)
-                # print(f"original_targets[:5]: {original_targets[:5]}")
-                original_targets = original_targets.to(device, non_blocking=self.non_blocking)
-                pred = model(x)
+            if clean_dataset:
+                for batch_idx, (x, label) in enumerate(
+                        test_dataloader):
+                    x = x.to(device, non_blocking=self.non_blocking)
+                    # print(f"original_targets[:5]: {original_targets[:5]}")
+                    label = label.to(device, non_blocking=self.non_blocking)
+                    pred = model(x)
 
-                #TODO: check below
-                normality_scores = torch.max(pred.detach().cpu(), dim=1).values
-                # print(f"pred.size(): {pred.size()}")
-                # print(f"normality_scores.size(): {normality_scores.size()}")
+                    # TODO: check below
+                    normality_scores = torch.max(pred.detach().cpu(), dim=1).values
+                    # print(f"pred.size(): {pred.size()}")
+                    # print(f"normality_scores.size(): {normality_scores.size()}")
 
-                if verbose == 1:
-                    batch_label_list.append(original_targets.detach().clone().cpu())
-                    batch_normality_scores_list.append(normality_scores.detach().clone().cpu())
+                    if verbose == 1:
+                        batch_label_list.append(label.detach().clone().cpu())
+                        batch_normality_scores_list.append(normality_scores.detach().clone().cpu())
+            else:
+                for batch_idx, (x, labels, original_index, poison_indicator, original_targets) in enumerate(test_dataloader):
+                    x = x.to(device, non_blocking=self.non_blocking)
+                    # print(f"original_targets[:5]: {original_targets[:5]}")
+                    original_targets = original_targets.to(device, non_blocking=self.non_blocking)
+                    pred = model(x)
+
+                    #TODO: check below
+                    normality_scores = torch.max(pred.detach().cpu(), dim=1).values
+                    # print(f"pred.size(): {pred.size()}")
+                    # print(f"normality_scores.size(): {normality_scores.size()}")
+
+                    if verbose == 1:
+                        batch_label_list.append(original_targets.detach().clone().cpu())
+                        batch_normality_scores_list.append(normality_scores.detach().clone().cpu())
 
         auc = roc_auc_score(torch.cat(batch_label_list).detach().cpu().numpy(), torch.cat(batch_normality_scores_list).detach().cpu().numpy())
 
@@ -1895,6 +1912,7 @@ class BackdoorModelTrainer(ModelTrainerCLS_v2):
                                    train_dataloader,
                                    clean_test_dataloader,
                                    bd_test_dataloader,
+                                   clean_test_dataloader_ood,
                                    bd_test_dataloader_ood,
                                    total_epoch_num,
                                    criterion,
@@ -1913,6 +1931,7 @@ class BackdoorModelTrainer(ModelTrainerCLS_v2):
         test_dataloader_dict = {
                 "clean_test_dataloader":clean_test_dataloader,
                 "bd_test_dataloader":bd_test_dataloader,
+                "clean_test_dataloader_ood": clean_test_dataloader_ood,
                 "bd_test_dataloader_ood":bd_test_dataloader_ood,
             }
 
@@ -1984,7 +2003,9 @@ class BackdoorModelTrainer(ModelTrainerCLS_v2):
             bd_test_epoch_original_index_list, \
             bd_test_epoch_poison_indicator_list, \
             bd_test_epoch_original_targets_list = self.test_given_dataloader_on_mix(self.test_dataloader_dict["bd_test_dataloader"], verbose=1)
-            test_auc = self.test_ood_given_dataloader(self.test_dataloader_dict["bd_test_dataloader_ood"], verbose=1) #TODO
+
+            clean_test_auc = self.test_ood_given_dataloader(self.test_dataloader_dict["clean_test_dataloader_ood"], verbose=1, clean_dataset = True) #TODO
+            bd_test_auc = self.test_ood_given_dataloader(self.test_dataloader_dict["bd_test_dataloader_ood"], verbose=1, clean_dataset = False) #TODO
 
             bd_test_loss_avg_over_batch = bd_metrics["test_loss_avg_over_batch"]
             test_asr = all_acc(bd_test_epoch_predict_list, bd_test_epoch_label_list)
@@ -2003,7 +2024,8 @@ class BackdoorModelTrainer(ModelTrainerCLS_v2):
                     "test_acc" : test_acc,
                     "test_asr" : test_asr,
                     "test_ra" : test_ra,
-                    "test_auc": test_auc
+                    "clean_test_auc": clean_test_auc,
+                    "bd_test_auc": bd_test_auc
                 }
             )
 
