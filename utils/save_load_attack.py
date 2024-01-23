@@ -261,7 +261,7 @@ def load_attack_result(
             test_label_transform,
         )
 
-        bd_test_dataset_ood = prepro_cls_DatasetBD_v2(test_dataset_without_transform)
+        bd_test_dataset_ood = prepro_cls_DatasetBD_v2(test_dataset_without_transform_ood)
         bd_test_dataset_ood.set_state(
             load_file['bd_test_ood']
         )
