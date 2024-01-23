@@ -180,7 +180,7 @@ class NormalCase:
         test_img_transform_ood, \
         test_label_transform_ood = dataset_and_transform_generate_ood(args)
 
-        self.count_unique_labels_of_dataset(test_dataset_without_transform_ood, "test_dataset_without_transform_ood")
+        # self.count_unique_labels_of_dataset(test_dataset_without_transform_ood, "test_dataset_without_transform_ood")
 
         logging.debug("dataset_and_transform_generate done")
 

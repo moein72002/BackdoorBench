@@ -107,7 +107,7 @@ def save_attack_result(
     :param save_path : str,
     '''
 
-    count_unique_labels_of_preprocessed_dataset(bd_test_ood, "bd_test_ood")
+    # count_unique_labels_of_preprocessed_dataset(bd_test_ood, "bd_test_ood")
 
     save_dict = {
             'model_name': model_name,

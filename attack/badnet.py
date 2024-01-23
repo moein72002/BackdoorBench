@@ -189,7 +189,7 @@ class BadNet(NormalCase):
             save_folder_path=f"{args.save_path}/bd_test_dataset",
         )
 
-        self.count_unique_labels_of_preprocessed_dataset(bd_test_dataset_ood, "bd_test_dataset_ood")
+        # self.count_unique_labels_of_preprocessed_dataset(bd_test_dataset_ood, "bd_test_dataset_ood")
         print(f"bd_test_dataset_ood[0]: {bd_test_dataset_ood[0]}")
         print(f"len(bd_test_dataset_ood): {len(bd_test_dataset_ood)}")
 

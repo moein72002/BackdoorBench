@@ -491,8 +491,8 @@ class abl(defense):
                                                         num_workers=self.args.num_workers, drop_last=False,
                                                         shuffle=True, pin_memory=args.pin_memory)
 
-        self.count_unique_labels_of_dataset(data_clean_testset_ood, "data_clean_testset_ood")
-        self.count_unique_labels_of_preprocessed_dataset(data_bd_testset_ood, "data_bd_testset_ood")
+        # self.count_unique_labels_of_dataset(data_clean_testset_ood, "data_clean_testset_ood")
+        # self.count_unique_labels_of_preprocessed_dataset(data_bd_testset_ood, "data_bd_testset_ood")
 
         train_loss_list = []
         train_mix_acc_list = []
