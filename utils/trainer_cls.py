@@ -1240,6 +1240,25 @@ class ModelTrainerCLS_v2():
                     verbose,
             )
 
+    def test_given_dataloader_ood(self, test_dataloader, device = None, verbose = 0, clean_dataset = True):
+
+        if device is None:
+            device = self.device
+
+        model = self.model
+        non_blocking = self.non_blocking
+
+        # def test_ood_given_dataloader(model, test_dataloader, non_blocking: bool = False, device="cpu", verbose=0, clean_dataset=True):
+
+        return test_ood_given_dataloader(
+                    model,
+                    test_dataloader,
+                    non_blocking,
+                    device,
+                    verbose,
+                    clean_dataset
+            )
+
     def test_all_inner_dataloader(self):
         metrics_dict = {}
         for name, test_dataloader in self.test_dataloader_dict.items():
@@ -1771,6 +1790,11 @@ class PureCleanModelTrainer(ModelTrainerCLS_v2):
         clean_test_epoch_label_list, \
             = self.test_given_dataloader(test_dataloader_dict["clean_test_dataloader"], verbose=1)
 
+        clean_test_auc = self.test_given_dataloader_ood(self.test_dataloader_dict["clean_test_dataloader_ood"],
+                                                        verbose=1, clean_dataset=True)
+        bd_test_auc = self.test_given_dataloader_ood(self.test_dataloader_dict["bd_test_dataloader_ood"], verbose=1,
+                                                     clean_dataset=False)
+
         clean_test_loss_avg_over_batch = clean_metrics["test_loss_avg_over_batch"]
         test_acc = clean_metrics["test_acc"]
 
@@ -1789,7 +1813,9 @@ class PureCleanModelTrainer(ModelTrainerCLS_v2):
                 bd_test_loss_avg_over_batch, \
                 test_acc, \
                 test_asr, \
-                test_ra
+                test_ra, \
+                clean_test_auc, \
+                bd_test_auc
                 
 
 

@@ -557,10 +557,12 @@ class anp(defense):
 
                 )
             clean_test_loss_avg_over_batch, \
-                    bd_test_loss_avg_over_batch, \
-                    test_acc, \
-                    test_asr, \
-                    test_ra = self.trainer.test_current_model(
+            bd_test_loss_avg_over_batch, \
+            test_acc, \
+            test_asr, \
+            test_ra, \
+            clean_test_auc, \
+            bd_test_auc = self.trainer.test_current_model(
                 test_dataloader_dict, args.device,
             )
             clean_test_loss_list.append(clean_test_loss_avg_over_batch)
@@ -585,6 +587,8 @@ class anp(defense):
                     "test_acc": test_acc,
                     "test_asr": test_asr,
                     "test_ra": test_ra,
+                    "clean_test_auc": clean_test_auc,
+                    "bd_test_auc": bd_test_auc
                 })
                 general_plot_for_epoch(
                     {
@@ -656,9 +660,24 @@ class anp(defense):
         data_clean_testset.wrap_img_transform = test_tran
         clean_test_loader = DataLoader(data_clean_testset, batch_size=args.batch_size, num_workers=args.num_workers,drop_last=False, shuffle=True,pin_memory=True)
 
+        data_bd_testset_ood = self.result['bd_test_ood']
+        data_bd_testset_ood.wrap_img_transform = test_tran
+        poison_test_loader_ood = torch.utils.data.DataLoader(data_bd_testset_ood, batch_size=self.args.batch_size,
+                                                         num_workers=self.args.num_workers, drop_last=False,
+                                                         shuffle=True,
+                                                         pin_memory=args.pin_memory)
+
+        data_clean_testset_ood = self.result['clean_test_ood']
+        data_clean_testset_ood.wrap_img_transform = test_tran
+        clean_test_loader_ood = torch.utils.data.DataLoader(data_clean_testset_ood, batch_size=self.args.batch_size,
+                                                            num_workers=self.args.num_workers, drop_last=False,
+                                                            shuffle=True, pin_memory=args.pin_memory)
+
         test_dataloader_dict = {}
         test_dataloader_dict["clean_test_dataloader"] = clean_test_loader
         test_dataloader_dict["bd_test_dataloader"] = poison_test_loader
+        test_dataloader_dict["clean_test_dataloader_ood"] = clean_test_loader_ood
+        test_dataloader_dict["bd_test_dataloader_ood"] = poison_test_loader_ood
         state_dict = self.result['model']
         net = get_anp_network(args.model, num_classes=args.num_classes, norm_layer=anp_model.NoisyBatchNorm2d)
         load_state_dict(net, orig_state_dict=state_dict)
@@ -749,10 +768,12 @@ class anp(defense):
                 )
             agg = Metric_Aggregator()
             clean_test_loss_avg_over_batch, \
-                    bd_test_loss_avg_over_batch, \
-                    test_acc, \
-                    test_asr, \
-                    test_ra = self.trainer.test_current_model(
+            bd_test_loss_avg_over_batch, \
+            test_acc, \
+            test_asr, \
+            test_ra, \
+            clean_test_auc, \
+            bd_test_auc = self.trainer.test_current_model(
                 test_dataloader_dict, self.args.device,
             )
             agg({
@@ -761,6 +782,8 @@ class anp(defense):
                     "test_acc": test_acc,
                     "test_asr": test_asr,
                     "test_ra": test_ra,
+                    "clean_test_auc": clean_test_auc,
+                    "bd_test_auc": bd_test_auc
                 })
             agg.to_dataframe().to_csv(f"{args.save_path}anp_df_summary.csv")
             result = {}
@@ -801,7 +824,9 @@ class anp(defense):
                 bd_test_loss_avg_over_batch, \
                 test_acc, \
                 test_asr, \
-                test_ra = self.trainer.test_current_model(
+                test_ra, \
+                clean_test_auc, \
+                bd_test_auc = self.trainer.test_current_model(
             test_dataloader_dict, self.args.device,
         )
         agg({
@@ -810,6 +835,8 @@ class anp(defense):
                 "test_acc": test_acc,
                 "test_asr": test_asr,
                 "test_ra": test_ra,
+                "clean_test_auc": clean_test_auc,
+                "bd_test_auc": bd_test_auc
             })
         agg.to_dataframe().to_csv(f"{args.save_path}anp_df_summary.csv")
         result = {}
