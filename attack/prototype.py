@@ -150,6 +150,19 @@ class NormalCase:
         print(f"\nCount of Unique Labels of {dataset_name}:")
         for label, count in label_counts.items():
             print(f"{label}: {count}")
+
+    def count_unique_labels_of_preprocessed_dataset(self, dataset, dataset_name):
+        label_counts = {}
+
+        # Enumerate through the train_dataset
+        for i, (x, label, original_index, poison_indicator, original_target) in enumerate(dataset):
+            # Count the occurrences of each label
+            label_counts[label] = label_counts.get(label, 0) + 1
+
+        # Print the count of unique labels
+        print(f"\nCount of Unique Labels of {dataset_name}:")
+        for label, count in label_counts.items():
+            print(f"{label}: {count}")
     def benign_prepare(self):
 
         assert 'args' in self.__dict__
