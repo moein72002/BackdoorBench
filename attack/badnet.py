@@ -156,6 +156,10 @@ class BadNet(NormalCase):
         print(f"test_poison_index[:10]: {test_poison_index[:10]}")
 
         ### generate test dataset for ASR
+
+        print(f"len(test_dataset_without_transform): {len(test_dataset_without_transform)}")
+        print(f"test_dataset_without_transform[0]: {test_dataset_without_transform[0]}")
+
         bd_test_dataset = prepro_cls_DatasetBD_v2(
             deepcopy(test_dataset_without_transform),
             poison_indicator=test_poison_index,

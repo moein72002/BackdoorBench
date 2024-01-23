@@ -52,6 +52,8 @@ def generate_single_target_attack_train_poison_index(
                     poison_index[list(non_zero_array)] = 1
         else:
             if p_num is not None or round(pratio * len(targets)):
+                print(f"tlabel: {tlabel}")
+                print(f"targets[:10]: {targets[:10]}")
                 if p_num is not None:
                     non_zero_array = np.random.choice(np.where(targets == tlabel)[0], p_num, replace = False)
                     poison_index[list(non_zero_array)] = 1
