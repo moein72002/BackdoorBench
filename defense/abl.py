@@ -390,6 +390,19 @@ class abl(defense):
         for label, count in label_counts.items():
             print(f"{label}: {count}")
 
+    def count_unique_labels_of_preprocessed_dataset(self, dataset, dataset_name):
+        label_counts = {}
+
+        # Enumerate through the train_dataset
+        for i, (x, label, original_index, poison_indicator, original_target) in enumerate(dataset):
+            # Count the occurrences of each label
+            label_counts[original_target] = label_counts.get(original_target, 0) + 1
+
+        # Print the count of unique labels
+        print(f"\nCount of Unique Labels of {dataset_name}:")
+        for label, count in label_counts.items():
+            print(f"{label}: {count}")
+
     def pre_train(self, args, result):
         '''Pretrain the model with raw data
         args:
@@ -479,7 +492,7 @@ class abl(defense):
                                                         shuffle=True, pin_memory=args.pin_memory)
 
         self.count_unique_labels_of_dataset(data_clean_testset_ood, "data_clean_testset_ood")
-        self.count_unique_labels_of_dataset(data_bd_testset_ood, "data_bd_testset_ood")
+        self.count_unique_labels_of_preprocessed_dataset(data_bd_testset_ood, "data_bd_testset_ood")
 
         train_loss_list = []
         train_mix_acc_list = []
