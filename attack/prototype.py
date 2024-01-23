@@ -157,7 +157,7 @@ class NormalCase:
         # Enumerate through the train_dataset
         for i, (x, label, original_index, poison_indicator, original_target) in enumerate(dataset):
             # Count the occurrences of each label
-            label_counts[label] = label_counts.get(label, 0) + 1
+            label_counts[original_target] = label_counts.get(original_target, 0) + 1
 
         # Print the count of unique labels
         print(f"\nCount of Unique Labels of {dataset_name}:")
