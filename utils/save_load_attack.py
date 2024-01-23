@@ -65,6 +65,18 @@ def sample_pil_imgs(pil_image_list, save_folder, num = 5,):
         if 0 <= ii < len(pil_image_list):
             pil_image_list[ii].save(f"{save_folder}/{ii}.png")
 
+def count_unique_labels_of_preprocessed_dataset(dataset, dataset_name):
+    label_counts = {}
+
+    # Enumerate through the train_dataset
+    for i, (x, label, original_index, poison_indicator, original_target) in enumerate(dataset):
+        # Count the occurrences of each label
+        label_counts[original_target] = label_counts.get(original_target, 0) + 1
+
+    # Print the count of unique labels
+    print(f"\nCount of Unique Labels of {dataset_name}:")
+    for label, count in label_counts.items():
+        print(f"{label}: {count}")
 def save_attack_result(
     model_name : str,
     num_classes : int,
@@ -94,6 +106,8 @@ def save_attack_result(
     :param bd_test : torch.utils.data.Dataset, # dataset without transform
     :param save_path : str,
     '''
+
+    count_unique_labels_of_preprocessed_dataset(bd_test_ood, "bd_test_ood")
 
     save_dict = {
             'model_name': model_name,
