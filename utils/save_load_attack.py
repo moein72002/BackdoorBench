@@ -21,7 +21,9 @@ from copy import deepcopy
 from pprint import pformat
 from typing import Union
 
-from utils.aggregate_block.dataset_and_transform_generate import dataset_and_transform_generate
+from utils.aggregate_block.dataset_and_transform_generate import dataset_and_transform_generate, \
+    dataset_and_transform_generate_ood
+
 
 def summary_dict(input_dict):
     '''
@@ -172,6 +174,7 @@ def load_attack_result(
         'clean_data',
         'bd_train',
         'bd_test',
+        'bd_test_ood'
         ]):
 
         logging.info('key match for attack_result, processing...')
@@ -197,6 +200,10 @@ def load_attack_result(
         test_img_transform, \
         test_label_transform = dataset_and_transform_generate(clean_setting)
 
+        test_dataset_without_transform_ood, \
+        test_img_transform_ood, \
+        test_label_transform_ood = dataset_and_transform_generate_ood(clean_setting) # TODO: check this line
+
         clean_train_dataset_with_transform = dataset_wrapper_with_transform(
             train_dataset_without_transform,
             train_img_transform,
@@ -207,6 +214,12 @@ def load_attack_result(
             test_dataset_without_transform,
             test_img_transform,
             test_label_transform,
+        )
+
+        clean_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
+            test_dataset_without_transform_ood,
+            test_img_transform_ood,
+            test_label_transform_ood,
         )
 
         if load_file['bd_train'] is not None:
@@ -236,12 +249,12 @@ def load_attack_result(
 
         bd_test_dataset_ood = prepro_cls_DatasetBD_v2(test_dataset_without_transform)
         bd_test_dataset_ood.set_state(
-            load_file['bd_test']
+            load_file['bd_test_ood']
         )
         bd_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
             bd_test_dataset_ood,
-            test_img_transform,
-            test_label_transform,
+            test_img_transform_ood,
+            test_label_transform_ood,
         )
 
         new_dict = copy.deepcopy(load_file['model'])
@@ -258,6 +271,7 @@ def load_attack_result(
                 'clean_test' : clean_test_dataset_with_transform,
                 'bd_train': bd_train_dataset_with_transform,
                 'bd_test': bd_test_dataset_with_transform,
+                'clean_test_ood': clean_test_dataset_with_transform_ood,
                 'bd_test_ood': bd_test_dataset_with_transform_ood
             }
 

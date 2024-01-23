@@ -649,6 +649,58 @@ def given_dataloader_test(
     elif verbose == 1:
         return metrics, torch.cat(batch_predict_list), torch.cat(batch_label_list)
 
+
+def test_ood_given_dataloader(model, test_dataloader, non_blocking : bool = False, device = "cpu", verbose = 0, clean_dataset = True):
+
+    model.to(device, non_blocking=non_blocking)
+    model.eval()
+
+    if verbose == 1:
+        batch_label_list = []
+        batch_normality_scores_list = []
+
+    with torch.no_grad():
+        if clean_dataset:
+            for batch_idx, (x, label) in enumerate(
+                    test_dataloader):
+                x = x.to(device, non_blocking=non_blocking)
+                # print(f"original_targets[:5]: {original_targets[:5]}")
+                label = label.to(device, non_blocking=non_blocking)
+                pred = model(x)
+
+                # TODO: check below
+                normality_scores = torch.max(pred.detach().cpu(), dim=1).values
+                # print(f"pred.size(): {pred.size()}")
+                # print(f"normality_scores.size(): {normality_scores.size()}")
+
+                if verbose == 1:
+                    batch_label_list.append(label.detach().clone().cpu())
+                    batch_normality_scores_list.append(normality_scores.detach().clone().cpu())
+        else:
+            for batch_idx, (x, labels, original_index, poison_indicator, original_targets) in enumerate(test_dataloader):
+                x = x.to(device, non_blocking=non_blocking)
+                # print(f"original_targets[:5]: {original_targets[:5]}")
+                original_targets = original_targets.to(device, non_blocking=non_blocking)
+                pred = model(x)
+
+                #TODO: check below
+                normality_scores = torch.max(pred.detach().cpu(), dim=1).values
+                # print(f"pred.size(): {pred.size()}")
+                # print(f"normality_scores.size(): {normality_scores.size()}")
+
+                if verbose == 1:
+                    batch_label_list.append(original_targets.detach().clone().cpu())
+                    batch_normality_scores_list.append(normality_scores.detach().clone().cpu())
+
+    auc = roc_auc_score(torch.cat(batch_label_list).detach().cpu().numpy(), torch.cat(batch_normality_scores_list).detach().cpu().numpy())
+
+    print(f"auc: {auc}")
+
+    if verbose == 0:
+        return None
+    elif verbose == 1:
+        return auc
+
 def test_given_dataloader_on_mix(model, test_dataloader,  criterion, device = None, non_blocking=True, verbose = 0):
 
 
