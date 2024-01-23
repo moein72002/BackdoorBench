@@ -377,6 +377,19 @@ class abl(defense):
         result = self.mitigation()
         return result
 
+    def count_unique_labels_of_dataset(self, dataset, dataset_name):
+        label_counts = {}
+
+        # Enumerate through the train_dataset
+        for i, (data, label) in enumerate(dataset):
+            # Count the occurrences of each label
+            label_counts[label] = label_counts.get(label, 0) + 1
+
+        # Print the count of unique labels
+        print(f"\nCount of Unique Labels of {dataset_name}:")
+        for label, count in label_counts.items():
+            print(f"{label}: {count}")
+
     def pre_train(self, args, result):
         '''Pretrain the model with raw data
         args:
@@ -464,6 +477,9 @@ class abl(defense):
         data_clean_loader_ood = torch.utils.data.DataLoader(data_clean_testset_ood, batch_size=self.args.batch_size,
                                                         num_workers=self.args.num_workers, drop_last=False,
                                                         shuffle=True, pin_memory=args.pin_memory)
+
+        self.count_unique_labels_of_dataset(data_clean_testset_ood, "data_clean_testset_ood")
+        self.count_unique_labels_of_dataset(data_bd_testset_ood, "data_bd_testset_ood")
 
         train_loss_list = []
         train_mix_acc_list = []
