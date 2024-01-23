@@ -194,9 +194,9 @@ class BadNet(NormalCase):
         print(f"len(bd_test_dataset_ood): {len(bd_test_dataset_ood)}")
 
         # TODO: check here
-        bd_test_dataset_ood.subset(
-            np.where(test_poison_index_ood == 1)[0]
-        )
+        # bd_test_dataset_ood.subset(
+        #     np.where(test_poison_index_ood == 1)[0]
+        # )
 
         print("after subset")
         print(f"len(bd_test_dataset_ood): {len(bd_test_dataset_ood)}")
