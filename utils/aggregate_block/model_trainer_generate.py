@@ -175,7 +175,7 @@ def generate_cls_model(
         net = convnext_tiny(num_classes=num_classes, **{k: v for k, v in kwargs.items() if k != "pretrained"})
         partially_load_state_dict(net, net_from_imagenet.state_dict())
     else:
-        raise SystemError('NO valid model match in function generate_cls_model!')
+        raise SystemError(f'NO valid model match {model_name} in function generate_cls_model!')
 
     return net
 
