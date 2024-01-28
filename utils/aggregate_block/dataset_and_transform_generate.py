@@ -44,8 +44,8 @@ def get_num_classes(dataset_name: str) -> int:
 def get_input_shape(dataset_name: str) -> Tuple[int, int, int]:
     # idea : given name, return the image size of images in the dataset
     if dataset_name == "cifar10":
-        input_height = 32
-        input_width = 32
+        input_height = 224
+        input_width = 224
         input_channel = 3
     elif dataset_name == "gtsrb":
         input_height = 32
