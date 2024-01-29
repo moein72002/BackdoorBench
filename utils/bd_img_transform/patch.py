@@ -53,7 +53,7 @@ class SimpleAdditiveTrigger(object):
     def __init__(self,
                  trigger_array : np.ndarray,
                  ):
-        self.trigger_array = trigger_array.astype(np.float)
+        self.trigger_array = trigger_array.astype(float)
 
     def __call__(self, img, target = None, image_serial_id = None):
         return self.add_trigger(img)
