@@ -59,7 +59,7 @@ class SimpleAdditiveTrigger(object):
         return self.add_trigger(img)
 
     def add_trigger(self, img):
-        return np.clip(img.astype(np.float) + self.trigger_array, 0, 255).astype(np.uint8)
+        return np.clip(img.astype(np.float64) + self.trigger_array, 0, 255).astype(np.uint8)
 
 import matplotlib.pyplot as plt
 def test_Simple():
