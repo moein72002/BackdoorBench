@@ -177,6 +177,7 @@ def load_data():
     print(f"Loading image folder {args.data_dir} ...")
     dataset = CustomImageFolder(args.data_dir, transform=transform) 
     print(f"Finished. Loading took {time() - s:.2f}s")
+    print(f"len(dataset): {len(dataset)}")
 
 def main():
     now = datetime.now()
@@ -233,7 +234,8 @@ def main():
 
     global_step = 0
     steps_since_l2_loss_activated = -1
-    
+
+    print(f"len(dataset): {len(dataset)}")
 
     for i_epoch in range(args.num_epochs):
         dataloader = DataLoader(
