@@ -63,12 +63,18 @@ class SIG(BadNet):
         clean_train_dataset_with_transform, \
         clean_train_dataset_targets, \
         clean_test_dataset_with_transform, \
-        clean_test_dataset_targets \
+        clean_test_dataset_targets, \
+        test_dataset_without_transform_ood, \
+        test_img_transform_ood, \
+        test_label_transform_ood, \
+        clean_test_dataset_with_transform_ood, \
+        clean_test_dataset_targets_ood \
             = self.benign_prepare()
 
         train_bd_img_transform, test_bd_img_transform = bd_attack_img_trans_generate(args)
         ### get the backdoor transform on label
         bd_label_transform = bd_attack_label_trans_generate(args)
+        bd_label_transform_ood = bd_attack_label_trans_generate(args, is_ood_dataset=True)
 
         ### 4. set the backdoor attack data and backdoor test data
         train_poison_index = generate_poison_index_from_label_transform(
@@ -120,16 +126,34 @@ class SIG(BadNet):
             np.where(test_poison_index == 1)[0]
         )
 
+        test_poison_index_ood = np.concatenate((np.zeros(10000), np.ones(10000)))
+
+        bd_test_dataset_ood = prepro_cls_DatasetBD_v2(
+            deepcopy(test_dataset_without_transform_ood),
+            poison_indicator=test_poison_index_ood,
+            bd_image_pre_transform=test_bd_img_transform,  # TODO: check here
+            bd_label_pre_transform=bd_label_transform_ood,
+            save_folder_path=f"{args.save_path}/bd_test_dataset",
+        )
+
         bd_test_dataset_with_transform = dataset_wrapper_with_transform(
             bd_test_dataset,
             test_img_transform,
             test_label_transform,
         )
 
+        bd_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
+            bd_test_dataset_ood,
+            test_img_transform_ood,
+            test_label_transform_ood,
+        )
+
         self.stage1_results = clean_train_dataset_with_transform, \
                               clean_test_dataset_with_transform, \
                               bd_train_dataset_with_transform, \
-                              bd_test_dataset_with_transform
+                              bd_test_dataset_with_transform, \
+                              clean_test_dataset_with_transform_ood, \
+                              bd_test_dataset_with_transform_ood
 
 
 if __name__ == '__main__':
