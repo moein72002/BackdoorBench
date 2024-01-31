@@ -170,6 +170,8 @@ class BadNet(NormalCase):
 
         test_poison_index_ood = np.concatenate((np.zeros(10000), np.ones(10000)))
 
+        self.count_unique_labels_of_dataset(test_dataset_without_transform_ood, "test_dataset_without_transform_ood")
+
         bd_test_dataset_ood = prepro_cls_DatasetBD_v2(
             deepcopy(test_dataset_without_transform_ood),
             poison_indicator=test_poison_index_ood,
@@ -178,7 +180,6 @@ class BadNet(NormalCase):
             save_folder_path=f"{args.save_path}/bd_test_dataset",
         )
 
-        self.count_unique_labels_of_dataset(test_dataset_without_transform_ood, "test_dataset_without_transform_ood")
         self.count_unique_labels_of_preprocessed_dataset(bd_test_dataset_ood, "bd_test_dataset_ood")
 
         # TODO: check here
