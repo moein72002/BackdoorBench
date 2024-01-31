@@ -1086,6 +1086,8 @@ class InputAware(BadNet):
                         label=int(targets1[torch.where(position_changed.detach().clone().cpu())[0][idx_in_batch]]),
                     )
 
+        self.count_unique_labels_of_dataset(clean_test_dataset_with_transform, "clean_test_dataset_with_transform")
+
         self.bd_test_dataset.subset(
             np.where(self.bd_test_dataset.poison_indicator == 1)[0].tolist()
         )
@@ -1094,10 +1096,16 @@ class InputAware(BadNet):
             self.bd_test_dataset,
             clean_test_dataset_with_transform.wrap_img_transform,
         )
+
+        self.count_unique_labels_of_preprocessed_dataset(self.bd_test_dataset, "self.bd_test_dataset")
+
         bd_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
             self.bd_test_dataset_ood,
             clean_test_dataset_with_transform_ood.wrap_img_transform,
         )
+
+        self.count_unique_labels_of_preprocessed_dataset(self.bd_test_dataset_ood, "self.bd_test_dataset_ood")
+
         bd_test_dataloader = DataLoader(bd_test_dataset_with_transform,
                                         pin_memory=args.pin_memory,
                                         batch_size=args.batch_size,
