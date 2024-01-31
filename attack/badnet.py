@@ -161,6 +161,9 @@ class BadNet(NormalCase):
             save_folder_path=f"{args.save_path}/bd_test_dataset",
         )
 
+        self.count_unique_labels_of_dataset(test_dataset_without_transform, "test_dataset_without_transform")
+        self.count_unique_labels_of_preprocessed_dataset(bd_test_dataset, "bd_test_dataset")
+
         bd_test_dataset.subset(
             np.where(test_poison_index == 1)[0]
         )
@@ -174,6 +177,9 @@ class BadNet(NormalCase):
             bd_label_pre_transform=bd_label_transform_ood,
             save_folder_path=f"{args.save_path}/bd_test_dataset",
         )
+
+        self.count_unique_labels_of_dataset(test_dataset_without_transform_ood, "test_dataset_without_transform_ood")
+        self.count_unique_labels_of_preprocessed_dataset(bd_test_dataset_ood, "bd_test_dataset_ood")
 
         # TODO: check here
         # bd_test_dataset_ood.subset(
