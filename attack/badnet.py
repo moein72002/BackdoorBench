@@ -152,14 +152,7 @@ class BadNet(NormalCase):
             train=False,
         )
 
-        print(f"len(test_poison_index): {len(test_poison_index)}")
-        print(f"test_poison_index[:10]: {test_poison_index[:10]}")
-
         ### generate test dataset for ASR
-
-        print(f"len(test_dataset_without_transform): {len(test_dataset_without_transform)}")
-        print(f"test_dataset_without_transform[0]: {test_dataset_without_transform[0]}")
-
         bd_test_dataset = prepro_cls_DatasetBD_v2(
             deepcopy(test_dataset_without_transform),
             poison_indicator=test_poison_index,
@@ -168,16 +161,9 @@ class BadNet(NormalCase):
             save_folder_path=f"{args.save_path}/bd_test_dataset",
         )
 
-        print(f"len(bd_test_dataset): {len(bd_test_dataset)}")
-        print(f"bd_test_dataset[0]: {bd_test_dataset[0]}")
-
         bd_test_dataset.subset(
             np.where(test_poison_index == 1)[0]
         )
-
-        print("after subset")
-        print(f"len(bd_test_dataset): {len(bd_test_dataset)}")
-        print(f"bd_test_dataset[0]: {bd_test_dataset[0]}")
 
         test_poison_index_ood = np.concatenate((np.zeros(10000), np.ones(10000)))
 
@@ -189,19 +175,10 @@ class BadNet(NormalCase):
             save_folder_path=f"{args.save_path}/bd_test_dataset",
         )
 
-        # self.count_unique_labels_of_preprocessed_dataset(bd_test_dataset_ood, "bd_test_dataset_ood")
-        print(f"bd_test_dataset_ood[0]: {bd_test_dataset_ood[0]}")
-        print(f"len(bd_test_dataset_ood): {len(bd_test_dataset_ood)}")
-
         # TODO: check here
         # bd_test_dataset_ood.subset(
         #     np.where(test_poison_index_ood == 1)[0]
         # )
-
-        print("after subset")
-        print(f"len(bd_test_dataset_ood): {len(bd_test_dataset_ood)}")
-        print(f"bd_test_dataset_ood[0]: {bd_test_dataset_ood[0]}")
-        # self.count_unique_labels_of_dataset(bd_test_dataset_ood, "bd_test_dataset_ood")
 
         bd_test_dataset_with_transform = dataset_wrapper_with_transform(
             bd_test_dataset,
