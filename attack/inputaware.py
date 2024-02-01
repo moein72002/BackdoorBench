@@ -1114,7 +1114,7 @@ class InputAware(BadNet):
                         label=int(targets1[torch.where(position_changed.detach().clone().cpu())[0][idx_in_batch]]),
                     )
 
-        self.count_unique_labels_of_dataset(clean_test_dataset_with_transform, "clean_test_dataset_with_transform")
+        # self.count_unique_labels_of_dataset(clean_test_dataset_with_transform, "clean_test_dataset_with_transform")
         self.visualize_random_samples_from_clean_dataset(clean_test_dataset_with_transform.wrapped_dataset, "clean_test_dataset_with_transform.wrapped_dataset")
 
         self.bd_test_dataset.subset(
@@ -1126,7 +1126,7 @@ class InputAware(BadNet):
             clean_test_dataset_with_transform.wrap_img_transform,
         )
 
-        self.count_unique_labels_of_preprocessed_dataset(self.bd_test_dataset, "self.bd_test_dataset")
+        # self.count_unique_labels_of_preprocessed_dataset(self.bd_test_dataset, "self.bd_test_dataset")
         self.visualize_random_samples_from_bd_dataset(self.bd_test_dataset, "self.bd_test_dataset")
 
         bd_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
@@ -1134,7 +1134,7 @@ class InputAware(BadNet):
             clean_test_dataset_with_transform_ood.wrap_img_transform,
         )
 
-        self.count_unique_labels_of_preprocessed_dataset(self.bd_test_dataset_ood, "self.bd_test_dataset_ood")
+        # self.count_unique_labels_of_preprocessed_dataset(self.bd_test_dataset_ood, "self.bd_test_dataset_ood")
         self.visualize_random_samples_from_bd_dataset(self.bd_test_dataset_ood, "self.bd_test_dataset_ood")
 
         bd_test_dataloader = DataLoader(bd_test_dataset_with_transform,
