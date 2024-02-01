@@ -1087,7 +1087,7 @@ class InputAware(BadNet):
                     )
 
         self.count_unique_labels_of_dataset(clean_test_dataset_with_transform, "clean_test_dataset_with_transform")
-        self.visualize_random_samples_from_clean_dataset(clean_test_dataset_with_transform, "clean_test_dataset_with_transform")
+        self.visualize_random_samples_from_clean_dataset(clean_test_dataset_with_transform.wrapped_dataset, "clean_test_dataset_with_transform.wrapped_dataset")
 
         self.bd_test_dataset.subset(
             np.where(self.bd_test_dataset.poison_indicator == 1)[0].tolist()
