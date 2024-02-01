@@ -1087,6 +1087,7 @@ class InputAware(BadNet):
                     )
 
         self.count_unique_labels_of_dataset(clean_test_dataset_with_transform, "clean_test_dataset_with_transform")
+        self.visualize_random_samples_from_clean_dataset(clean_test_dataset_with_transform, "clean_test_dataset_with_transform")
 
         self.bd_test_dataset.subset(
             np.where(self.bd_test_dataset.poison_indicator == 1)[0].tolist()
@@ -1098,6 +1099,7 @@ class InputAware(BadNet):
         )
 
         self.count_unique_labels_of_preprocessed_dataset(self.bd_test_dataset, "self.bd_test_dataset")
+        self.visualize_random_samples_from_bd_dataset(self.bd_test_dataset, "self.bd_test_dataset")
 
         bd_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
             self.bd_test_dataset_ood,
@@ -1105,6 +1107,7 @@ class InputAware(BadNet):
         )
 
         self.count_unique_labels_of_preprocessed_dataset(self.bd_test_dataset_ood, "self.bd_test_dataset_ood")
+        self.visualize_random_samples_from_bd_dataset(self.bd_test_dataset_ood, "self.bd_test_dataset_ood")
 
         bd_test_dataloader = DataLoader(bd_test_dataset_with_transform,
                                         pin_memory=args.pin_memory,
