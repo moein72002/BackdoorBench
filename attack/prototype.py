@@ -4,7 +4,7 @@ this script is for basic normal training
 
 import os
 import sys
-from random import random
+import random
 from torchvision import transforms
 import matplotlib.pyplot as plt
 
