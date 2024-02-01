@@ -819,6 +819,34 @@ class InputAware(BadNet):
             bd_inputs = inputs + (patterns - inputs) * masks_output
             return bd_inputs, bd_targets, patterns, masks_output, position_changed, targets
 
+    def create_bd_ood(self, inputs, targets, netG, netM, args, train_or_test):
+        if train_or_test == 'train':
+            bd_targets = self.create_targets_bd(targets, args)
+            if inputs.__len__() == 0:  # for case that no sample should be poisoned
+                return inputs, bd_targets, inputs.detach().clone(), inputs.detach().clone()
+            patterns = netG(inputs)
+            patterns = self.normalizer(patterns)
+
+            masks_output = self.threshold(netM(inputs))
+            bd_inputs = inputs + (patterns - inputs) * masks_output
+            return bd_inputs, bd_targets, patterns, masks_output
+        if train_or_test == 'test':
+            bd_targets = self.create_targets_bd(targets, args)
+
+            # In below line 1 is in dist label, and we want to put trigger on out data
+            position_changed = (targets != 1)  # no matter all2all or all2one, we want location changed to tell whether the bd is effective
+
+            inputs, bd_targets = inputs[position_changed], bd_targets[position_changed]
+
+            if inputs.__len__() == 0:  # for case that no sample should be poisoned
+                return torch.tensor([]), torch.tensor([]), None, None, position_changed, targets
+            patterns = netG(inputs)
+            patterns = self.normalizer(patterns)
+
+            masks_output = self.threshold(netM(inputs))
+            bd_inputs = inputs + (patterns - inputs) * masks_output
+            return bd_inputs, bd_targets, patterns, masks_output, position_changed, targets
+
     def create_cross(self, inputs1, inputs2, netG, netM, args):
         if inputs1.__len__() == 0:  # for case that no sample should be poisoned
             return inputs2.detach().clone(), inputs2, inputs2.detach().clone()
@@ -1069,7 +1097,7 @@ class InputAware(BadNet):
                 inputs1, targets1 = inputs1.to(self.device, non_blocking=args.non_blocking), targets1.to(self.device,
                                                                                                          non_blocking=args.non_blocking)
 
-                inputs_bd, targets_bd, _, _, position_changed, targets = self.create_bd(inputs1, targets1, netG, netM,
+                inputs_bd, targets_bd, _, _, position_changed, targets = self.create_bd_ood(inputs1, targets1, netG, netM,
                                                                                         args,
                                                                                         'test')
 
