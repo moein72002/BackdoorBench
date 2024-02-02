@@ -271,6 +271,8 @@ class TrojanNN(BadNet):
             train_label_transform,
         )
 
+        self.visualize_random_samples_from_bd_dataset(bd_train_dataset, "bd_train_dataset")
+
         ### decide which img to poison in ASR Test
         test_poison_index = generate_poison_index_from_label_transform(
             clean_test_dataset_targets,
@@ -307,11 +309,15 @@ class TrojanNN(BadNet):
             test_label_transform,
         )
 
+        self.visualize_random_samples_from_bd_dataset(bd_test_dataset, "bd_test_dataset")
+
         bd_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
             bd_test_dataset_ood,
             test_img_transform_ood,
             test_label_transform_ood,
         )
+
+        self.visualize_random_samples_from_bd_dataset(bd_test_dataset_ood, "bd_test_dataset_ood")
 
         self.stage1_results = clean_train_dataset_with_transform, \
                               clean_test_dataset_with_transform, \
