@@ -403,10 +403,16 @@ class Wanet(BadNet):
             self.bd_test_dataset,
             clean_test_dataset_with_transform.wrap_img_transform,
         )
+
+        self.visualize_random_samples_from_bd_dataset(self.bd_test_dataset, "self.bd_test_dataset")
+
         bd_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
             self.bd_test_dataset_ood,
             clean_test_dataset_with_transform_ood.wrap_img_transform,
         )
+
+        self.visualize_random_samples_from_bd_dataset(self.bd_test_dataset_ood, "self.bd_test_dataset_ood")
+
         self.bd_test_dataset.subset(
             np.where(self.bd_test_dataset.poison_indicator == 1)[0].tolist()
         )
