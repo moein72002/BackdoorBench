@@ -177,7 +177,7 @@ class BadNet(NormalCase):
             poison_indicator=test_poison_index_ood,
             bd_image_pre_transform=test_bd_img_transform, # TODO: check here
             bd_label_pre_transform=bd_label_transform_ood,
-            save_folder_path=f"{args.save_path}/bd_test_dataset",
+            save_folder_path=f"{args.save_path}/bd_test_dataset_ood",
         )
 
         self.count_unique_labels_of_preprocessed_dataset(bd_test_dataset_ood, "bd_test_dataset_ood")
