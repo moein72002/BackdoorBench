@@ -140,11 +140,9 @@ class corruption_dataset_wrapper_with_transform(torch.utils.data.Dataset):
         img, label, *other_info = self.wrapped_dataset[index]
         x = self.wrapped_dataset.data[index]
         y = self.wrapped_dataset.labels_10[index]
-        if self.wrapped_dataset.transform:
-            x = Image.fromarray((x).astype(np.uint8))
-            x = self.wrapped_dataset.transform(x)
 
         if self.wrap_img_transform is not None:
+            x = Image.fromarray((x).astype(np.uint8))
             x = self.wrap_img_transform(x)
         if self.wrap_label_transform is not None:
             y = self.wrap_label_transform(y)
