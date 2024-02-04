@@ -24,7 +24,7 @@ from utils.aggregate_block.save_path_generate import generate_save_folder
 from utils.aggregate_block.dataset_and_transform_generate import get_num_classes, get_input_shape
 from utils.aggregate_block.fix_random import fix_random
 from utils.aggregate_block.dataset_and_transform_generate import dataset_and_transform_generate, dataset_and_transform_generate_ood
-from utils.bd_dataset_v2 import dataset_wrapper_with_transform, get_labels
+from utils.bd_dataset_v2 import dataset_wrapper_with_transform, get_labels, corruption_dataset_wrapper_with_transform
 from utils.aggregate_block.model_trainer_generate import generate_cls_model
 from utils.aggregate_block.train_settings_generate import argparser_opt_scheduler, argparser_criterion
 from utils.log_assist import get_git_info
@@ -225,7 +225,7 @@ class NormalCase:
 
         clean_test_dataset_targets = get_labels(test_dataset_without_transform)
 
-        clean_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
+        clean_test_dataset_with_transform_ood = corruption_dataset_wrapper_with_transform(
             test_dataset_without_transform_ood,
             test_img_transform_ood,
             test_label_transform_ood,

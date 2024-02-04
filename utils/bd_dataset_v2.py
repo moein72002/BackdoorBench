@@ -111,6 +111,57 @@ class dataset_wrapper_with_transform(torch.utils.data.Dataset):
         return dataset_wrapper_with_transform(copy.deepcopy(self.wrapped_dataset), copy.deepcopy(self.wrap_img_transform), copy.deepcopy(self.wrap_label_transform))
 
 
+class corruption_dataset_wrapper_with_transform(torch.utils.data.Dataset):
+    '''
+    idea from https://stackoverflow.com/questions/1443129/completely-wrap-an-object-in-python
+    '''
+
+    def __init__(self, obj, wrap_img_transform=None, wrap_label_transform=None):
+
+        # this warpper should NEVER be warp twice.
+        # Since the attr name may cause trouble.
+        assert not "wrap_img_transform" in obj.__dict__
+        assert not "wrap_label_transform" in obj.__dict__
+
+        self.wrapped_dataset = obj
+        self.wrap_img_transform = wrap_img_transform
+        self.wrap_label_transform = wrap_label_transform
+
+    def __getattr__(self, attr):
+        # # https://github.com/python-babel/flask-babel/commit/8319a7f44f4a0b97298d20ad702f7618e6bdab6a
+        # # https://stackoverflow.com/questions/47299243/recursionerror-when-python-copy-deepcopy
+        # if attr == "__setstate__":
+        #     raise AttributeError(attr)
+        if attr in self.__dict__:
+            return getattr(self, attr)
+        return getattr(self.wrapped_dataset, attr)
+
+    def __getitem__(self, index):
+        img, label, *other_info = self.wrapped_dataset[index]
+        x = self.wrapped_dataset.data[index]
+        y = self.wrapped_dataset.labels_10[index]
+        if self.wrapped_dataset.transform:
+            x = Image.fromarray((x).astype(np.uint8))
+            x = self.wrapped_dataset.transform(x)
+
+        if self.wrap_img_transform is not None:
+            x = self.wrap_img_transform(img)
+        if self.wrap_label_transform is not None:
+            y = self.wrap_label_transform(y)
+        return x, y
+
+    def __len__(self):
+        return len(self.wrapped_dataset)
+
+    def __deepcopy__(self, memo):
+        # In copy.deepcopy, init() will not be called and some attr will not be initialized.
+        # The getattr will be infinitely called in deepcopy process.
+        # So, we need to manually deepcopy the wrapped dataset or raise error when "__setstate__" us called. Here we choose the first solution.
+        return dataset_wrapper_with_transform(copy.deepcopy(self.wrapped_dataset),
+                                              copy.deepcopy(self.wrap_img_transform),
+                                              copy.deepcopy(self.wrap_label_transform))
+
+
 class poisonedCLSDataContainer:
     '''
     Two mode:
