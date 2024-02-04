@@ -145,7 +145,7 @@ class corruption_dataset_wrapper_with_transform(torch.utils.data.Dataset):
             x = self.wrapped_dataset.transform(x)
 
         if self.wrap_img_transform is not None:
-            x = self.wrap_img_transform(img)
+            x = self.wrap_img_transform(x)
         if self.wrap_label_transform is not None:
             y = self.wrap_label_transform(y)
         return x, y
