@@ -226,6 +226,9 @@ class BadNet(NormalCase):
         corruption_name_list, \
             = self.stage1_results
 
+        print(f"args.clean_train: {args.clean_train}")
+        self.count_unique_labels_of_preprocessed_dataset(bd_train_dataset_with_transform, "bd_train_dataset_with_transform")
+
         self.net = generate_cls_model(
             model_name=args.model,
             num_classes=args.num_classes,
@@ -261,6 +264,7 @@ class BadNet(NormalCase):
             for corruption_name in corruption_name_list:
                 corruption_test_dataloaders_dict[corruption_name] = DataLoader(clean_test_dataset_with_transform, batch_size=args.batch_size, shuffle=False, drop_last=False,
                        pin_memory=args.pin_memory, num_workers=args.num_workers, )
+
 
         trainer.train_with_test_each_epoch_on_mix(
             DataLoader(bd_train_dataset_with_transform, batch_size=args.batch_size, shuffle=True, drop_last=True,
