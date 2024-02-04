@@ -391,7 +391,7 @@ def dataset_and_transform_generate(args):
                 for corruption_name in corruption_name_list:
                     corruption_test_dataset_without_transform_dict[corruption_name] = CIFAR_CORRUCPION(transform=None,
                                                                                                cifar_corruption_label = 'CIFAR-10-C/labels.npy',
-                                                                                               cifar_corruption_data = f'./CIFAR-10-C/{corruption_name}.npy', severity_level = args.corruption.severity_level)
+                                                                                               cifar_corruption_data = f'./CIFAR-10-C/{corruption_name}.npy', severity_level = args.severity_level)
 
         elif args.dataset == 'cifar100':
             from torchvision.datasets import CIFAR100
