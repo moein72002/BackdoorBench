@@ -2065,6 +2065,7 @@ class BackdoorModelTrainer(ModelTrainerCLS_v2):
                                    corruption_test_dataloaders_dict,
                                    corruption_name_list,
                                    test_corruption,
+                                   severity_level,
                                    total_epoch_num,
                                    criterion,
                                    optimizer,
@@ -2146,13 +2147,15 @@ class BackdoorModelTrainer(ModelTrainerCLS_v2):
             test_corruption_acc_dict = {}
 
             if test_corruption == 'true':
-                corruption_metrics_dict, \
-                test_corruption_epoch_predict_list, \
-                test_corruption_epoch_label_list, \
-                    = self.test_corruption_given_dataloader(self.test_dataloader_dict["corruption_test_dataloaders_dict"], corruption_name_list, verbose=0)
+                corruption_metrics_dict, _, _ = self.test_corruption_given_dataloader(self.test_dataloader_dict["corruption_test_dataloaders_dict"], corruption_name_list, verbose=0)
 
+                test_corruption_avg_acc = 0
                 for corruption_name in corruption_name_list:
                     test_corruption_acc_dict[f"{corruption_name}_test_acc_corruption"] = corruption_metrics_dict[corruption_name]["test_acc"]
+                    test_corruption_avg_acc += test_corruption_acc_dict[f"{corruption_name}_test_acc_corruption"]
+
+                test_corruption_acc_dict[f"test_corruption_avg_acc_{severity_level}"] = test_corruption_avg_acc / len(corruption_name_list)
+
 
 
 

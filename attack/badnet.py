@@ -262,7 +262,7 @@ class BadNet(NormalCase):
         if args.test_corruption == 'true':
             corruption_test_dataloaders_dict = {}
             for corruption_name in corruption_name_list:
-                corruption_test_dataloaders_dict[corruption_name] = DataLoader(clean_test_dataset_with_transform, batch_size=args.batch_size, shuffle=False, drop_last=False,
+                corruption_test_dataloaders_dict[corruption_name] = DataLoader(corruption_test_dataset_with_transform_dict[corruption_name], batch_size=args.batch_size, shuffle=False, drop_last=False,
                        pin_memory=args.pin_memory, num_workers=args.num_workers, )
 
 
@@ -280,6 +280,7 @@ class BadNet(NormalCase):
             corruption_test_dataloaders_dict,
             corruption_name_list,
             args.test_corruption,
+            args.severity_level,
             args.epochs,
             criterion=criterion,
             optimizer=optimizer,
