@@ -146,7 +146,7 @@ class BadNet(NormalCase):
         )
 
         self.visualize_random_samples_from_bd_dataset(bd_train_dataset, "bd_train_dataset")
-        self.count_unique_labels_of_dataset(corruption_test_dataset_with_transform_dict["snow"], "corruption_test_dataset_with_transform_dict[\"snow\"]")
+        self.count_unique_labels_of_dataset(corruption_test_dataset_with_transform_dict["snow"].wrapped_dataset, "corruption_test_dataset_with_transform_dict[\"snow\"].wrapped_dataset")
 
         bd_train_dataset_with_transform = dataset_wrapper_with_transform(
             bd_train_dataset,
