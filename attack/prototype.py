@@ -214,7 +214,7 @@ class NormalCase:
         if args.test_corruption == 'true':
             corruption_test_dataset_with_transform_dict = {}
             for corruption_name in corruption_name_list:
-                corruption_test_dataset_with_transform_dict[corruption_name] = dataset_wrapper_with_transform(
+                corruption_test_dataset_with_transform_dict[corruption_name] = corruption_dataset_wrapper_with_transform(
                     corruption_test_dataset_without_transform_dict[corruption_name],
                     test_img_transform,
                     test_label_transform,
@@ -225,7 +225,7 @@ class NormalCase:
 
         clean_test_dataset_targets = get_labels(test_dataset_without_transform)
 
-        clean_test_dataset_with_transform_ood = corruption_dataset_wrapper_with_transform(
+        clean_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
             test_dataset_without_transform_ood,
             test_img_transform_ood,
             test_label_transform_ood,
