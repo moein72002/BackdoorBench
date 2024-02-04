@@ -220,7 +220,7 @@ class NormalCase:
                     test_label_transform,
                 )
 
-        self.visualize_random_samples_from_clean_dataset(corruption_test_dataset_with_transform_dict['snow'], "corruption_test_dataset_with_transform_dict['snow']")
+        self.visualize_random_samples_from_clean_dataset(corruption_test_dataset_without_transform_dict['snow'], "corruption_test_dataset_without_transform_dict['snow']")
 
         clean_test_dataset_targets = get_labels(test_dataset_without_transform)
 
