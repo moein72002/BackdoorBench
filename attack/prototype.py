@@ -71,6 +71,9 @@ class NormalCase:
         parser.add_argument('--git_hash', type=str,
                             help='git hash number, in order to find which version of code is used')
         parser.add_argument("--yaml_path", type=str, default="../config/attack/prototype/cifar10.yaml")
+        parser.add_argument("--clean_train", type=lambda x: str(x) in ['true', 'false'], default="false")
+        parser.add_argument("--test_corruption", type=lambda x: str(x) in ['true', 'false'], default="false")
+        parser.add_argument("--severity_level", type=int, default=0)
         return parser
 
     def add_yaml_to_args(self, args):
@@ -178,7 +181,10 @@ class NormalCase:
         train_label_transform, \
         test_dataset_without_transform, \
         test_img_transform, \
-        test_label_transform = dataset_and_transform_generate(args)
+        test_label_transform, \
+        corruption_test_dataset_without_transform_dict, \
+        corruption_name_list, \
+            = dataset_and_transform_generate(args)
 
         test_dataset_without_transform_ood, \
         test_img_transform_ood, \
@@ -201,6 +207,20 @@ class NormalCase:
             test_img_transform,
             test_label_transform,
         )
+
+        corruption_test_dataset_with_transform_dict = None
+
+        print(f"corruption_name_list: {corruption_name_list}")
+        if args.test_corruption == 'true':
+            corruption_test_dataset_with_transform_dict = {}
+            for corruption_name in corruption_name_list:
+                corruption_test_dataset_with_transform_dict[corruption_name] = dataset_wrapper_with_transform(
+                    corruption_test_dataset_without_transform_dict[corruption_name],
+                    test_img_transform,
+                    test_label_transform,
+                )
+
+        self.visualize_random_samples_from_clean_dataset(corruption_test_dataset_with_transform_dict['snow'], "corruption_test_dataset_with_transform_dict['snow']")
 
         clean_test_dataset_targets = get_labels(test_dataset_without_transform)
 
@@ -226,7 +246,9 @@ class NormalCase:
                test_img_transform_ood, \
                test_label_transform_ood, \
                clean_test_dataset_with_transform_ood, \
-               clean_test_dataset_targets_ood
+               clean_test_dataset_targets_ood, \
+               corruption_test_dataset_with_transform_dict, \
+               corruption_name_list, \
 
     def stage1_non_training_data_prepare(self):
 
@@ -252,6 +274,8 @@ class NormalCase:
         test_label_transform_ood, \
         clean_test_dataset_with_transform_ood, \
         clean_test_dataset_targets_ood, \
+        corruption_test_dataset_with_transform_dict, \
+        corruption_name_list, \
             = self.benign_prepare()
 
         self.stage1_results = clean_train_dataset_with_transform, \

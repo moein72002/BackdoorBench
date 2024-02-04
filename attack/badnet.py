@@ -108,7 +108,9 @@ class BadNet(NormalCase):
         test_img_transform_ood, \
         test_label_transform_ood, \
         clean_test_dataset_with_transform_ood, \
-        clean_test_dataset_targets_ood \
+        clean_test_dataset_targets_ood, \
+        corruption_test_dataset_with_transform_dict, \
+        corruption_name_list, \
             = self.benign_prepare()
 
         train_bd_img_transform, test_bd_img_transform = bd_attack_img_trans_generate(args)
@@ -130,6 +132,10 @@ class BadNet(NormalCase):
                    args.save_path + '/train_poison_index_list.pickle',
                    )
 
+        if args.clean_train == 'true':
+            # if clean_train == true: bd_train_dataset will be like clean_train_dataset
+            train_poison_index = np.zeros(len(train_dataset_without_transform))
+
         ### generate train dataset for backdoor attack
         bd_train_dataset = prepro_cls_DatasetBD_v2(
             deepcopy(train_dataset_without_transform),
@@ -138,6 +144,9 @@ class BadNet(NormalCase):
             bd_label_pre_transform=bd_label_transform,
             save_folder_path=f"{args.save_path}/bd_train_dataset",
         )
+
+        self.visualize_random_samples_from_bd_dataset(bd_train_dataset, "bd_train_dataset")
+        self.count_unique_labels_of_dataset(corruption_test_dataset_with_transform_dict["snow"], "corruption_test_dataset_with_transform_dict[\"snow\"]")
 
         bd_train_dataset_with_transform = dataset_wrapper_with_transform(
             bd_train_dataset,
@@ -161,16 +170,12 @@ class BadNet(NormalCase):
             save_folder_path=f"{args.save_path}/bd_test_dataset",
         )
 
-        self.count_unique_labels_of_dataset(test_dataset_without_transform, "test_dataset_without_transform")
-        self.count_unique_labels_of_preprocessed_dataset(bd_test_dataset, "bd_test_dataset")
-
         bd_test_dataset.subset(
             np.where(test_poison_index == 1)[0]
         )
 
         test_poison_index_ood = np.concatenate((np.zeros(10000), np.ones(10000)))
 
-        self.count_unique_labels_of_dataset(test_dataset_without_transform_ood, "test_dataset_without_transform_ood")
 
         bd_test_dataset_ood = prepro_cls_DatasetBD_v2(
             deepcopy(test_dataset_without_transform_ood),
@@ -179,8 +184,6 @@ class BadNet(NormalCase):
             bd_label_pre_transform=bd_label_transform_ood,
             save_folder_path=f"{args.save_path}/bd_test_dataset_ood",
         )
-
-        self.count_unique_labels_of_preprocessed_dataset(bd_test_dataset_ood, "bd_test_dataset_ood")
 
         # TODO: check here
         # bd_test_dataset_ood.subset(
@@ -204,7 +207,9 @@ class BadNet(NormalCase):
                               bd_train_dataset_with_transform, \
                               bd_test_dataset_with_transform, \
                               clean_test_dataset_with_transform_ood, \
-                              bd_test_dataset_with_transform_ood
+                              bd_test_dataset_with_transform_ood, \
+                              corruption_test_dataset_with_transform_dict, \
+                              corruption_name_list, \
 
     def stage2_training(self):
         logging.info(f"stage2 start")
@@ -217,6 +222,8 @@ class BadNet(NormalCase):
         bd_test_dataset_with_transform, \
         clean_test_dataset_with_transform_ood, \
         bd_test_dataset_with_transform_ood, \
+        corruption_test_dataset_with_transform_dict, \
+        corruption_name_list, \
             = self.stage1_results
 
         self.net = generate_cls_model(
@@ -247,6 +254,14 @@ class BadNet(NormalCase):
         optimizer, scheduler = argparser_opt_scheduler(self.net, args)
 
         from torch.utils.data.dataloader import DataLoader
+
+        corruption_test_dataloaders_dict = None
+        if args.test_corruption == 'true':
+            corruption_test_dataloaders_dict = {}
+            for corruption_name in corruption_name_list:
+                corruption_test_dataloaders_dict[corruption_name] = DataLoader(clean_test_dataset_with_transform, batch_size=args.batch_size, shuffle=False, drop_last=False,
+                       pin_memory=args.pin_memory, num_workers=args.num_workers, )
+
         trainer.train_with_test_each_epoch_on_mix(
             DataLoader(bd_train_dataset_with_transform, batch_size=args.batch_size, shuffle=True, drop_last=True,
                        pin_memory=args.pin_memory, num_workers=args.num_workers, ),
@@ -258,6 +273,9 @@ class BadNet(NormalCase):
                        pin_memory=args.pin_memory, num_workers=args.num_workers, ),
             DataLoader(bd_test_dataset_with_transform_ood, batch_size=args.batch_size, shuffle=False, drop_last=False,
                        pin_memory=args.pin_memory, num_workers=args.num_workers, ),
+            corruption_test_dataloaders_dict,
+            corruption_name_list,
+            args.test_corruption,
             args.epochs,
             criterion=criterion,
             optimizer=optimizer,

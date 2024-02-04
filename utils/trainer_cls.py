@@ -649,6 +649,58 @@ def given_dataloader_test(
     elif verbose == 1:
         return metrics, torch.cat(batch_predict_list), torch.cat(batch_label_list)
 
+def given_dataloader_test_corruption(
+        model,
+        test_corruption_dataloaders_dict,
+        corruption_name_list,
+        criterion,
+        non_blocking: bool = False,
+        device="cpu",
+        verbose: int = 0
+):
+    model.to(device, non_blocking=non_blocking)
+    model.eval()
+    metrics_dict = {}
+
+    for corruption_name in corruption_name_list:
+        metrics = {
+            'test_correct': 0,
+            'test_loss_sum_over_batch': 0,
+            'test_total': 0,
+        }
+        criterion = criterion.to(device, non_blocking=non_blocking)
+
+        # if verbose == 1:
+        #     batch_predict_list, batch_label_list = [], []
+
+        with torch.no_grad():
+            for batch_idx, (x, target, *additional_info) in enumerate(test_corruption_dataloaders_dict[corruption_name]):
+                x = x.to(device, non_blocking=non_blocking)
+                target = target.to(device, non_blocking=non_blocking)
+                pred = model(x)
+                loss = criterion(pred, target.long())
+
+                _, predicted = torch.max(pred, -1)
+                correct = predicted.eq(target).sum()
+
+                # if verbose == 1:
+                #     batch_predict_list.append(predicted.detach().clone().cpu())
+                #     batch_label_list.append(target.detach().clone().cpu())
+
+                metrics['test_correct'] += correct.item()
+                metrics['test_loss_sum_over_batch'] += loss.item()
+                metrics['test_total'] += target.size(0)
+
+        metrics['test_loss_avg_over_batch'] = metrics['test_loss_sum_over_batch'] / len(test_corruption_dataloaders_dict[corruption_name])
+        metrics['test_acc'] = metrics['test_correct'] / metrics['test_total']
+
+        metrics_dict[corruption_name] = metrics
+
+    if verbose == 0:
+        return metrics_dict, None, None
+    # elif verbose == 1:
+    #     return metrics_dict, torch.cat(batch_predict_list), torch.cat(batch_label_list)
+
 
 def test_ood_given_dataloader(model, test_dataloader, non_blocking : bool = False, device = "cpu", verbose = 0, clean_dataset = True):
 
@@ -1234,6 +1286,24 @@ class ModelTrainerCLS_v2():
         return given_dataloader_test(
                     model,
                     test_dataloader,
+                    self.criterion,
+                    non_blocking,
+                    device,
+                    verbose,
+            )
+
+    def test_corruption_given_dataloader(self, test_corruption_dataloaders_dict, corruption_name_list, device = None, verbose = 0):
+
+        if device is None:
+            device = self.device
+
+        model = self.model
+        non_blocking = self.non_blocking
+
+        return given_dataloader_test_corruption(
+                    model,
+                    test_corruption_dataloaders_dict,
+                    corruption_name_list,
                     self.criterion,
                     non_blocking,
                     device,
@@ -1992,6 +2062,9 @@ class BackdoorModelTrainer(ModelTrainerCLS_v2):
                                    bd_test_dataloader,
                                    clean_test_dataloader_ood,
                                    bd_test_dataloader_ood,
+                                   corruption_test_dataloaders_dict,
+                                   corruption_name_list,
+                                   test_corruption,
                                    total_epoch_num,
                                    criterion,
                                    optimizer,
@@ -2011,6 +2084,7 @@ class BackdoorModelTrainer(ModelTrainerCLS_v2):
                 "bd_test_dataloader":bd_test_dataloader,
                 "clean_test_dataloader_ood": clean_test_dataloader_ood,
                 "bd_test_dataloader_ood":bd_test_dataloader_ood,
+                "corruption_test_dataloaders_dict":corruption_test_dataloaders_dict
             }
 
         self.set_with_dataloader(
@@ -2067,10 +2141,20 @@ class BackdoorModelTrainer(ModelTrainerCLS_v2):
                 train_epoch_original_targets_list[train_bd_idx],
             )
 
-            clean_metrics, \
-            clean_test_epoch_predict_list, \
-            clean_test_epoch_label_list, \
-             = self.test_given_dataloader(self.test_dataloader_dict["clean_test_dataloader"], verbose=1)
+            clean_metrics, _, _ = self.test_given_dataloader(self.test_dataloader_dict["clean_test_dataloader"], verbose=1)
+
+            test_corruption_acc_dict = {}
+
+            if test_corruption == 'true':
+                corruption_metrics_dict, \
+                test_corruption_epoch_predict_list, \
+                test_corruption_epoch_label_list, \
+                    = self.test_corruption_given_dataloader(self.test_dataloader_dict["corruption_test_dataloaders_dict"], corruption_name_list, verbose=0)
+
+                for corruption_name in corruption_name_list:
+                    test_corruption_acc_dict[f"{corruption_name}_test_acc_corruption"] = corruption_metrics_dict[corruption_name]["test_acc"]
+
+
 
             clean_test_loss_avg_over_batch = clean_metrics["test_loss_avg_over_batch"]
             test_acc = clean_metrics["test_acc"]
@@ -2103,7 +2187,8 @@ class BackdoorModelTrainer(ModelTrainerCLS_v2):
                     "test_asr" : test_asr,
                     "test_ra" : test_ra,
                     "clean_test_auc": clean_test_auc,
-                    "bd_test_auc": bd_test_auc
+                    "bd_test_auc": bd_test_auc,
+                    **test_corruption_acc_dict
                 }
             )
 

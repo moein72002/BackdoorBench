@@ -175,6 +175,41 @@ class GaussianBlur(object):
         return x
 
 
+from torch.utils.data import Dataset
+from PIL import Image
+import os
+from torchvision.datasets.utils import download_and_extract_archive
+
+class CIFAR_CORRUCPION(Dataset):
+    def __init__(self, transform=None, cifar_corruption_label='CIFAR-10-C/labels.npy',
+                 cifar_corruption_data='./CIFAR-10-C/defocus_blur.npy', severity_level=0):
+        self.labels_10 = np.load(cifar_corruption_label)
+        self.labels_10 = self.labels_10[:10000]
+        self.num_severity_level = 5
+        self.data = np.load(cifar_corruption_data)
+        self.data = np.split(self.data, self.num_severity_level)[severity_level]
+        self.transform = transform
+
+    def __getitem__(self, index):
+        x = self.data[index]
+        y = self.labels_10[index]
+        if self.transform:
+            x = Image.fromarray((x).astype(np.uint8))
+            x = self.transform(x)
+        return x, y
+
+    def __len__(self):
+        return len(self.data)
+
+
+def download_cifar10_corrupted_dataset():
+    url = 'https://zenodo.org/records/2535967/files/CIFAR-10-C.tar'
+
+    # Download and extract the dataset
+    if not os.path.exists('cifar10-c'):
+        download_and_extract_archive(url, '.')
+
+
 def get_transform_self(dataset_name, input_height, input_width, train=True, prefetch=False):
     # idea : given name, return the final implememnt transforms for the dataset during self-supervised learning
     transforms_list = []
@@ -306,6 +341,8 @@ def dataset_and_transform_generate(args):
 
     train_label_transform = None
     test_label_transform = None
+    corruption_test_dataset_without_transform_dict = None
+    corruption_name_list = None
 
     train_dataset_without_transform, test_dataset_without_transform = None, None
 
@@ -343,6 +380,19 @@ def dataset_and_transform_generate(args):
                 transform=None,
                 download=True,
             )
+            if args.test_corruption == 'true':
+                download_cifar10_corrupted_dataset()
+
+                directory_path = "./CIFAR-10-C/"
+                corruption_name_list = [f[:-4] for f in os.listdir(directory_path) if
+                                        os.path.isfile(os.path.join(directory_path, f)) and f[:-4] != "labels"]
+
+                corruption_test_dataset_without_transform_dict = {}
+                for corruption_name in corruption_name_list:
+                    corruption_test_dataset_without_transform_dict[corruption_name] = CIFAR_CORRUCPION(transform=None,
+                                                                                               cifar_corruption_label = 'CIFAR-10-C/labels.npy',
+                                                                                               cifar_corruption_data = f'./CIFAR-10-C/{corruption_name}.npy', severity_level = args.corruption.severity_level)
+
         elif args.dataset == 'cifar100':
             from torchvision.datasets import CIFAR100
             train_dataset_without_transform = CIFAR100(
@@ -408,4 +458,6 @@ def dataset_and_transform_generate(args):
            train_label_transform, \
            test_dataset_without_transform, \
            test_img_transform, \
-           test_label_transform
+           test_label_transform, \
+           corruption_test_dataset_without_transform_dict, \
+           corruption_name_list
