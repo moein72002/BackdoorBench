@@ -1423,7 +1423,12 @@ class Blind(BadNet):
         clean_train_dataset_with_transform, \
         clean_train_dataset_targets, \
         clean_test_dataset_with_transform, \
-        clean_test_dataset_targets \
+        clean_test_dataset_targets, \
+        test_dataset_without_transform_ood, \
+        test_img_transform_ood, \
+        test_label_transform_ood, \
+        clean_test_dataset_with_transform_ood, \
+        clean_test_dataset_targets_ood \
             = self.benign_prepare()
 
         self.trans = transforms.Compose([
@@ -1467,6 +1472,8 @@ class Blind(BadNet):
         ### get the backdoor transform on label
         bd_label_transform = bd_attack_label_trans_generate(args)
         self.bd_label_transform = bd_label_transform
+        bd_label_transform_ood = bd_attack_label_trans_generate(args, is_ood_dataset=True)
+        self.bd_label_transform_ood = bd_label_transform_ood
 
         # NO poison samples in, just use as clean, real poison is done in batchwise way
         bd_train_dataset = prepro_cls_DatasetBD_v2(
@@ -1490,6 +1497,8 @@ class Blind(BadNet):
             train=False,
         )
 
+        test_poison_index_ood = np.concatenate((np.zeros(10000), np.ones(10000)))
+
         ### generate test dataset for ASR
         bd_test_dataset = prepro_cls_DatasetBD_v2(
             deepcopy(test_dataset_without_transform),
@@ -1497,6 +1506,14 @@ class Blind(BadNet):
             bd_image_pre_transform=test_bd_img_transform,
             bd_label_pre_transform=bd_label_transform,
             save_folder_path=f"{args.save_path}/bd_test_dataset",
+        )
+
+        bd_test_dataset_ood = prepro_cls_DatasetBD_v2(
+            deepcopy(test_dataset_without_transform_ood),
+            poison_indicator=test_poison_index_ood,
+            bd_image_pre_transform=test_bd_img_transform,
+            bd_label_pre_transform=bd_label_transform_ood,
+            save_folder_path=f"{args.save_path}/bd_test_dataset_ood",
         )
 
         bd_test_dataset.subset(
@@ -1509,10 +1526,18 @@ class Blind(BadNet):
             test_label_transform,
         )
 
+        bd_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
+            bd_test_dataset_ood,
+            test_img_transform_ood,
+            test_label_transform_ood,
+        )
+
         self.stage1_results = clean_train_dataset_with_transform, \
                               clean_test_dataset_with_transform, \
                               bd_train_dataset_with_transform, \
-                              bd_test_dataset_with_transform
+                              bd_test_dataset_with_transform, \
+                              clean_test_dataset_with_transform_ood, \
+                              bd_test_dataset_with_transform_ood
 
     def stage2_training(self):
         logging.info(f"stage2 start")
@@ -1522,7 +1547,10 @@ class Blind(BadNet):
         clean_train_dataset_with_transform, \
         clean_test_dataset_with_transform, \
         bd_train_dataset_with_transform, \
-        bd_test_dataset_with_transform = self.stage1_results
+        bd_test_dataset_with_transform, \
+        clean_test_dataset_with_transform_ood, \
+        bd_test_dataset_with_transform_ood \
+            = self.stage1_results
 
         device = torch.device(
             (
@@ -1583,6 +1611,7 @@ class Blind(BadNet):
             clean_data=args.dataset,
             bd_train=None,
             bd_test=bd_test_dataset_with_transform,
+            bd_test_ood=bd_test_dataset_with_transform_ood,
             save_path=args.save_path,
         )
 
