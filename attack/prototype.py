@@ -71,8 +71,8 @@ class NormalCase:
         parser.add_argument('--git_hash', type=str,
                             help='git hash number, in order to find which version of code is used')
         parser.add_argument("--yaml_path", type=str, default="../config/attack/prototype/cifar10.yaml")
-        parser.add_argument("--clean_train", type=lambda x: str(x) in ['true', 'false'], default="false")
-        parser.add_argument("--test_corruption", type=lambda x: str(x) in ['true', 'false'], default="false")
+        parser.add_argument("--clean_train", type=str, default="true")
+        parser.add_argument("--test_corruption", type=str, default="true")
         parser.add_argument("--severity_level", type=int, default=0)
         return parser
 
