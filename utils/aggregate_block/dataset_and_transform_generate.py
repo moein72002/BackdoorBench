@@ -211,7 +211,7 @@ def get_blended_images_for_test_exposure():
     # Blend images
     blended_images = []
     for img1, img2 in zip(cifar10_train_target_class, cifar100_testset):
-        blended_img = Image.blend(img1, img2, 0.5)  # Blend two images with ratio 0.5
+        blended_img = Image.blend(img1[0], img2[0], 0.5)  # Blend two images with ratio 0.5
         blended_images.append(blended_img)  # Assign label 0
 
     print("Blended dataset size:", len(blended_images))
