@@ -15,7 +15,8 @@ import logging, time
 
 from typing import Optional
 import torch, os
-from utils.bd_dataset_v2 import prepro_cls_DatasetBD_v2, dataset_wrapper_with_transform
+from utils.bd_dataset_v2 import prepro_cls_DatasetBD_v2, dataset_wrapper_with_transform, \
+    corruption_dataset_wrapper_with_transform
 import numpy as np
 from copy import deepcopy
 from pprint import pformat
@@ -87,7 +88,7 @@ def save_attack_result(
     bd_test : prepro_cls_DatasetBD_v2, # MUST be dataset without transform
     save_path : str,
     bd_test_ood : prepro_cls_DatasetBD_v2,
-    corruption_test_dataloaders_dict: dict,
+    corruption_test_dataset_with_transform_dict: dict,
     corruption_name_list: list, # TODO: CHECK HERE
     test_corruption: str,
     severity_level: int,
@@ -123,7 +124,7 @@ def save_attack_result(
             'bd_train': bd_train.retrieve_state() if bd_train is not None else None,
             'bd_test': bd_test.retrieve_state(),
             'bd_test_ood': bd_test_ood.retrieve_state(),
-            'corruption_test_dataloaders_dict': corruption_test_dataloaders_dict,
+            'corruption_test_dataset_with_transform_dict': corruption_test_dataset_with_transform_dict,
             'corruption_name_list': corruption_name_list,
             'test_corruption': test_corruption,
             'severity_level': severity_level,
@@ -220,7 +221,9 @@ def load_attack_result(
         train_label_transform, \
         test_dataset_without_transform, \
         test_img_transform, \
-        test_label_transform = dataset_and_transform_generate(clean_setting)
+        test_label_transform, \
+        corruption_test_dataset_without_transform_dict, \
+        corruption_name_list = dataset_and_transform_generate(clean_setting)
 
         test_dataset_without_transform_ood, \
         test_img_transform_ood, \
@@ -237,6 +240,19 @@ def load_attack_result(
             test_img_transform,
             test_label_transform,
         )
+
+        corruption_test_dataset_with_transform_dict = None
+
+        print(f"corruption_name_list: {corruption_name_list}")
+        if load_file['test_corruption'] == 'true':
+            corruption_test_dataset_with_transform_dict = {}
+            for corruption_name in corruption_name_list:
+                corruption_test_dataset_with_transform_dict[
+                    corruption_name] = corruption_dataset_wrapper_with_transform(
+                    corruption_test_dataset_without_transform_dict[corruption_name],
+                    test_img_transform,
+                    test_label_transform,
+                )
 
         clean_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
             test_dataset_without_transform_ood,
@@ -295,7 +311,7 @@ def load_attack_result(
                 'bd_test': bd_test_dataset_with_transform,
                 'clean_test_ood': clean_test_dataset_with_transform_ood,
                 'bd_test_ood': bd_test_dataset_with_transform_ood,
-                'corruption_test_dataloaders_dict': load_file['corruption_test_dataloaders_dict'],
+                'corruption_test_dataset_with_transform_dict': corruption_test_dataset_with_transform_dict,
                 'corruption_name_list': load_file['corruption_name_list'],
                 'test_corruption': load_file['test_corruption'],
                 'severity_level': load_file['severity_level'],

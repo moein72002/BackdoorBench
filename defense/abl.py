@@ -480,10 +480,19 @@ class abl(defense):
         data_clean_testset.wrap_img_transform = test_tran
         data_clean_loader = torch.utils.data.DataLoader(data_clean_testset, batch_size=self.args.batch_size, num_workers=self.args.num_workers,drop_last=False, shuffle=True,pin_memory=args.pin_memory)
 
-        corruption_test_dataloaders_dict = result['corruption_test_dataloaders_dict']
+        corruption_test_dataset_with_transform_dict = result['corruption_test_dataset_with_transform_dict']
         corruption_name_list = result['corruption_name_list']
         test_corruption = result['test_corruption']
         severity_level = result['severity_level']
+
+        corruption_test_dataloaders_dict = None
+        if args.test_corruption == 'true':
+            corruption_test_dataloaders_dict = {}
+            for corruption_name in corruption_name_list:
+                corruption_test_dataloaders_dict[corruption_name] = torch.utils.data.DataLoader(
+                    corruption_test_dataset_with_transform_dict[corruption_name], batch_size=args.batch_size,
+                    shuffle=False, drop_last=False,
+                    pin_memory=args.pin_memory, num_workers=args.num_workers, )
 
         data_bd_testset_ood = self.result['bd_test_ood']
         data_bd_testset_ood.wrap_img_transform = test_tran
