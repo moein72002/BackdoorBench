@@ -23,7 +23,7 @@ from typing import Union
 
 from utils.aggregate_block.dataset_and_transform_generate import dataset_and_transform_generate, \
     clean_dataset_and_transform_generate_ood, \
-    exposure_dataset_and_transform_generate_ood
+    exposure_dataset_and_transform_generate_ood, exposure_dataset_and_transform_generate
 
 
 def summary_dict(input_dict):
@@ -214,6 +214,8 @@ def load_attack_result(
         test_dataset_without_transform, \
         test_img_transform, \
         test_label_transform = dataset_and_transform_generate(clean_setting)
+
+        train_dataset_without_transform = exposure_dataset_and_transform_generate(clean_setting)
 
         clean_test_dataset_without_transform_ood, \
         test_img_transform_ood, \
