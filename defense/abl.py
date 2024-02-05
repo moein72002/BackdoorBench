@@ -38,7 +38,8 @@ import time
 from defense.base import defense
 
 from utils.aggregate_block.train_settings_generate import argparser_criterion
-from utils.trainer_cls import Metric_Aggregator, PureCleanModelTrainer, all_acc, general_plot_for_epoch, given_dataloader_test, test_ood_given_dataloader
+from utils.trainer_cls import Metric_Aggregator, PureCleanModelTrainer, all_acc, general_plot_for_epoch, \
+    given_dataloader_test, test_ood_given_dataloader, given_dataloader_test_corruption
 from utils.aggregate_block.fix_random import fix_random
 from utils.aggregate_block.model_trainer_generate import generate_cls_model
 from utils.log_assist import get_git_info
@@ -479,6 +480,11 @@ class abl(defense):
         data_clean_testset.wrap_img_transform = test_tran
         data_clean_loader = torch.utils.data.DataLoader(data_clean_testset, batch_size=self.args.batch_size, num_workers=self.args.num_workers,drop_last=False, shuffle=True,pin_memory=args.pin_memory)
 
+        corruption_test_dataloaders_dict = result['corruption_test_dataloaders_dict']
+        corruption_name_list = result['corruption_name_list']
+        test_corruption = result['test_corruption']
+        severity_level = result['severity_level']
+
         data_bd_testset_ood = self.result['bd_test_ood']
         data_bd_testset_ood.wrap_img_transform = test_tran
         data_bd_loader_ood = torch.utils.data.DataLoader(data_bd_testset_ood, batch_size=self.args.batch_size,
@@ -517,85 +523,92 @@ class abl(defense):
             train_asr, \
             train_ra = self.train_step(args, poisoned_data_loader, model_ascent, optimizer, criterion, epoch + 1)
 
-            clean_test_loss_avg_over_batch, \
-            bd_test_loss_avg_over_batch, \
-            ra_test_loss_avg_over_batch, \
-            test_acc, \
-            test_asr, \
-            test_ra, \
-            clean_test_auc, \
-            bd_test_auc = self.eval_step(
-                model_ascent,
-                data_clean_loader,
-                data_bd_loader,
-                data_clean_loader_ood,
-                data_bd_loader_ood,
-                args,
-            )
+            if epoch + 1 % 5 == 0 or epoch == 0 or epoch == args.tuning_epochs - 1:
+                clean_test_loss_avg_over_batch, \
+                bd_test_loss_avg_over_batch, \
+                ra_test_loss_avg_over_batch, \
+                test_acc, \
+                test_corruption_acc_dict, \
+                test_asr, \
+                test_ra, \
+                clean_test_auc, \
+                bd_test_auc = self.eval_step(
+                    model_ascent,
+                    data_clean_loader,
+                    corruption_test_dataloaders_dict,
+                    corruption_name_list,
+                    test_corruption,
+                    severity_level,
+                    data_bd_loader,
+                    data_clean_loader_ood,
+                    data_bd_loader_ood,
+                    args,
+                )
 
-            agg({
-                "epoch": epoch,
+                agg({
+                    "epoch": epoch,
 
-                "train_epoch_loss_avg_over_batch": train_epoch_loss_avg_over_batch,
-                "train_acc": train_mix_acc,
-                "train_acc_clean_only": train_clean_acc,
-                "train_asr_bd_only": train_asr,
-                "train_ra_bd_only": train_ra,
+                    "train_epoch_loss_avg_over_batch": train_epoch_loss_avg_over_batch,
+                    "train_acc": train_mix_acc,
+                    "train_acc_clean_only": train_clean_acc,
+                    "train_asr_bd_only": train_asr,
+                    "train_ra_bd_only": train_ra,
 
-                "clean_test_loss_avg_over_batch": clean_test_loss_avg_over_batch,
-                "bd_test_loss_avg_over_batch": bd_test_loss_avg_over_batch,
-                "ra_test_loss_avg_over_batch": ra_test_loss_avg_over_batch,
-                "test_acc": test_acc,
-                "test_asr": test_asr,
-                "test_ra": test_ra,
-                "clean_test_auc": clean_test_auc,
-                "bd_test_auc": bd_test_auc
-            })
+                    "clean_test_loss_avg_over_batch": clean_test_loss_avg_over_batch,
+                    "bd_test_loss_avg_over_batch": bd_test_loss_avg_over_batch,
+                    "ra_test_loss_avg_over_batch": ra_test_loss_avg_over_batch,
+                    "test_acc": test_acc,
+                    "test_asr": test_asr,
+                    "test_ra": test_ra,
+                    "clean_test_auc": clean_test_auc,
+                    "bd_test_auc": bd_test_auc,
+                    **test_corruption_acc_dict
+                })
 
-            train_loss_list.append(train_epoch_loss_avg_over_batch)
-            train_mix_acc_list.append(train_mix_acc)
-            train_clean_acc_list.append(train_clean_acc)
-            train_asr_list.append(train_asr)
-            train_ra_list.append(train_ra)
+                train_loss_list.append(train_epoch_loss_avg_over_batch)
+                train_mix_acc_list.append(train_mix_acc)
+                train_clean_acc_list.append(train_clean_acc)
+                train_asr_list.append(train_asr)
+                train_ra_list.append(train_ra)
 
-            clean_test_loss_list.append(clean_test_loss_avg_over_batch)
-            bd_test_loss_list.append(bd_test_loss_avg_over_batch)
-            ra_test_loss_list.append(ra_test_loss_avg_over_batch)
-            test_acc_list.append(test_acc)
-            test_asr_list.append(test_asr)
-            test_ra_list.append(test_ra)
+                clean_test_loss_list.append(clean_test_loss_avg_over_batch)
+                bd_test_loss_list.append(bd_test_loss_avg_over_batch)
+                ra_test_loss_list.append(ra_test_loss_avg_over_batch)
+                test_acc_list.append(test_acc)
+                test_asr_list.append(test_asr)
+                test_ra_list.append(test_ra)
 
-            general_plot_for_epoch(
-                {
-                    "Train Acc": train_mix_acc_list,
-                    "Test C-Acc": test_acc_list,
-                    "Test ASR": test_asr_list,
-                    "Test RA": test_ra_list,
-                },
-                save_path=f"{args.save_path}pre_train_acc_like_metric_plots.png",
-                ylabel="percentage",
-            )
+                general_plot_for_epoch(
+                    {
+                        "Train Acc": train_mix_acc_list,
+                        "Test C-Acc": test_acc_list,
+                        "Test ASR": test_asr_list,
+                        "Test RA": test_ra_list,
+                    },
+                    save_path=f"{args.save_path}pre_train_acc_like_metric_plots.png",
+                    ylabel="percentage",
+                )
 
-            general_plot_for_epoch(
-                {
-                    "Train Loss": train_loss_list,
-                    "Test Clean Loss": clean_test_loss_list,
-                    "Test Backdoor Loss": bd_test_loss_list,
-                    "Test RA Loss": ra_test_loss_list,
-                },
-                save_path=f"{args.save_path}pre_train_loss_metric_plots.png",
-                ylabel="percentage",
-            )
+                general_plot_for_epoch(
+                    {
+                        "Train Loss": train_loss_list,
+                        "Test Clean Loss": clean_test_loss_list,
+                        "Test Backdoor Loss": bd_test_loss_list,
+                        "Test RA Loss": ra_test_loss_list,
+                    },
+                    save_path=f"{args.save_path}pre_train_loss_metric_plots.png",
+                    ylabel="percentage",
+                )
 
-            agg.to_dataframe().to_csv(f"{args.save_path}pre_train_df.csv")
+                agg.to_dataframe().to_csv(f"{args.save_path}pre_train_df.csv")
 
-            if args.frequency_save != 0 and epoch % args.frequency_save == args.frequency_save - 1:
-                state_dict = {
-                    "model": model_ascent.state_dict(),
-                    "optimizer": optimizer.state_dict(),
-                    "epoch_current": epoch,
-                }
-                torch.save(state_dict, args.checkpoint_save + "pre_train_state_dict.pt")
+                if args.frequency_save != 0 and epoch % args.frequency_save == args.frequency_save - 1:
+                    state_dict = {
+                        "model": model_ascent.state_dict(),
+                        "optimizer": optimizer.state_dict(),
+                        "epoch_current": epoch,
+                    }
+                    torch.save(state_dict, args.checkpoint_save + "pre_train_state_dict.pt")
 
         agg.summary().to_csv(f"{args.save_path}pre_train_df_summary.csv")
 
@@ -679,6 +692,11 @@ class abl(defense):
                                                             num_workers=self.args.num_workers, drop_last=False,
                                                             shuffle=True, pin_memory=args.pin_memory)
 
+        corruption_test_dataloaders_dict = result['corruption_test_dataloaders_dict']
+        corruption_name_list = result['corruption_name_list']
+        test_corruption = result['test_corruption']
+        severity_level = result['severity_level']
+
         train_loss_list = []
         train_mix_acc_list = []
         train_clean_acc_list = []
@@ -709,12 +727,17 @@ class abl(defense):
                 bd_test_loss_avg_over_batch, \
                 ra_test_loss_avg_over_batch, \
                 test_acc, \
+                test_corruption_acc_dict, \
                 test_asr, \
                 test_ra, \
                 clean_test_auc, \
                 bd_test_auc = self.eval_step(
                     model_ascent,
                     data_clean_loader,
+                    corruption_test_dataloaders_dict,
+                    corruption_name_list,
+                    test_corruption,
+                    severity_level,
                     data_bd_loader,
                     data_clean_loader_ood,
                     data_bd_loader_ood,
@@ -803,12 +826,17 @@ class abl(defense):
             bd_test_loss_avg_over_batch, \
             ra_test_loss_avg_over_batch, \
             test_acc, \
+            test_corruption_acc_dict, \
             test_asr, \
             test_ra, \
             clean_test_auc, \
             bd_test_auc = self.eval_step(
                 model_ascent,
                 data_clean_loader,
+                corruption_test_dataloaders_dict,
+                corruption_name_list,
+                test_corruption,
+                severity_level,
                 data_bd_loader,
                 data_clean_loader_ood,
                 data_bd_loader_ood,
@@ -1050,6 +1078,10 @@ class abl(defense):
             self,
             netC,
             clean_test_dataloader,
+            corruption_test_dataloaders_dict,
+            corruption_name_list,
+            test_corruption,
+            severity_level,
             bd_test_dataloader,
             clean_test_dataloader_ood,
             bd_test_dataloader_ood,
@@ -1073,6 +1105,27 @@ class abl(defense):
             device=self.args.device,
             verbose=0,
         )
+
+        test_corruption_acc_dict = {}
+
+        if test_corruption == 'true':
+            corruption_metrics_dict, _, _ = given_dataloader_test_corruption(
+                netC,
+                corruption_test_dataloaders_dict,
+                corruption_name_list,
+                criterion=torch.nn.CrossEntropyLoss(),
+                non_blocking=args.non_blocking,
+                device=self.args.device,
+                verbose=0,)
+
+            test_corruption_avg_acc = 0
+            for corruption_name in corruption_name_list:
+                test_corruption_acc_dict[f"{corruption_name}_test_acc_corruption"] = \
+                corruption_metrics_dict[corruption_name]["test_acc"]
+                test_corruption_avg_acc += test_corruption_acc_dict[f"{corruption_name}_test_acc_corruption"]
+
+            test_corruption_acc_dict[f"test_corruption_avg_acc_{severity_level}"] = test_corruption_avg_acc / len(
+                corruption_name_list)
 
         # def test_ood_given_dataloader(model, test_dataloader, non_blocking: bool = False, device="cpu", verbose=0,
         #                               clean_dataset=True):
@@ -1102,6 +1155,7 @@ class abl(defense):
                 bd_test_loss_avg_over_batch, \
                 ra_test_loss_avg_over_batch, \
                 test_acc, \
+                test_corruption_acc_dict, \
                 test_asr, \
                 test_ra, \
                 clean_test_auc, \

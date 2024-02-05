@@ -26,8 +26,8 @@ random_seed: 0
 
 tuning_epochs: 20
 finetuning_ascent_model: True
-finetuning_epochs: 60
-unlearning_epochs: 20
+finetuning_epochs: 0
+unlearning_epochs: 0
 lr_finetuning_init: 0.1
 lr_unlearning_init: 5.0e-4
 momentum: 0.9

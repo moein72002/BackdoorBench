@@ -305,7 +305,11 @@ class BadNet(NormalCase):
             bd_train=bd_train_dataset_with_transform,
             bd_test=bd_test_dataset_with_transform,
             save_path=args.save_path,
-            bd_test_ood=bd_test_dataset_with_transform_ood
+            bd_test_ood=bd_test_dataset_with_transform_ood,
+            corruption_test_dataloaders_dict=corruption_test_dataloaders_dict,
+            corruption_name_list=corruption_name_list,
+            test_corruption=args.test_corruption,
+            severity_level=args.severity_level,
         )
 
 

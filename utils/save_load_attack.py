@@ -87,6 +87,10 @@ def save_attack_result(
     bd_test : prepro_cls_DatasetBD_v2, # MUST be dataset without transform
     save_path : str,
     bd_test_ood : prepro_cls_DatasetBD_v2,
+    corruption_test_dataloaders_dict: dict,
+    corruption_name_list: list, # TODO: CHECK HERE
+    test_corruption: str,
+    severity_level: int,
     bd_train : Optional[prepro_cls_DatasetBD_v2] = None, # MUST be dataset without transform
 ):
     '''
@@ -118,7 +122,11 @@ def save_attack_result(
             'clean_data': clean_data,
             'bd_train': bd_train.retrieve_state() if bd_train is not None else None,
             'bd_test': bd_test.retrieve_state(),
-            'bd_test_ood': bd_test_ood.retrieve_state()
+            'bd_test_ood': bd_test_ood.retrieve_state(),
+            'corruption_test_dataloaders_dict': corruption_test_dataloaders_dict,
+            'corruption_name_list': corruption_name_list,
+            'test_corruption': test_corruption,
+            'severity_level': severity_level,
         }
 
     logging.info(f"saving...")
@@ -286,7 +294,11 @@ def load_attack_result(
                 'bd_train': bd_train_dataset_with_transform,
                 'bd_test': bd_test_dataset_with_transform,
                 'clean_test_ood': clean_test_dataset_with_transform_ood,
-                'bd_test_ood': bd_test_dataset_with_transform_ood
+                'bd_test_ood': bd_test_dataset_with_transform_ood,
+                'corruption_test_dataloaders_dict': load_file['corruption_test_dataloaders_dict'],
+                'corruption_name_list': load_file['corruption_name_list'],
+                'test_corruption': load_file['test_corruption'],
+                'severity_level': load_file['severity_level'],
             }
 
         print(f"loading...")
