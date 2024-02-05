@@ -171,9 +171,10 @@ class BadNet(NormalCase):
             np.where(test_poison_index == 1)[0]
         )
 
-        test_poison_index_ood = np.concatenate((np.zeros(10000), np.ones(10000)))
+        test_poison_index_ood = np.zeros(len(test_dataset_without_transform_ood))
 
         self.count_unique_labels_of_dataset(test_dataset_without_transform_ood, "test_dataset_without_transform_ood")
+        self.visualize_random_samples_from_clean_dataset(test_dataset_without_transform_ood, "test_dataset_without_transform_ood")
 
         bd_test_dataset_ood = prepro_cls_DatasetBD_v2(
             deepcopy(test_dataset_without_transform_ood),

@@ -200,6 +200,41 @@ def get_transform_self(dataset_name, input_height, input_width, train=True, pref
         transforms_list.append(get_dataset_normalization(dataset_name))
     return transforms.Compose(transforms_list)
 
+def get_blended_images_for_test_exposure():
+    cifar10_train_target_class = CIFAR10_TRAIN_TARGET_CLASS()
+
+    cifar10_train_target_class = cifar10_train_target_class + cifar10_train_target_class
+
+    # Load CIFAR-100 dataset
+    cifar100_testset = torchvision.datasets.CIFAR100(root='./data', train=False, download=True, transform=None)
+
+    # Blend images
+    blended_images = []
+    for img1, img2 in zip(cifar10_train_target_class, cifar100_testset):
+        blended_img = Image.blend(img1, img2, 0.5)  # Blend two images with ratio 0.5
+        blended_images.append(blended_img)  # Assign label 0
+
+    print("Blended dataset size:", len(blended_images))
+
+    return blended_images
+
+class CIFAR100_BLENDED_OOD(Dataset):
+    def __init__(self, transform=None, out_dist_label=0):
+        self.transform = transform
+
+        self.data = get_blended_images_for_test_exposure()
+        self.out_dist_label = out_dist_label
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        img = self.data[idx]
+        label = self.out_dist_label
+        if self.transform:
+            img = self.tranform(img)
+        return img, label
+
 def dataset_and_transform_generate_ood(args):
     from torchvision.datasets import CIFAR10, CIFAR100
     
@@ -216,20 +251,7 @@ def dataset_and_transform_generate_ood(args):
 
     if (test_dataset_without_transform is None):
 
-        if args.dataset.startswith('test'):  # for test only
-            from torchvision.datasets import ImageFolder
-            test_dataset_without_transform = ImageFolder('../data/test')
-        elif args.dataset == 'mnist':
-            from torchvision.datasets import MNIST
-            test_dataset_without_transform = MNIST(
-                args.dataset_path,
-                train=False,
-                transform=None,
-                download=True,
-            )
-
-
-        elif args.dataset == 'cifar10':
+        if args.dataset == 'cifar10':
             from torchvision.datasets import CIFAR10
             # test_dataset_without_transform = CIFAR10(
             #     args.dataset_path,
@@ -246,43 +268,9 @@ def dataset_and_transform_generate_ood(args):
             )
             for i in range(len(testset_clean_10.targets)):
                 testset_clean_10.targets[i] = 1
-            testset_clean_100 = CIFAR100(
-                args.dataset_path, 
-                train=False, 
-                download=True, 
-                transform=None
-            )
-            for i in range(len(testset_clean_100.targets)):
-                testset_clean_100.targets[i] = 0
+            testset_clean_100 = CIFAR100_BLENDED_OOD()
                 
             test_dataset_without_transform = torch.utils.data.ConcatDataset([testset_clean_10, testset_clean_100])
-
-        elif args.dataset == 'cifar100':
-            from torchvision.datasets import CIFAR100
-            # test_dataset_without_transform = CIFAR100(
-            #     root=args.dataset_path,
-            #     train=False,
-            #     download=True,
-            # )
-
-            testset_clean_100 = CIFAR100(
-                args.dataset_path, 
-                train=False, 
-                download=True, 
-                transform=None
-            )
-            for i in range(len(testset_clean_100.targets)):
-                testset_clean_100.targets[i] = 1
-            testset_clean_10 = CIFAR10(
-                args.dataset_path, 
-                train=False, 
-                download=True, 
-                transform=None
-            )
-            for i in range(len(testset_clean_10.targets)):
-                testset_clean_10.targets[i] = 0
-                
-            test_dataset_without_transform = torch.utils.data.ConcatDataset([testset_clean_100, testset_clean_10])
 
     return test_dataset_without_transform, \
            test_img_transform, \
