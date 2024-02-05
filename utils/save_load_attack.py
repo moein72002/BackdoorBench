@@ -22,7 +22,8 @@ from pprint import pformat
 from typing import Union
 
 from utils.aggregate_block.dataset_and_transform_generate import dataset_and_transform_generate, \
-    dataset_and_transform_generate_ood
+    clean_dataset_and_transform_generate_ood, \
+    exposure_dataset_and_transform_generate_ood
 
 
 def summary_dict(input_dict):
@@ -214,9 +215,13 @@ def load_attack_result(
         test_img_transform, \
         test_label_transform = dataset_and_transform_generate(clean_setting)
 
-        test_dataset_without_transform_ood, \
+        clean_test_dataset_without_transform_ood, \
         test_img_transform_ood, \
-        test_label_transform_ood = dataset_and_transform_generate_ood(clean_setting) # TODO: check this line
+        test_label_transform_ood = clean_dataset_and_transform_generate_ood(clean_setting) # TODO: check this line
+
+        exposure_test_dataset_without_transform_ood, \
+        _, \
+        _ = exposure_dataset_and_transform_generate_ood(clean_setting)  # TODO: check this line
 
         clean_train_dataset_with_transform = dataset_wrapper_with_transform(
             train_dataset_without_transform,
@@ -231,7 +236,7 @@ def load_attack_result(
         )
 
         clean_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
-            test_dataset_without_transform_ood,
+            clean_test_dataset_without_transform_ood,
             test_img_transform_ood,
             test_label_transform_ood,
         )
@@ -261,7 +266,7 @@ def load_attack_result(
             test_label_transform,
         )
 
-        bd_test_dataset_ood = prepro_cls_DatasetBD_v2(test_dataset_without_transform_ood)
+        bd_test_dataset_ood = prepro_cls_DatasetBD_v2(exposure_test_dataset_without_transform_ood)
         bd_test_dataset_ood.set_state(
             load_file['bd_test_ood']
         )
