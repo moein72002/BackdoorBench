@@ -2142,7 +2142,7 @@ class BackdoorModelTrainer(ModelTrainerCLS_v2):
                 train_epoch_original_targets_list[train_bd_idx],
             )
 
-            if epoch + 1 % 10 == 0:
+            if epoch + 1 % 10 == 0 or epoch == 0 or epoch == total_epoch_num - 1:
                 clean_metrics, _, _ = self.test_given_dataloader(self.test_dataloader_dict["clean_test_dataloader"], verbose=1)
 
                 test_corruption_acc_dict = {}
