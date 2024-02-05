@@ -2142,86 +2142,87 @@ class BackdoorModelTrainer(ModelTrainerCLS_v2):
                 train_epoch_original_targets_list[train_bd_idx],
             )
 
-            clean_metrics, _, _ = self.test_given_dataloader(self.test_dataloader_dict["clean_test_dataloader"], verbose=1)
+            if epoch + 1 % 10 == 0:
+                clean_metrics, _, _ = self.test_given_dataloader(self.test_dataloader_dict["clean_test_dataloader"], verbose=1)
 
-            test_corruption_acc_dict = {}
+                test_corruption_acc_dict = {}
 
-            if test_corruption == 'true':
-                corruption_metrics_dict, _, _ = self.test_corruption_given_dataloader(self.test_dataloader_dict["corruption_test_dataloaders_dict"], corruption_name_list, verbose=0)
+                if test_corruption == 'true':
+                    corruption_metrics_dict, _, _ = self.test_corruption_given_dataloader(self.test_dataloader_dict["corruption_test_dataloaders_dict"], corruption_name_list, verbose=0)
 
-                test_corruption_avg_acc = 0
-                for corruption_name in corruption_name_list:
-                    test_corruption_acc_dict[f"{corruption_name}_test_acc_corruption"] = corruption_metrics_dict[corruption_name]["test_acc"]
-                    test_corruption_avg_acc += test_corruption_acc_dict[f"{corruption_name}_test_acc_corruption"]
+                    test_corruption_avg_acc = 0
+                    for corruption_name in corruption_name_list:
+                        test_corruption_acc_dict[f"{corruption_name}_test_acc_corruption"] = corruption_metrics_dict[corruption_name]["test_acc"]
+                        test_corruption_avg_acc += test_corruption_acc_dict[f"{corruption_name}_test_acc_corruption"]
 
-                test_corruption_acc_dict[f"test_corruption_avg_acc_{severity_level}"] = test_corruption_avg_acc / len(corruption_name_list)
-
-
+                    test_corruption_acc_dict[f"test_corruption_avg_acc_{severity_level}"] = test_corruption_avg_acc / len(corruption_name_list)
 
 
-            clean_test_loss_avg_over_batch = clean_metrics["test_loss_avg_over_batch"]
-            test_acc = clean_metrics["test_acc"]
 
-            bd_metrics, \
-            bd_test_epoch_predict_list, \
-            bd_test_epoch_label_list, \
-            bd_test_epoch_original_index_list, \
-            bd_test_epoch_poison_indicator_list, \
-            bd_test_epoch_original_targets_list = self.test_given_dataloader_on_mix(self.test_dataloader_dict["bd_test_dataloader"], verbose=1)
 
-            clean_test_auc = self.test_ood_given_dataloader(self.test_dataloader_dict["clean_test_dataloader_ood"], verbose=1, clean_dataset = True) #TODO
-            bd_test_auc = self.test_ood_given_dataloader(self.test_dataloader_dict["bd_test_dataloader_ood"], verbose=1, clean_dataset = False) #TODO
+                clean_test_loss_avg_over_batch = clean_metrics["test_loss_avg_over_batch"]
+                test_acc = clean_metrics["test_acc"]
 
-            bd_test_loss_avg_over_batch = bd_metrics["test_loss_avg_over_batch"]
-            test_asr = all_acc(bd_test_epoch_predict_list, bd_test_epoch_label_list)
-            test_ra = all_acc(bd_test_epoch_predict_list, bd_test_epoch_original_targets_list)
+                bd_metrics, \
+                bd_test_epoch_predict_list, \
+                bd_test_epoch_label_list, \
+                bd_test_epoch_original_index_list, \
+                bd_test_epoch_poison_indicator_list, \
+                bd_test_epoch_original_targets_list = self.test_given_dataloader_on_mix(self.test_dataloader_dict["bd_test_dataloader"], verbose=1)
 
-            self.agg(
-                {
-                    "train_epoch_loss_avg_over_batch": train_epoch_loss_avg_over_batch,
-                    "train_acc": train_mix_acc,
-                    "train_acc_clean_only": train_clean_acc,
-                    "train_asr_bd_only": train_asr,
-                    "train_ra_bd_only": train_ra,
+                clean_test_auc = self.test_ood_given_dataloader(self.test_dataloader_dict["clean_test_dataloader_ood"], verbose=1, clean_dataset = True) #TODO
+                bd_test_auc = self.test_ood_given_dataloader(self.test_dataloader_dict["bd_test_dataloader_ood"], verbose=1, clean_dataset = False) #TODO
 
-                    "clean_test_loss_avg_over_batch": clean_test_loss_avg_over_batch,
-                    "bd_test_loss_avg_over_batch" : bd_test_loss_avg_over_batch,
-                    "test_acc" : test_acc,
-                    "test_asr" : test_asr,
-                    "test_ra" : test_ra,
-                    "clean_test_auc": clean_test_auc,
-                    "bd_test_auc": bd_test_auc,
-                    **test_corruption_acc_dict
-                }
-            )
+                bd_test_loss_avg_over_batch = bd_metrics["test_loss_avg_over_batch"]
+                test_asr = all_acc(bd_test_epoch_predict_list, bd_test_epoch_label_list)
+                test_ra = all_acc(bd_test_epoch_predict_list, bd_test_epoch_original_targets_list)
 
-            train_loss_list.append(train_epoch_loss_avg_over_batch)
-            train_mix_acc_list.append(train_mix_acc)
-            train_asr_list.append(train_asr)
-            train_ra_list.append(train_ra)
+                self.agg(
+                    {
+                        "train_epoch_loss_avg_over_batch": train_epoch_loss_avg_over_batch,
+                        "train_acc": train_mix_acc,
+                        "train_acc_clean_only": train_clean_acc,
+                        "train_asr_bd_only": train_asr,
+                        "train_ra_bd_only": train_ra,
 
-            clean_test_loss_list.append(clean_test_loss_avg_over_batch)
-            bd_test_loss_list.append(bd_test_loss_avg_over_batch)
-            test_acc_list.append(test_acc)
-            test_asr_list.append(test_asr)
-            test_ra_list.append(test_ra)
+                        "clean_test_loss_avg_over_batch": clean_test_loss_avg_over_batch,
+                        "bd_test_loss_avg_over_batch" : bd_test_loss_avg_over_batch,
+                        "test_acc" : test_acc,
+                        "test_asr" : test_asr,
+                        "test_ra" : test_ra,
+                        "clean_test_auc": clean_test_auc,
+                        "bd_test_auc": bd_test_auc,
+                        **test_corruption_acc_dict
+                    }
+                )
 
-            self.plot_loss(
-                train_loss_list,
-                clean_test_loss_list,
-                bd_test_loss_list,
-            )
+                train_loss_list.append(train_epoch_loss_avg_over_batch)
+                train_mix_acc_list.append(train_mix_acc)
+                train_asr_list.append(train_asr)
+                train_ra_list.append(train_ra)
 
-            self.plot_acc_like_metric(
-                train_mix_acc_list,
-                train_asr_list,
-                train_ra_list,
-                test_acc_list,
-                test_asr_list,
-                test_ra_list,
-            )
+                clean_test_loss_list.append(clean_test_loss_avg_over_batch)
+                bd_test_loss_list.append(bd_test_loss_avg_over_batch)
+                test_acc_list.append(test_acc)
+                test_asr_list.append(test_asr)
+                test_ra_list.append(test_ra)
 
-            self.agg_save_dataframe()
+                self.plot_loss(
+                    train_loss_list,
+                    clean_test_loss_list,
+                    bd_test_loss_list,
+                )
+
+                self.plot_acc_like_metric(
+                    train_mix_acc_list,
+                    train_asr_list,
+                    train_ra_list,
+                    test_acc_list,
+                    test_asr_list,
+                    test_ra_list,
+                )
+
+                self.agg_save_dataframe()
 
         self.agg_save_summary()
 
