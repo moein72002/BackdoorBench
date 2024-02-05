@@ -88,7 +88,6 @@ def save_attack_result(
     bd_test : prepro_cls_DatasetBD_v2, # MUST be dataset without transform
     save_path : str,
     bd_test_ood : prepro_cls_DatasetBD_v2,
-    corruption_test_dataset_with_transform_dict: dict,
     corruption_name_list: list, # TODO: CHECK HERE
     test_corruption: str,
     severity_level: int,
@@ -124,7 +123,6 @@ def save_attack_result(
             'bd_train': bd_train.retrieve_state() if bd_train is not None else None,
             'bd_test': bd_test.retrieve_state(),
             'bd_test_ood': bd_test_ood.retrieve_state(),
-            'corruption_test_dataset_with_transform_dict': corruption_test_dataset_with_transform_dict,
             'corruption_name_list': corruption_name_list,
             'test_corruption': test_corruption,
             'severity_level': severity_level,
@@ -215,6 +213,10 @@ def load_attack_result(
         clean_setting.dataset_path = save_path[:save_path.index('record')] + clean_setting.dataset_path[clean_setting.dataset_path.index('data'):]
 
         clean_setting.img_size = load_file['img_size']
+
+        clean_setting.corruption_name_list = load_file['corruption_name_list']
+        clean_setting.test_corruption = load_file['test_corruption']
+        clean_setting.severity_level = load_file['severity_level']
 
         train_dataset_without_transform, \
         train_img_transform, \
