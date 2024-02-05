@@ -423,17 +423,18 @@ class CIFAR10_TRAIN_TARGET_CLASS(Dataset):
         self.transform = transform
 
         cifar10_train = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=None)
-        cifar10_train_target_label_mask = np.isin(cifar10_train.targets, target_label)
-        self.data = cifar10_train.data[cifar10_train_target_label_mask]
-        cifar10_train.targets = np.array(cifar10_train.targets)
-        self.targets = cifar10_train.targets[cifar10_train_target_label_mask]
+        self.data = []
+        for i in range(len(cifar10_train.data)):
+            if cifar10_train[i][1] == target_label or len(self.data) == 5000:
+                self.data.append(cifar10_train[i][0])
+        self.target_label = target_label
 
     def __len__(self):
         return len(self.data)
 
     def __getitem__(self, idx):
         img = self.data[idx]
-        label = self.targets[idx]
+        label = self.target_label
         if self.transform:
             img = self.tranform(img)
         return img, label
