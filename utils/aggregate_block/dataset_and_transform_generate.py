@@ -19,6 +19,8 @@ import numpy as np
 import torch
 import torchvision.transforms as transforms
 from PIL import ImageFilter, Image
+import torchvision
+from torch.utils.data import Dataset
 
 
 
@@ -409,3 +411,123 @@ def dataset_and_transform_generate(args):
            test_dataset_without_transform, \
            test_img_transform, \
            test_label_transform
+
+
+class BlendedDataset(Dataset):
+    def __init__(self, data, transform=None, target_label=0):
+        self.data = data
+        self.transform = transform
+        self.target_label = target_label
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        img = self.data[idx]
+        label = self.target_label
+        if self.transform:
+            img = self.tranform(img)
+        return img, label
+
+
+class CIFAR10_TRAIN_TARGET_CLASS(Dataset):
+    def __init__(self, transform=None, target_label=0):
+        self.transform = transform
+
+        cifar10_train = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=None)
+        cifar10_train_target_label_mask = np.isin(cifar10_train.targets, target_label)
+        self.data = cifar10_train.data[cifar10_train_target_label_mask]
+        cifar10_train.targets = np.array(cifar10_train.targets)
+        self.targets = cifar10_train.targets[cifar10_train_target_label_mask]
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        img = self.data[idx]
+        label = self.targets[idx]
+        if self.transform:
+            img = self.tranform(img)
+        return img, label
+
+
+class CIFAR10_TRAIN_OTHER_CLASSES(Dataset):
+    def __init__(self, transform=None, target_label=0):
+        self.transform = transform
+
+        cifar10_train = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=None)
+        cifar10_train_target_label_mask = np.isin(cifar10_train.targets, target_label)
+        self.data = cifar10_train.data[~cifar10_train_target_label_mask]
+        cifar10_train.targets = np.array(cifar10_train.targets)
+        self.targets = cifar10_train.targets[~cifar10_train_target_label_mask]
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        img = self.data[idx]
+        label = self.targets[idx]
+        if self.transform:
+            img = self.tranform(img)
+        return img, label
+def create_training_dataset_for_exposure_test(dataset_name='cifar10'):
+    blended_dataset = blended_dataset = BlendedDataset(get_blended_images())
+    cifar10_train_target_class = CIFAR10_TRAIN_TARGET_CLASS()
+    cifar10_train_other_classes = CIFAR10_TRAIN_OTHER_CLASSES()
+    cifar10_train_other_classes = cifar10_train_other_classes + cifar10_train_other_classes
+    train_dataset = blended_dataset + cifar10_train_target_class + cifar10_train_other_classes
+    return train_dataset
+
+def get_blended_images():
+    cifar10_trainset = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=None)
+
+    # Load CIFAR-100 dataset
+    cifar100_trainset = torchvision.datasets.CIFAR100(root='./data', train=True, download=True, transform=None)
+
+    # Select 5000 samples from CIFAR-10 dataset with label 0
+    cifar10_samples = []
+    for i in range(len(cifar10_trainset)):
+        img, label = cifar10_trainset[i]
+        if label == 0:
+            cifar10_samples.append(img)
+        if len(cifar10_samples) >= 5000:
+            break
+
+    # Select 5000 samples from CIFAR-100 dataset
+    cifar100_indices = random.sample(range(len(cifar100_trainset)), 5000)
+    cifar100_samples = [cifar100_trainset[i][0] for i in cifar100_indices]
+
+    # Blend images
+    blended_images = []
+    for img1, img2 in zip(cifar10_samples, cifar100_samples):
+        blended_img = Image.blend(img1, img2, 0.5)  # Blend two images with ratio 0.5
+        blended_images.append(blended_img)  # Assign label 0
+
+    print("Blended dataset size:", len(blended_images))
+
+def exposure_dataset_and_transform_generate(args):
+    '''
+    # idea : given args, return selected dataset, transforms for both train and test part of data.
+    :param args:
+    :return: clean dataset in both train and test phase, and corresponding transforms
+
+    1. set the img transformation
+    2. set the label transform
+
+    '''
+    if not args.dataset.startswith('test'):
+        train_img_transform = get_transform(args.dataset, *(args.img_size[:2]), train=True)
+        test_img_transform = get_transform(args.dataset, *(args.img_size[:2]), train=False)
+    else:
+        # test folder datset, use the mnist transform for convenience
+        train_img_transform = get_transform('mnist', *(args.img_size[:2]), train=True)
+        test_img_transform = get_transform('mnist', *(args.img_size[:2]), train=False)
+
+    train_dataset_without_transform, test_dataset_without_transform = None, None
+
+    if (train_dataset_without_transform is None) or (test_dataset_without_transform is None):
+        if args.dataset == 'cifar10':
+            exposure_train_dataset_without_transform = create_training_dataset_for_exposure_test()
+
+
+    return exposure_train_dataset_without_transform

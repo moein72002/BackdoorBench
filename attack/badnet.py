@@ -130,6 +130,9 @@ class BadNet(NormalCase):
                    args.save_path + '/train_poison_index_list.pickle',
                    )
 
+        # bd_train_dataset will be clean for exposure_test
+        train_poison_index = np.zeros(len(train_dataset_without_transform))
+
         ### generate train dataset for backdoor attack
         bd_train_dataset = prepro_cls_DatasetBD_v2(
             deepcopy(train_dataset_without_transform),
