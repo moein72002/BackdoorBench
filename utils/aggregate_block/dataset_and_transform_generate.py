@@ -471,7 +471,7 @@ class CIFAR10_TRAIN_OTHER_CLASSES(Dataset):
             img = self.tranform(img)
         return img, label
 def create_training_dataset_for_exposure_test(dataset_name='cifar10'):
-    blended_dataset = blended_dataset = BlendedDataset(get_blended_images())
+    blended_dataset = BlendedDataset(get_blended_images())
     cifar10_train_target_class = CIFAR10_TRAIN_TARGET_CLASS()
     cifar10_train_other_classes = CIFAR10_TRAIN_OTHER_CLASSES()
     cifar10_train_other_classes = cifar10_train_other_classes + cifar10_train_other_classes
@@ -504,6 +504,8 @@ def get_blended_images():
         blended_images.append(blended_img)  # Assign label 0
 
     print("Blended dataset size:", len(blended_images))
+
+    return blended_images
 
 def exposure_dataset_and_transform_generate(args):
     '''
