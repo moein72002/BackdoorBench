@@ -210,7 +210,7 @@ def get_cifar100_blended_images_for_test_exposure(args):
 
     # Blend images
     blended_images = []
-    for img1, img2 in zip(cifar10_train_target_class, cifar100_testset):
+    for img1, img2 in zip(cifar100_testset, cifar10_train_target_class):
         blended_img = Image.blend(img1[0], img2[0], args.exposure_blend_rate)  # Blend two images with ratio 0.5
         blended_images.append(blended_img)  # Assign label 0
 
@@ -246,7 +246,7 @@ def get_cifar10_blended_images_for_test_exposure(args):
 
     # Blend images
     blended_images = []
-    for img1, img2 in zip(cifar10_train_target_class, cifar10_testset):
+    for img1, img2 in zip(cifar10_testset, cifar10_train_target_class):
         blended_img = Image.blend(img1[0], img2[0], args.exposure_blend_rate)  # Blend two images with ratio 0.5
         blended_images.append(blended_img)  # Assign label 0
 
