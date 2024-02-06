@@ -509,6 +509,35 @@ class abl(defense):
         test_asr_list = []
         test_ra_list = []
 
+        if args.tuning_epochs == 0:
+            clean_test_loss_avg_over_batch, \
+            bd_test_loss_avg_over_batch, \
+            ra_test_loss_avg_over_batch, \
+            test_acc, \
+            test_asr, \
+            test_ra, \
+            clean_test_auc, \
+            bd_test_auc = self.eval_step(
+                model_ascent,
+                data_clean_loader,
+                data_bd_loader,
+                data_clean_loader_ood,
+                data_bd_loader_ood,
+                args,
+            )
+
+            agg({
+
+                "clean_test_loss_avg_over_batch": clean_test_loss_avg_over_batch,
+                "bd_test_loss_avg_over_batch": bd_test_loss_avg_over_batch,
+                "ra_test_loss_avg_over_batch": ra_test_loss_avg_over_batch,
+                "test_acc": test_acc,
+                "test_asr": test_asr,
+                "test_ra": test_ra,
+                "clean_test_auc": clean_test_auc,
+                "bd_test_auc": bd_test_auc
+            })
+
         logging.info('----------- Train Initialization --------------')
         for epoch in range(0, args.tuning_epochs):
             logging.info("Epoch {}:".format(epoch + 1))
