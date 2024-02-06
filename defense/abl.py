@@ -42,7 +42,8 @@ from utils.trainer_cls import Metric_Aggregator, PureCleanModelTrainer, all_acc,
 from utils.aggregate_block.fix_random import fix_random
 from utils.aggregate_block.model_trainer_generate import generate_cls_model
 from utils.log_assist import get_git_info
-from utils.aggregate_block.dataset_and_transform_generate import get_input_shape, get_num_classes, get_transform
+from utils.aggregate_block.dataset_and_transform_generate import get_input_shape, get_num_classes, get_transform, \
+    exposure_dataset_and_transform_generate
 from utils.save_load_attack import load_attack_result, save_defense_result
 from utils.bd_dataset_v2 import dataset_wrapper_with_transform
 
@@ -290,6 +291,7 @@ class abl(defense):
         parser.add_argument('--threshold_clean', type=float, help='threshold of save weight')
         parser.add_argument('--threshold_bad', type=float, help='threshold of save weight')
         parser.add_argument('--interval', type=int, help='frequency of save model')
+        parser.add_argument('--just_test_exposure_ood', type=str, default="false")
 
     def set_result(self, result_file):
         attack_file = 'record/' + result_file
@@ -306,7 +308,7 @@ class abl(defense):
             self.args.log = save_path + 'log/'
             if not (os.path.exists(self.args.log)):
                 os.makedirs(self.args.log)  
-        self.result = load_attack_result(attack_file + '/attack_result.pt')
+        self.result = load_attack_result(attack_file + '/attack_result.pt', just_test_exposure_ood=args.just_test_exposure_ood)
 
     def set_trainer(self, model):
         self.trainer = PureCleanModelTrainer(

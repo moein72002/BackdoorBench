@@ -175,6 +175,7 @@ class Args:
 
 def load_attack_result(
     save_path : str,
+    just_test_exposure_ood : str
 ):
     '''
     This function first replicate the basic steps of generate models and clean train and test datasets
@@ -278,9 +279,11 @@ def load_attack_result(
         )
 
         bd_test_dataset_ood = prepro_cls_DatasetBD_v2(exposure_test_dataset_without_transform_ood)
-        bd_test_dataset_ood.set_state(
-            load_file['bd_test_ood']
-        )
+
+        if just_test_exposure_ood == 'false':
+            bd_test_dataset_ood.set_state(
+                load_file['bd_test_ood']
+            )
         bd_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
             bd_test_dataset_ood,
             test_img_transform_ood,
