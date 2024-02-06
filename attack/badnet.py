@@ -280,6 +280,7 @@ class BadNet(NormalCase):
             prefetch=args.prefetch,
             prefetch_transform_attr_name="ori_image_transform_in_loading",  # since we use the preprocess_bd_dataset
             non_blocking=args.non_blocking,
+            test_every_epoch=args.test_every_epoch
         )
 
         save_attack_result(

@@ -2004,6 +2004,7 @@ class BackdoorModelTrainer(ModelTrainerCLS_v2):
                                    prefetch,
                                    prefetch_transform_attr_name,
                                    non_blocking,
+                                   test_every_epoch,
                                    ):
 
         test_dataloader_dict = {
@@ -2067,7 +2068,7 @@ class BackdoorModelTrainer(ModelTrainerCLS_v2):
                 train_epoch_original_targets_list[train_bd_idx],
             )
 
-            if epoch + 1 % 10 == 0 or epoch == 0 or epoch == total_epoch_num - 1:
+            if test_every_epoch == 'true' or (epoch + 1 % 10 == 0 or epoch == 0 or epoch == total_epoch_num - 1):
                 clean_metrics, \
                 clean_test_epoch_predict_list, \
                 clean_test_epoch_label_list, \

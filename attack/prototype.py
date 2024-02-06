@@ -76,6 +76,7 @@ class NormalCase:
         parser.add_argument("--exposure_blend_rate", type=float, default=0.5)
         parser.add_argument("--poison_all_test_ood", type=str, default="false")
         parser.add_argument("--attack_exposure_train", type=str, default="true")
+        parser.add_argument("--test_every_epoch", type=str, default="false")
         return parser
 
     def add_yaml_to_args(self, args):
