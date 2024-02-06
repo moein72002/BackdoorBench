@@ -615,9 +615,9 @@ def get_blended_images(args):
 
     # Blend images
     blended_images = []
-    for img1, img2 in zip(cifar10_samples, cifar100_samples):
-        blended_img = Image.blend(img1, img2, args.exposure_blend_rate)  # Blend two images with ratio 0.5
-        blended_images.append(blended_img)  # Assign label 0
+    for img1, img2 in zip(cifar100_samples, cifar10_samples):
+        blended_img = Image.blend(img1, img2, args.exposure_blend_rate)
+        blended_images.append(blended_img)
 
     print("Blended dataset size:", len(blended_images))
 
