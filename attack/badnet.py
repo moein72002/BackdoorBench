@@ -227,6 +227,8 @@ class BadNet(NormalCase):
         bd_test_dataset_with_transform_ood, \
             = self.stage1_results
 
+        self.visualize_random_samples_from_bd_dataset(bd_train_dataset_with_transform, "bd_train_dataset_with_transform")
+
         self.net = generate_cls_model(
             model_name=args.model,
             num_classes=args.num_classes,
