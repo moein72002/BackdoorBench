@@ -74,6 +74,7 @@ class NormalCase:
                             help='git hash number, in order to find which version of code is used')
         parser.add_argument("--yaml_path", type=str, default="../config/attack/prototype/cifar10.yaml")
         parser.add_argument("--exposure_blend_rate", type=float, default=0.5)
+        parser.add_argument("--poison_all_test_ood", type=str, default="false")
         return parser
 
     def add_yaml_to_args(self, args):
@@ -176,7 +177,7 @@ class NormalCase:
 
         args = self.args
 
-        train_dataset_without_transform, \
+        _, \
         train_img_transform, \
         train_label_transform, \
         test_dataset_without_transform, \
