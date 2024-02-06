@@ -292,6 +292,7 @@ class abl(defense):
         parser.add_argument('--threshold_bad', type=float, help='threshold of save weight')
         parser.add_argument('--interval', type=int, help='frequency of save model')
         parser.add_argument('--just_test_exposure_ood', type=str, default="false")
+        parser.add_argument('--test_blend_rate', type=float, default=0.1)
 
     def set_result(self, result_file):
         attack_file = 'record/' + result_file
@@ -308,7 +309,7 @@ class abl(defense):
             self.args.log = save_path + 'log/'
             if not (os.path.exists(self.args.log)):
                 os.makedirs(self.args.log)  
-        self.result = load_attack_result(attack_file + '/attack_result.pt', just_test_exposure_ood=args.just_test_exposure_ood)
+        self.result = load_attack_result(attack_file + '/attack_result.pt', just_test_exposure_ood=args.just_test_exposure_ood, test_blend_rate=args.test_blend_rate)
 
     def set_trainer(self, model):
         self.trainer = PureCleanModelTrainer(
