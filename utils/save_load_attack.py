@@ -87,6 +87,8 @@ def save_attack_result(
     clean_data : str,
     bd_test : prepro_cls_DatasetBD_v2, # MUST be dataset without transform
     save_path : str,
+    exposure_blend_rate : int,
+    poison_all_test_ood : str,
     bd_test_ood : prepro_cls_DatasetBD_v2,
     bd_train : Optional[prepro_cls_DatasetBD_v2] = None, # MUST be dataset without transform
 ):
@@ -119,7 +121,9 @@ def save_attack_result(
             'clean_data': clean_data,
             'bd_train': bd_train.retrieve_state() if bd_train is not None else None,
             'bd_test': bd_test.retrieve_state(),
-            'bd_test_ood': bd_test_ood.retrieve_state()
+            'bd_test_ood': bd_test_ood.retrieve_state(),
+            'exposure_blend_rate': exposure_blend_rate,
+            'poison_all_test_ood': poison_all_test_ood
         }
 
     logging.info(f"saving...")
@@ -208,6 +212,11 @@ def load_attack_result(
 
         clean_setting.img_size = load_file['img_size']
 
+        exposure_blend_rate = load_file['exposure_blend_rate']
+        poison_all_test_ood = load_file['poison_all_test_ood']
+        clean_setting.exposure_blend_rate = exposure_blend_rate
+        clean_setting.poison_all_test_ood = poison_all_test_ood
+
         train_dataset_without_transform, \
         train_img_transform, \
         train_label_transform, \
@@ -293,7 +302,9 @@ def load_attack_result(
                 'bd_train': bd_train_dataset_with_transform,
                 'bd_test': bd_test_dataset_with_transform,
                 'clean_test_ood': clean_test_dataset_with_transform_ood,
-                'bd_test_ood': bd_test_dataset_with_transform_ood
+                'bd_test_ood': bd_test_dataset_with_transform_ood,
+                'exposure_blend_rate': exposure_blend_rate,
+                'poison_all_test_ood': poison_all_test_ood
             }
 
         print(f"loading...")
