@@ -510,6 +510,8 @@ class abl(defense):
         test_ra_list = []
 
         if args.tuning_epochs == 0:
+            model_ascent.load_state_dict(self.result['model'])
+
             clean_test_loss_avg_over_batch, \
             bd_test_loss_avg_over_batch, \
             ra_test_loss_avg_over_batch, \
@@ -537,6 +539,8 @@ class abl(defense):
                 "clean_test_auc": clean_test_auc,
                 "bd_test_auc": bd_test_auc
             })
+
+            exit()
 
         logging.info('----------- Train Initialization --------------')
         for epoch in range(0, args.tuning_epochs):
