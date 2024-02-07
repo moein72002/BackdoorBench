@@ -23,7 +23,7 @@ import logging
 from utils.aggregate_block.save_path_generate import generate_save_folder
 from utils.aggregate_block.dataset_and_transform_generate import get_num_classes, get_input_shape, \
     exposure_dataset_and_transform_generate, clean_dataset_and_transform_generate_ood, \
-    exposure_dataset_and_transform_generate_ood
+    exposure_dataset_and_transform_generate_ood, exposure_dataset_and_transform_generate_for_cls
 from utils.aggregate_block.fix_random import fix_random
 from utils.aggregate_block.dataset_and_transform_generate import dataset_and_transform_generate
 from utils.bd_dataset_v2 import dataset_wrapper_with_transform, get_labels
@@ -74,7 +74,6 @@ class NormalCase:
                             help='git hash number, in order to find which version of code is used')
         parser.add_argument("--yaml_path", type=str, default="../config/attack/prototype/cifar10.yaml")
         parser.add_argument("--exposure_blend_rate", type=float, default=0.5)
-        parser.add_argument("--poison_all_test_ood", type=str, default="false")
         parser.add_argument("--attack_exposure_train", type=str, default="true")
         parser.add_argument("--test_every_epoch", type=str, default="false")
         return parser
@@ -193,9 +192,17 @@ class NormalCase:
         test_img_transform_ood, \
         test_label_transform_ood = clean_dataset_and_transform_generate_ood(args)
 
-        exposure_test_dataset_without_transform_ood, \
+        exposure_test_dataset_without_transform_for_cls, \
         _, \
-        _ = exposure_dataset_and_transform_generate_ood(args)
+        _ = exposure_dataset_and_transform_generate_for_cls(args)
+
+        exposure_out_test_dataset_without_transform_ood, \
+        _, \
+        _ = exposure_dataset_and_transform_generate_ood(args, poison_all_test_ood=False)
+
+        exposure_all_test_dataset_without_transform_ood, \
+        _, \
+        _ = exposure_dataset_and_transform_generate_ood(args, poison_all_test_ood=True)
 
         # self.count_unique_labels_of_dataset(test_dataset_without_transform_ood, "test_dataset_without_transform_ood")
 
@@ -235,7 +242,9 @@ class NormalCase:
                clean_train_dataset_targets, \
                clean_test_dataset_with_transform, \
                clean_test_dataset_targets, \
-               exposure_test_dataset_without_transform_ood, \
+               exposure_test_dataset_without_transform_for_cls, \
+               exposure_out_test_dataset_without_transform_ood, \
+               exposure_all_test_dataset_without_transform_ood, \
                test_img_transform_ood, \
                test_label_transform_ood, \
                clean_test_dataset_with_transform_ood, \

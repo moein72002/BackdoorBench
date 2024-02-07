@@ -23,7 +23,8 @@ from typing import Union
 
 from utils.aggregate_block.dataset_and_transform_generate import dataset_and_transform_generate, \
     clean_dataset_and_transform_generate_ood, \
-    exposure_dataset_and_transform_generate_ood, exposure_dataset_and_transform_generate
+    exposure_dataset_and_transform_generate_ood, exposure_dataset_and_transform_generate, \
+    exposure_dataset_and_transform_generate_for_cls
 
 
 def summary_dict(input_dict):
@@ -88,8 +89,9 @@ def save_attack_result(
     bd_test : prepro_cls_DatasetBD_v2, # MUST be dataset without transform
     save_path : str,
     exposure_blend_rate : int,
-    poison_all_test_ood : str,
-    bd_test_ood : prepro_cls_DatasetBD_v2,
+    bd_test_for_cls : prepro_cls_DatasetBD_v2,
+    bd_out_test_ood : prepro_cls_DatasetBD_v2,
+    bd_all_test_ood : prepro_cls_DatasetBD_v2,
     bd_train : Optional[prepro_cls_DatasetBD_v2] = None, # MUST be dataset without transform
 ):
     '''
@@ -121,9 +123,10 @@ def save_attack_result(
             'clean_data': clean_data,
             'bd_train': bd_train.retrieve_state() if bd_train is not None else None,
             'bd_test': bd_test.retrieve_state(),
-            'bd_test_ood': bd_test_ood.retrieve_state(),
-            'exposure_blend_rate': exposure_blend_rate,
-            'poison_all_test_ood': poison_all_test_ood
+            'bd_test_for_cls': bd_test_for_cls.retrieve_state(),
+            'bd_out_test_ood': bd_out_test_ood.retrieve_state(),
+            'bd_all_test_ood': bd_all_test_ood.retrieve_state(),
+            'exposure_blend_rate': exposure_blend_rate
         }
 
     logging.info(f"saving...")
@@ -217,9 +220,7 @@ def load_attack_result(
         exposure_blend_rate = load_file['exposure_blend_rate']
         if just_test_exposure_ood == 'true':
             exposure_blend_rate = test_blend_rate
-        poison_all_test_ood = load_file['poison_all_test_ood']
         clean_setting.exposure_blend_rate = exposure_blend_rate
-        clean_setting.poison_all_test_ood = poison_all_test_ood
 
         train_dataset_without_transform, \
         train_img_transform, \
@@ -234,9 +235,17 @@ def load_attack_result(
         test_img_transform_ood, \
         test_label_transform_ood = clean_dataset_and_transform_generate_ood(clean_setting) # TODO: check this line
 
-        exposure_test_dataset_without_transform_ood, \
+        exposure_test_dataset_without_transform_for_cls, \
         _, \
-        _ = exposure_dataset_and_transform_generate_ood(clean_setting)  # TODO: check this line
+        _ = exposure_dataset_and_transform_generate_for_cls(clean_setting)
+
+        exposure_out_test_dataset_without_transform_ood, \
+        _, \
+        _ = exposure_dataset_and_transform_generate_ood(clean_setting, poison_all_test_ood=False)
+
+        exposure_all_test_dataset_without_transform_ood, \
+        _, \
+        _ = exposure_dataset_and_transform_generate_ood(clean_setting, poison_all_test_ood=True)
 
         clean_train_dataset_with_transform = dataset_wrapper_with_transform(
             train_dataset_without_transform,
@@ -281,14 +290,35 @@ def load_attack_result(
             test_label_transform,
         )
 
-        bd_test_dataset_ood = prepro_cls_DatasetBD_v2(exposure_test_dataset_without_transform_ood)
+        bd_test_dataset_for_cls = prepro_cls_DatasetBD_v2(exposure_test_dataset_without_transform_for_cls)
+        bd_out_test_dataset_ood = prepro_cls_DatasetBD_v2(exposure_out_test_dataset_without_transform_ood)
+        bd_all_test_dataset_ood = prepro_cls_DatasetBD_v2(exposure_all_test_dataset_without_transform_ood)
 
         if just_test_exposure_ood == 'false':
-            bd_test_dataset_ood.set_state(
-                load_file['bd_test_ood']
+            bd_test_dataset_for_cls.set_state(
+                load_file['bd_test_for_cls']
             )
-        bd_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
-            bd_test_dataset_ood,
+            bd_out_test_dataset_ood.set_state(
+                load_file['bd_out_test_ood']
+            )
+            bd_all_test_dataset_ood.set_state(
+                load_file['bd_all_test_ood']
+            )
+
+        bd_test_dataset_with_transform_for_cls = dataset_wrapper_with_transform(
+            bd_test_dataset_for_cls,
+            test_img_transform,
+            test_label_transform,
+        )
+
+        bd_out_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
+            bd_out_test_dataset_ood,
+            test_img_transform_ood,
+            test_label_transform_ood,
+        )
+
+        bd_all_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
+            bd_all_test_dataset_ood,
             test_img_transform_ood,
             test_label_transform_ood,
         )
@@ -308,9 +338,10 @@ def load_attack_result(
                 'bd_train': bd_train_dataset_with_transform,
                 'bd_test': bd_test_dataset_with_transform,
                 'clean_test_ood': clean_test_dataset_with_transform_ood,
-                'bd_test_ood': bd_test_dataset_with_transform_ood,
-                'exposure_blend_rate': exposure_blend_rate,
-                'poison_all_test_ood': poison_all_test_ood
+                'bd_test_for_cls': bd_test_dataset_with_transform_for_cls,
+                'bd_out_test_ood': bd_out_test_dataset_with_transform_ood,
+                'bd_all_test_ood': bd_all_test_dataset_with_transform_ood,
+                'exposure_blend_rate': exposure_blend_rate
             }
 
         print(f"loading...")

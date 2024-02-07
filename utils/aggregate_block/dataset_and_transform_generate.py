@@ -211,6 +211,7 @@ def get_cifar100_blended_images_for_test_exposure(args):
     # Blend images
     blended_images = []
     for img1, img2 in zip(cifar100_testset, cifar10_train_target_class):
+        print(f"Image.blend(cifar100_testset, cifar10_train_target_class, {args.exposure_blend_rate})")
         blended_img = Image.blend(img1[0], img2[0], args.exposure_blend_rate)  # Blend two images with ratio 0.5
         blended_images.append(blended_img)  # Assign label 0
 
@@ -235,8 +236,41 @@ class CIFAR100_BLENDED_OOD(Dataset):
             img = self.tranform(img)
         return img, label
 
+def get_cifar10_blended_images_for_cls_test_exposure(cifar10_testset, args):
+    cifar10_train_target_class = CIFAR10_TRAIN_TARGET_CLASS()
 
-def get_cifar10_blended_images_for_test_exposure(args):
+    cifar10_train_target_class = cifar10_train_target_class + cifar10_train_target_class
+
+    # Blend images
+    blended_images = []
+    for img1, img2 in zip(cifar10_testset, cifar10_train_target_class):
+        print(f"Image.blend(cifar10_testset, cifar10_train_target_class, {args.exposure_blend_rate})")
+        blended_img = Image.blend(img1[0], img2[0], args.exposure_blend_rate)  # Blend two images with ratio 0.5
+        blended_images.append(blended_img)  # Assign label 0
+
+    print("Blended dataset size:", len(blended_images))
+
+    return blended_images
+class CIFAR10_BLENDED_FOR_CLS(Dataset):
+    def __init__(self, args, transform=None, in_dist_label=1):
+        self.transform = transform
+
+        cifar10_testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=None)
+        self.data = get_cifar10_blended_images_for_cls_test_exposure(cifar10_testset, args)
+        self.targets = cifar10_testset.targets
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        img = self.data[idx]
+        label = self.targets[idx]
+        if self.transform:
+            img = self.tranform(img)
+        return img, label
+
+
+def get_cifar10_blended_id_images_for_test_exposure(args):
     cifar10_train_target_class = CIFAR10_TRAIN_TARGET_CLASS()
 
     cifar10_train_target_class = cifar10_train_target_class + cifar10_train_target_class
@@ -247,6 +281,7 @@ def get_cifar10_blended_images_for_test_exposure(args):
     # Blend images
     blended_images = []
     for img1, img2 in zip(cifar10_testset, cifar10_train_target_class):
+        print(f"Image.blend(cifar10_testset, cifar10_train_target_class, {args.exposure_blend_rate})")
         blended_img = Image.blend(img1[0], img2[0], args.exposure_blend_rate)  # Blend two images with ratio 0.5
         blended_images.append(blended_img)  # Assign label 0
 
@@ -258,7 +293,7 @@ class CIFAR10_BLENDED_ID(Dataset):
     def __init__(self, args, transform=None, in_dist_label=1):
         self.transform = transform
 
-        self.data = get_cifar10_blended_images_for_test_exposure(args)
+        self.data = get_cifar10_blended_id_images_for_test_exposure(args)
         self.in_dist_label = in_dist_label
 
     def __len__(self):
@@ -359,7 +394,40 @@ def clean_dataset_and_transform_generate_ood(args):
            test_img_transform, \
            test_label_transform
 
-def exposure_dataset_and_transform_generate_ood(args):
+
+def exposure_dataset_and_transform_generate_for_cls(args):
+    from torchvision.datasets import CIFAR10, CIFAR100
+
+    if not args.dataset.startswith('test'):
+        test_img_transform = get_transform(args.dataset, *(args.img_size[:2]), train=False)
+    else:
+        # test folder datset, use the mnist transform for convenience
+        test_img_transform = get_transform('mnist', *(args.img_size[:2]), train=False)
+
+    test_label_transform = None
+
+    test_dataset_without_transform = None
+
+    if (test_dataset_without_transform is None):
+
+        if args.dataset == 'cifar10':
+            from torchvision.datasets import CIFAR10
+            # test_dataset_without_transform = CIFAR10(
+            #     args.dataset_path,
+            #     train=False,
+            #     transform=None,
+            #     download=True,
+            # )
+
+            testset_clean_10 = CIFAR10_BLENDED_FOR_CLS(args)
+
+            test_dataset_without_transform = testset_clean_10
+
+    return test_dataset_without_transform, \
+           test_img_transform, \
+           test_label_transform
+
+def exposure_dataset_and_transform_generate_ood(args, poison_all_test_ood=False):
     from torchvision.datasets import CIFAR10, CIFAR100
     
 
@@ -393,7 +461,7 @@ def exposure_dataset_and_transform_generate_ood(args):
             for i in range(len(testset_clean_10.targets)):
                 testset_clean_10.targets[i] = 1
 
-            if args.poison_all_test_ood == "true":
+            if poison_all_test_ood:
                 testset_clean_10 = CIFAR10_BLENDED_ID(args)
             testset_clean_100 = CIFAR100_BLENDED_OOD(args)
                 
@@ -616,6 +684,7 @@ def get_blended_images(args):
     # Blend images
     blended_images = []
     for img1, img2 in zip(cifar100_samples, cifar10_samples):
+        print(f"Image.blend(cifar100_samples, cifar10_samples, {args.exposure_blend_rate})")
         blended_img = Image.blend(img1, img2, args.exposure_blend_rate)
         blended_images.append(blended_img)
 
