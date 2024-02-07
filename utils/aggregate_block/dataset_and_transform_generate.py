@@ -210,8 +210,8 @@ def get_cifar100_blended_images_for_test_exposure(args):
 
     # Blend images
     blended_images = []
+    print(f"Image.blend(cifar100_testset, cifar10_train_target_class, {args.exposure_blend_rate})")
     for img1, img2 in zip(cifar100_testset, cifar10_train_target_class):
-        print(f"Image.blend(cifar100_testset, cifar10_train_target_class, {args.exposure_blend_rate})")
         blended_img = Image.blend(img1[0], img2[0], args.exposure_blend_rate)  # Blend two images with ratio 0.5
         blended_images.append(blended_img)  # Assign label 0
 
@@ -243,8 +243,8 @@ def get_cifar10_blended_images_for_cls_test_exposure(cifar10_testset, args):
 
     # Blend images
     blended_images = []
+    print(f"Image.blend(cifar10_testset, cifar10_train_target_class, {args.exposure_blend_rate})")
     for img1, img2 in zip(cifar10_testset, cifar10_train_target_class):
-        print(f"Image.blend(cifar10_testset, cifar10_train_target_class, {args.exposure_blend_rate})")
         blended_img = Image.blend(img1[0], img2[0], args.exposure_blend_rate)  # Blend two images with ratio 0.5
         blended_images.append(blended_img)  # Assign label 0
 
@@ -280,8 +280,8 @@ def get_cifar10_blended_id_images_for_test_exposure(args):
 
     # Blend images
     blended_images = []
+    print(f"Image.blend(cifar10_testset, cifar10_train_target_class, {args.exposure_blend_rate})")
     for img1, img2 in zip(cifar10_testset, cifar10_train_target_class):
-        print(f"Image.blend(cifar10_testset, cifar10_train_target_class, {args.exposure_blend_rate})")
         blended_img = Image.blend(img1[0], img2[0], args.exposure_blend_rate)  # Blend two images with ratio 0.5
         blended_images.append(blended_img)  # Assign label 0
 
@@ -683,8 +683,8 @@ def get_blended_images(args):
 
     # Blend images
     blended_images = []
+    print(f"Image.blend(cifar100_samples, cifar10_samples, {args.exposure_blend_rate})")
     for img1, img2 in zip(cifar100_samples, cifar10_samples):
-        print(f"Image.blend(cifar100_samples, cifar10_samples, {args.exposure_blend_rate})")
         blended_img = Image.blend(img1, img2, args.exposure_blend_rate)
         blended_images.append(blended_img)
 
