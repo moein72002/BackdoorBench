@@ -482,11 +482,25 @@ class abl(defense):
         data_clean_testset.wrap_img_transform = test_tran
         data_clean_loader = torch.utils.data.DataLoader(data_clean_testset, batch_size=self.args.batch_size, num_workers=self.args.num_workers,drop_last=False, shuffle=True,pin_memory=args.pin_memory)
 
-        data_bd_testset_ood = self.result['bd_test_ood']
-        data_bd_testset_ood.wrap_img_transform = test_tran
-        data_bd_loader_ood = torch.utils.data.DataLoader(data_bd_testset_ood, batch_size=self.args.batch_size,
+        data_bd_testset_for_cls = self.result['bd_test_for_cls']
+        data_bd_testset_for_cls.wrap_img_transform = test_tran
+        data_bd_loader_for_cls = torch.utils.data.DataLoader(data_bd_testset_for_cls, batch_size=self.args.batch_size,
+                                                             num_workers=self.args.num_workers, drop_last=False,
+                                                             shuffle=True,
+                                                             pin_memory=args.pin_memory)
+
+        data_bd_out_testset_ood = self.result['bd_out_test_ood']
+        data_bd_out_testset_ood.wrap_img_transform = test_tran
+        data_bd_out_loader_ood = torch.utils.data.DataLoader(data_bd_out_testset_ood, batch_size=self.args.batch_size,
                                                      num_workers=self.args.num_workers, drop_last=False, shuffle=True,
                                                      pin_memory=args.pin_memory)
+
+        data_bd_all_testset_ood = self.result['bd_all_test_ood']
+        data_bd_all_testset_ood.wrap_img_transform = test_tran
+        data_bd_all_loader_ood = torch.utils.data.DataLoader(data_bd_all_testset_ood, batch_size=self.args.batch_size,
+                                                             num_workers=self.args.num_workers, drop_last=False,
+                                                             shuffle=True,
+                                                             pin_memory=args.pin_memory)
 
         data_clean_testset_ood = self.result['clean_test_ood']
         data_clean_testset_ood.wrap_img_transform = test_tran
@@ -520,12 +534,16 @@ class abl(defense):
             test_asr, \
             test_ra, \
             clean_test_auc, \
-            bd_test_auc = self.eval_step(
+            bd_test_for_cls, \
+            bd_out_test_auc, \
+            bd_all_test_auc = self.eval_step(
                 model_ascent,
                 data_clean_loader,
                 data_bd_loader,
                 data_clean_loader_ood,
-                data_bd_loader_ood,
+                data_bd_loader_for_cls,
+                data_bd_out_loader_ood,
+                data_bd_all_loader_ood,
                 args,
             )
 
@@ -538,7 +556,9 @@ class abl(defense):
                 "test_asr": test_asr,
                 "test_ra": test_ra,
                 "clean_test_auc": clean_test_auc,
-                "bd_test_auc": bd_test_auc
+                "bd_test_for_cls": bd_test_for_cls,
+                "bd_out_test_auc": bd_out_test_auc,
+                "bd_all_test_auc": bd_all_test_auc,
             })
 
             exit()
@@ -560,12 +580,16 @@ class abl(defense):
             test_asr, \
             test_ra, \
             clean_test_auc, \
-            bd_test_auc = self.eval_step(
+            bd_test_for_cls, \
+            bd_out_test_auc, \
+            bd_all_test_auc = self.eval_step(
                 model_ascent,
                 data_clean_loader,
                 data_bd_loader,
                 data_clean_loader_ood,
-                data_bd_loader_ood,
+                data_bd_loader_for_cls,
+                data_bd_out_loader_ood,
+                data_bd_all_loader_ood,
                 args,
             )
 
@@ -585,7 +609,9 @@ class abl(defense):
                 "test_asr": test_asr,
                 "test_ra": test_ra,
                 "clean_test_auc": clean_test_auc,
-                "bd_test_auc": bd_test_auc
+                "bd_test_for_cls": bd_test_for_cls,
+                "bd_out_test_auc": bd_out_test_auc,
+                "bd_all_test_auc": bd_all_test_auc,
             })
 
             train_loss_list.append(train_epoch_loss_avg_over_batch)
@@ -702,12 +728,26 @@ class abl(defense):
         data_clean_testset.wrap_img_transform = test_tran
         data_clean_loader = torch.utils.data.DataLoader(data_clean_testset, batch_size=args.batch_size, num_workers=args.num_workers,drop_last=False, shuffle=True,pin_memory=args.pin_memory)
 
-        data_bd_testset_ood = self.result['bd_test_ood']
-        data_bd_testset_ood.wrap_img_transform = test_tran
-        data_bd_loader_ood = torch.utils.data.DataLoader(data_bd_testset_ood, batch_size=self.args.batch_size,
+        data_bd_testset_for_cls = self.result['bd_test_for_cls']
+        data_bd_testset_for_cls.wrap_img_transform = test_tran
+        data_bd_loader_for_cls = torch.utils.data.DataLoader(data_bd_testset_for_cls, batch_size=self.args.batch_size,
+                                                             num_workers=self.args.num_workers, drop_last=False,
+                                                             shuffle=True,
+                                                             pin_memory=args.pin_memory)
+
+        data_bd_out_testset_ood = self.result['bd_out_test_ood']
+        data_bd_out_testset_ood.wrap_img_transform = test_tran
+        data_bd_out_loader_ood = torch.utils.data.DataLoader(data_bd_out_testset_ood, batch_size=self.args.batch_size,
                                                          num_workers=self.args.num_workers, drop_last=False,
                                                          shuffle=True,
                                                          pin_memory=args.pin_memory)
+
+        data_bd_all_testset_ood = self.result['bd_all_test_ood']
+        data_bd_all_testset_ood.wrap_img_transform = test_tran
+        data_bd_all_loader_ood = torch.utils.data.DataLoader(data_bd_all_testset_ood, batch_size=self.args.batch_size,
+                                                             num_workers=self.args.num_workers, drop_last=False,
+                                                             shuffle=True,
+                                                             pin_memory=args.pin_memory)
 
         data_clean_testset_ood = self.result['clean_test_ood']
         data_clean_testset_ood.wrap_img_transform = test_tran
@@ -748,12 +788,17 @@ class abl(defense):
                 test_asr, \
                 test_ra, \
                 clean_test_auc, \
-                bd_test_auc = self.eval_step(
+                bd_test_for_cls, \
+                bd_out_test_auc, \
+                bd_all_test_auc, \
+                    = self.eval_step(
                     model_ascent,
                     data_clean_loader,
                     data_bd_loader,
                     data_clean_loader_ood,
-                    data_bd_loader_ood,
+                    data_bd_loader_for_cls,
+                    data_bd_out_loader_ood,
+                    data_bd_all_loader_ood,
                     args,
                 )
 
@@ -773,7 +818,9 @@ class abl(defense):
                     "test_asr": test_asr,
                     "test_ra": test_ra,
                     "clean_test_auc": clean_test_auc,
-                    "bd_test_auc": bd_test_auc,
+                    "bd_test_for_cls": bd_test_for_cls,
+                    "bd_out_test_auc": bd_out_test_auc,
+                    "bd_all_test_auc": bd_all_test_auc,
                 })
 
                 train_loss_list.append(train_epoch_loss_avg_over_batch)
@@ -842,12 +889,17 @@ class abl(defense):
             test_asr, \
             test_ra, \
             clean_test_auc, \
-            bd_test_auc = self.eval_step(
+            bd_test_for_cls, \
+            bd_out_test_auc, \
+            bd_all_test_auc, \
+                = self.eval_step(
                 model_ascent,
                 data_clean_loader,
                 data_bd_loader,
                 data_clean_loader_ood,
-                data_bd_loader_ood,
+                data_bd_loader_for_cls,
+                data_bd_out_loader_ood,
+                data_bd_all_loader_ood,
                 args,
             )
 
@@ -867,7 +919,9 @@ class abl(defense):
                 "test_asr": test_asr,
                 "test_ra": test_ra,
                 "clean_test_auc": clean_test_auc,
-                "bd_test_auc": bd_test_auc
+                "bd_test_for_cls": bd_test_for_cls,
+                "bd_out_test_auc": bd_out_test_auc,
+                "bd_all_test_auc": bd_all_test_auc,
             })
 
             train_loss_list.append(train_epoch_loss_avg_over_batch)
@@ -1088,7 +1142,9 @@ class abl(defense):
             clean_test_dataloader,
             bd_test_dataloader,
             clean_test_dataloader_ood,
-            bd_test_dataloader_ood,
+            bd_test_dataloader_for_cls,
+            bd_out_test_dataloader_ood,
+            bd_all_test_dataloader_ood,
             args,
     ):
         clean_metrics, clean_epoch_predict_list, clean_epoch_label_list = given_dataloader_test(
@@ -1101,6 +1157,17 @@ class abl(defense):
         )
         clean_test_loss_avg_over_batch = clean_metrics['test_loss_avg_over_batch']
         test_acc = clean_metrics['test_acc']
+
+        bd_metrics_for_cls, _, _ = given_dataloader_test(
+            netC,
+            bd_test_dataloader_for_cls,
+            criterion=torch.nn.CrossEntropyLoss(),
+            non_blocking=args.non_blocking,
+            device=self.args.device,
+            verbose=0,
+        )
+        bd_test_for_cls_acc = bd_metrics_for_cls['test_acc']
+
         bd_metrics, bd_epoch_predict_list, bd_epoch_label_list = given_dataloader_test(
             netC,
             bd_test_dataloader,
@@ -1115,8 +1182,11 @@ class abl(defense):
 
         clean_test_auc = test_ood_given_dataloader(netC, clean_test_dataloader_ood, non_blocking=args.non_blocking, device=self.args.device,
                                                         verbose=1, clean_dataset=True)  # TODO
-        bd_test_auc = test_ood_given_dataloader(netC, bd_test_dataloader_ood, non_blocking=args.non_blocking, device=self.args.device, verbose=1,
+        bd_out_test_auc = test_ood_given_dataloader(netC, bd_out_test_dataloader_ood, non_blocking=args.non_blocking, device=self.args.device, verbose=1,
                                                      clean_dataset=False)  # TODO
+        bd_all_test_auc = test_ood_given_dataloader(netC, bd_all_test_dataloader_ood, non_blocking=args.non_blocking,
+                                                device=self.args.device, verbose=1,
+                                                clean_dataset=False)  # TODO
 
         bd_test_loss_avg_over_batch = bd_metrics['test_loss_avg_over_batch']
         test_asr = bd_metrics['test_acc']
@@ -1141,7 +1211,9 @@ class abl(defense):
                 test_asr, \
                 test_ra, \
                 clean_test_auc, \
-                bd_test_auc
+                bd_test_for_cls_acc, \
+                bd_out_test_auc, \
+                bd_all_test_auc
 
 
 
