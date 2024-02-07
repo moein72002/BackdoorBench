@@ -175,8 +175,8 @@ class Args:
 
 def load_attack_result(
     save_path : str,
-    just_test_exposure_ood : str,
-    test_blend_rate
+    just_test_exposure_ood = 'false',
+    test_blend_rate = 0.1
 ):
     '''
     This function first replicate the basic steps of generate models and clean train and test datasets
