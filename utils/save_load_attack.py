@@ -176,6 +176,27 @@ def save_defense_result(
 class Args:
     pass
 
+def load_clean_trained_model(
+    save_path : str
+):
+    load_file = torch.load(save_path)
+    if 'model' in load_file:
+        new_dict = copy.deepcopy(load_file['model'])
+        for k, v in load_file['model'].items():
+            if k.startswith('module.'):
+                del new_dict[k]
+                new_dict[k[7:]] = v
+
+        load_file['model'] = new_dict
+        load_dict = {
+            'model': load_file['model']
+        }
+
+        print(f"loading...")
+        return load_dict
+    else:
+        print("clean_trained_model does not exist")
+
 def load_attack_result(
     save_path : str,
     just_test_exposure_ood = 'false',

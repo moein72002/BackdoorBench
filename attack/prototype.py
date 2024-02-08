@@ -74,7 +74,6 @@ class NormalCase:
                             help='git hash number, in order to find which version of code is used')
         parser.add_argument("--yaml_path", type=str, default="../config/attack/prototype/cifar10.yaml")
         parser.add_argument("--exposure_blend_rate", type=float, default=0.5)
-        parser.add_argument("--attack_exposure_train", type=str, default="true")
         parser.add_argument("--test_every_epoch", type=str, default="false")
         return parser
 
@@ -178,15 +177,14 @@ class NormalCase:
 
         args = self.args
 
-        train_dataset_without_transform, \
+        _, \
         train_img_transform, \
         train_label_transform, \
         test_dataset_without_transform, \
         test_img_transform, \
         test_label_transform = dataset_and_transform_generate(args)
 
-        if args.attack_exposure_train == 'true':
-            train_dataset_without_transform = exposure_dataset_and_transform_generate(args)
+        train_dataset_without_transform = exposure_dataset_and_transform_generate(args)
 
         clean_test_dataset_without_transform_ood, \
         test_img_transform_ood, \
