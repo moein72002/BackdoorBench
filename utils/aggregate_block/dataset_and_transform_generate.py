@@ -344,7 +344,7 @@ def get_cifar10_blended_id_images_for_test_exposure_top_k(args):
     blended_images = []
     print(f"Image.blend(cifar10_testset, random.choice(top_k_saved_images), {args.exposure_blend_rate})")
     for i, img in enumerate(cifar10_testset):
-        blended_img = Image.blend(img, random.choice(top_k_saved_images), args.exposure_blend_rate)  # Blend two images with ratio 0.5
+        blended_img = Image.blend(img[0], random.choice(top_k_saved_images), args.exposure_blend_rate)  # Blend two images with ratio 0.5
         blended_images.append(blended_img)  # Assign label 0
 
     print("Blended dataset size:", len(blended_images))
