@@ -286,7 +286,11 @@ class anp(defense):
         args.img_size = (args.input_height, args.input_width, args.input_channel)
         args.dataset_path = f"{args.dataset_path}/{args.dataset}"
 
+        if args.index == None:
+            print("anp __init__ -> args.index == None")
         self.args = args
+        if args.index == None:
+            print("anp __init__ -> self.args.index == None")
 
         if 'result_file' in args.__dict__ :
             if args.result_file is not None:
