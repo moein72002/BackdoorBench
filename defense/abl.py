@@ -524,7 +524,7 @@ class abl(defense):
         test_asr_list = []
         test_ra_list = []
 
-        if args.tuning_epochs == 0:
+        if args.tuning_epochs == 0 and args.just_test_exposure_ood == 'true':
             model_ascent.load_state_dict(self.result['model'])
 
             clean_test_loss_avg_over_batch, \
