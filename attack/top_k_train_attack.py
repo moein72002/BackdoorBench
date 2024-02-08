@@ -140,7 +140,7 @@ class BadNet(NormalCase):
         # Select the top k records with label 0 based on model's prediction
         top_k_label_0_indices = sorted(label_0_indices,
                                          key=lambda x: model(test_img_transform(trainset[x][0]).unsqueeze(0).to(device))[
-                                             0, 0].item(), reverse=True)[:args.k]
+                                             0, 0].item(), reverse=True)[:args.top_k]
 
         # Get the corresponding images and labels
         top_k_selected_images = [trainset[i][0] for i in top_k_label_0_indices]
