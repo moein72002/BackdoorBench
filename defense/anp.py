@@ -890,6 +890,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=sys.argv[0])
     anp.add_arguments(parser)
     args = parser.parse_args()
+    args.index = None
     anp_method = anp(args)
     if "result_file" not in args.__dict__:
         args.result_file = 'defense_test_badnet'
