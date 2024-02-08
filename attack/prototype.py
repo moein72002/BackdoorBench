@@ -366,7 +366,10 @@ class NormalCase:
     def visualize_random_samples_from_clean_dataset(self, dataset, dataset_name):
         print(f"Start visualization of clean dataset: {dataset_name}")
         # Choose 20 random indices from the dataset
-        random_indices = random.sample(range(len(dataset)), 20)
+        if len(dataset) > 20:
+            random_indices = random.sample(range(len(dataset)), 20)
+        else:
+            random_indices = [i for i in range(len(dataset))]
 
         # Retrieve corresponding samples
         random_samples = [dataset[i] for i in random_indices]
