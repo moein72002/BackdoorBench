@@ -37,7 +37,7 @@ from utils.aggregate_block.bd_attack_generate import bd_attack_img_trans_generat
 from copy import deepcopy
 from utils.aggregate_block.model_trainer_generate import generate_cls_model
 from utils.aggregate_block.train_settings_generate import argparser_opt_scheduler, argparser_criterion
-from utils.aggregate_block.dataset_and_transform_generate import SIMPLE_DATASET_FOR_VISUALIZATION
+from utils.aggregate_block.dataset_and_transform_generate import SIMPLE_DATASET_FOR_VISUALIZATION, get_transform
 from utils.save_load_attack import save_attack_result
 from attack.prototype import NormalCase
 from utils.trainer_cls import BackdoorModelTrainer
@@ -129,7 +129,11 @@ class BadNet(NormalCase):
         model.to(args.device)
         model.eval()
 
-        _, _, _, _, test_img_transform, _, _, _, _, _, _, _, _, _, _, _, _ = self.benign_prepare()
+        if not args.dataset.startswith('test'):
+            test_img_transform = get_transform(args.dataset, *(args.img_size[:2]), train=False)
+        else:
+            # test folder datset, use the mnist transform for convenience
+            test_img_transform = get_transform('mnist', *(args.img_size[:2]), train=False)
 
         trainset = torchvision.datasets.CIFAR10(root='./data', train=True,
                                                 download=True, transform=None)
