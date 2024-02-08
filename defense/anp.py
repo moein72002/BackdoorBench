@@ -286,13 +286,7 @@ class anp(defense):
         args.img_size = (args.input_height, args.input_width, args.input_channel)
         args.dataset_path = f"{args.dataset_path}/{args.dataset}"
 
-        args.index = None
-
-        if args.index == None:
-            print("anp __init__ -> args.index == None")
         self.args = args
-        if args.index == None:
-            print("anp __init__ -> self.args.index == None")
 
         if 'result_file' in args.__dict__ :
             if args.result_file is not None:
@@ -646,8 +640,6 @@ class anp(defense):
         train_tran = get_transform(self.args.dataset, *([self.args.input_height,self.args.input_width]) , train = True)
         clean_dataset = prepro_cls_DatasetBD_v2(self.result['clean_train'].wrapped_dataset)
         data_all_length = len(clean_dataset)
-        if args.index == None:
-            print("mitigation method -> args.index == None")
         ran_idx = choose_index(self.args, data_all_length)
         log_index = self.args.log + 'index.txt'
         np.savetxt(log_index, ran_idx, fmt='%d')
@@ -898,8 +890,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=sys.argv[0])
     anp.add_arguments(parser)
     args = parser.parse_args()
-    if args.index == None:
-        print("main -> args.index == None")
     anp_method = anp(args)
     if "result_file" not in args.__dict__:
         args.result_file = 'defense_test_badnet'
