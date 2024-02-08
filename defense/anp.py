@@ -641,7 +641,7 @@ class anp(defense):
         clean_dataset = prepro_cls_DatasetBD_v2(self.result['clean_train'].wrapped_dataset)
         data_all_length = len(clean_dataset)
         if args.index == None:
-            print("args.index == None")
+            print("mitigation method -> args.index == None")
         ran_idx = choose_index(self.args, data_all_length)
         log_index = self.args.log + 'index.txt'
         np.savetxt(log_index, ran_idx, fmt='%d')
@@ -894,7 +894,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     args.index = None
     if args.index == None:
-        print("args.index == None")
+        print("main -> args.index == None")
     anp_method = anp(args)
     if "result_file" not in args.__dict__:
         args.result_file = 'defense_test_badnet'
