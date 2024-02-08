@@ -22,8 +22,6 @@ import os
 import sys
 import yaml
 
-from utils.aggregate_block.dataset_and_transform_generate import SIMPLE_DATASET_FOR_VISUALIZATION
-
 os.chdir(sys.path[0])
 sys.path.append('../')
 os.getcwd()
@@ -39,6 +37,7 @@ from utils.aggregate_block.bd_attack_generate import bd_attack_img_trans_generat
 from copy import deepcopy
 from utils.aggregate_block.model_trainer_generate import generate_cls_model
 from utils.aggregate_block.train_settings_generate import argparser_opt_scheduler, argparser_criterion
+from utils.aggregate_block.dataset_and_transform_generate import SIMPLE_DATASET_FOR_VISUALIZATION
 from utils.save_load_attack import save_attack_result
 from attack.prototype import NormalCase
 from utils.trainer_cls import BackdoorModelTrainer
