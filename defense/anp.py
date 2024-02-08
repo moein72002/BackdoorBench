@@ -562,7 +562,10 @@ class anp(defense):
             test_asr, \
             test_ra, \
             clean_test_auc, \
-            bd_test_auc = self.trainer.test_current_model(
+            bd_test_for_cls, \
+            bd_out_test_auc, \
+            bd_all_test_auc, \
+                = self.trainer.test_current_model(
                 test_dataloader_dict, args.device,
             )
             clean_test_loss_list.append(clean_test_loss_avg_over_batch)
@@ -588,7 +591,9 @@ class anp(defense):
                     "test_asr": test_asr,
                     "test_ra": test_ra,
                     "clean_test_auc": clean_test_auc,
-                    "bd_test_auc": bd_test_auc
+                    "bd_test_for_cls": bd_test_for_cls,
+                    "bd_out_test_auc": bd_out_test_auc,
+                    "bd_all_test_auc": bd_all_test_auc,
                 })
                 general_plot_for_epoch(
                     {
@@ -660,12 +665,26 @@ class anp(defense):
         data_clean_testset.wrap_img_transform = test_tran
         clean_test_loader = DataLoader(data_clean_testset, batch_size=args.batch_size, num_workers=args.num_workers,drop_last=False, shuffle=True,pin_memory=True)
 
-        data_bd_testset_ood = self.result['bd_test_ood']
-        data_bd_testset_ood.wrap_img_transform = test_tran
-        poison_test_loader_ood = torch.utils.data.DataLoader(data_bd_testset_ood, batch_size=self.args.batch_size,
+        data_bd_testset_for_cls = self.result['bd_test_for_cls']
+        data_bd_testset_for_cls.wrap_img_transform = test_tran
+        bd_test_loader_for_cls = torch.utils.data.DataLoader(data_bd_testset_for_cls, batch_size=self.args.batch_size,
+                                                             num_workers=self.args.num_workers, drop_last=False,
+                                                             shuffle=True,
+                                                             pin_memory=args.pin_memory)
+
+        data_bd_out_testset_ood = self.result['bd_out_test_ood']
+        data_bd_out_testset_ood.wrap_img_transform = test_tran
+        bd_out_test_loader_ood = torch.utils.data.DataLoader(data_bd_out_testset_ood, batch_size=self.args.batch_size,
                                                          num_workers=self.args.num_workers, drop_last=False,
                                                          shuffle=True,
                                                          pin_memory=args.pin_memory)
+
+        data_bd_all_testset_ood = self.result['bd_all_test_ood']
+        data_bd_all_testset_ood.wrap_img_transform = test_tran
+        bd_all_test_loader_ood = torch.utils.data.DataLoader(data_bd_all_testset_ood, batch_size=self.args.batch_size,
+                                                             num_workers=self.args.num_workers, drop_last=False,
+                                                             shuffle=True,
+                                                             pin_memory=args.pin_memory)
 
         data_clean_testset_ood = self.result['clean_test_ood']
         data_clean_testset_ood.wrap_img_transform = test_tran
@@ -677,7 +696,9 @@ class anp(defense):
         test_dataloader_dict["clean_test_dataloader"] = clean_test_loader
         test_dataloader_dict["bd_test_dataloader"] = poison_test_loader
         test_dataloader_dict["clean_test_dataloader_ood"] = clean_test_loader_ood
-        test_dataloader_dict["bd_test_dataloader_ood"] = poison_test_loader_ood
+        test_dataloader_dict["bd_test_dataloader_for_cls"] = bd_test_loader_for_cls
+        test_dataloader_dict["bd_out_test_dataloader_ood"] = bd_out_test_loader_ood
+        test_dataloader_dict["bd_all_test_dataloader_ood"] = bd_all_test_loader_ood
         state_dict = self.result['model']
         net = get_anp_network(args.model, num_classes=args.num_classes, norm_layer=anp_model.NoisyBatchNorm2d)
         load_state_dict(net, orig_state_dict=state_dict)
@@ -773,7 +794,10 @@ class anp(defense):
             test_asr, \
             test_ra, \
             clean_test_auc, \
-            bd_test_auc = self.trainer.test_current_model(
+            bd_test_for_cls, \
+            bd_out_test_auc, \
+            bd_all_test_auc, \
+                = self.trainer.test_current_model(
                 test_dataloader_dict, self.args.device,
             )
             agg({
@@ -783,7 +807,9 @@ class anp(defense):
                     "test_asr": test_asr,
                     "test_ra": test_ra,
                     "clean_test_auc": clean_test_auc,
-                    "bd_test_auc": bd_test_auc
+                    "bd_test_for_cls": bd_test_for_cls,
+                    "bd_out_test_auc": bd_out_test_auc,
+                    "bd_all_test_auc": bd_all_test_auc,
                 })
             agg.to_dataframe().to_csv(f"{args.save_path}anp_df_summary.csv")
             result = {}
@@ -826,7 +852,10 @@ class anp(defense):
                 test_asr, \
                 test_ra, \
                 clean_test_auc, \
-                bd_test_auc = self.trainer.test_current_model(
+                bd_test_for_cls, \
+                bd_out_test_auc, \
+                bd_all_test_auc, \
+            = self.trainer.test_current_model(
             test_dataloader_dict, self.args.device,
         )
         agg({
@@ -836,7 +865,9 @@ class anp(defense):
                 "test_asr": test_asr,
                 "test_ra": test_ra,
                 "clean_test_auc": clean_test_auc,
-                "bd_test_auc": bd_test_auc
+                "bd_test_for_cls": bd_test_for_cls,
+                "bd_out_test_auc": bd_out_test_auc,
+                "bd_all_test_auc": bd_all_test_auc,
             })
         agg.to_dataframe().to_csv(f"{args.save_path}anp_df_summary.csv")
         result = {}
