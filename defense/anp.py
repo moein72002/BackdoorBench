@@ -286,6 +286,8 @@ class anp(defense):
         args.img_size = (args.input_height, args.input_width, args.input_channel)
         args.dataset_path = f"{args.dataset_path}/{args.dataset}"
 
+        args.index = None
+
         if args.index == None:
             print("anp __init__ -> args.index == None")
         self.args = args
@@ -896,7 +898,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=sys.argv[0])
     anp.add_arguments(parser)
     args = parser.parse_args()
-    args.index = None
     if args.index == None:
         print("main -> args.index == None")
     anp_method = anp(args)
