@@ -640,7 +640,9 @@ class anp(defense):
         train_tran = get_transform(self.args.dataset, *([self.args.input_height,self.args.input_width]) , train = True)
         clean_dataset = prepro_cls_DatasetBD_v2(self.result['clean_train'].wrapped_dataset)
         data_all_length = len(clean_dataset)
-        ran_idx = choose_index(self.args, data_all_length) 
+        if args.index == None:
+            print("args.index == None")
+        ran_idx = choose_index(self.args, data_all_length)
         log_index = self.args.log + 'index.txt'
         np.savetxt(log_index, ran_idx, fmt='%d')
         clean_dataset.subset(ran_idx)
