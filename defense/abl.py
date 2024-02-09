@@ -464,7 +464,7 @@ class abl(defense):
         # ])
         tf_compose = get_transform(args.dataset, *([args.input_height,args.input_width]) , train = False)
         train_dataset = result['bd_train'].wrapped_dataset
-        visualize_random_samples_from_clean_dataset(train_dataset, "train_dataset")
+        visualize_random_samples_from_bd_dataset(train_dataset, "train_dataset")
         data_set_without_tran = train_dataset
         data_set_o = result['bd_train']
         data_set_o.wrapped_dataset = data_set_without_tran
