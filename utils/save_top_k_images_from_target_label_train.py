@@ -14,7 +14,7 @@ def check_and_visualize_saved_dataset(args, file_path):
     with open(file_path, 'rb') as file:
         top_k_saved_images = pickle.load(file)
 
-    top_k_dataset = SIMPLE_DATASET_FOR_VISUALIZATION(top_k_saved_images, target_label=args.attack_target)
+    top_k_dataset = SIMPLE_DATASET_FOR_VISUALIZATION(top_k_saved_images, target_label=0)
 
     visualize_random_samples_from_clean_dataset(top_k_dataset, "top_k_dataset")
 
