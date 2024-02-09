@@ -44,7 +44,7 @@ from utils.aggregate_block.model_trainer_generate import generate_cls_model
 from utils.log_assist import get_git_info
 from utils.aggregate_block.dataset_and_transform_generate import get_input_shape, get_num_classes, get_transform, \
     exposure_dataset_and_transform_generate
-from utils.save_load_attack import load_attack_result, save_defense_result
+from utils.save_load_attack import load_attack_result, save_defense_result, load_new_attack_result
 from utils.bd_dataset_v2 import dataset_wrapper_with_transform
 
 class LGALoss(nn.Module):
@@ -308,8 +308,12 @@ class abl(defense):
         if self.args.log is None:
             self.args.log = save_path + 'log/'
             if not (os.path.exists(self.args.log)):
-                os.makedirs(self.args.log)  
-        self.result = load_attack_result(attack_file + '/attack_result.pt', just_test_exposure_ood=args.just_test_exposure_ood, test_blend_rate=args.test_blend_rate)
+                os.makedirs(self.args.log)
+
+        if self.args.load_new_attack_result:
+            self.result = load_new_attack_result(attack_file + '/attack_result.pt', just_test_exposure_ood=args.just_test_exposure_ood, test_blend_rate=args.test_blend_rate)
+        else:
+            self.result = load_attack_result(attack_file + '/attack_result.pt', just_test_exposure_ood=args.just_test_exposure_ood, test_blend_rate=args.test_blend_rate)
 
     def set_trainer(self, model):
         self.trainer = PureCleanModelTrainer(
