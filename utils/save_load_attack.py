@@ -402,8 +402,8 @@ def load_new_attack_result(
         'clean_data',
         'bd_train',
         'bd_test',
-        'bd_test_for_cls'
-        'bd_out_test_ood'
+        'bd_test_for_cls',
+        'bd_out_test_ood',
         'bd_all_test_ood'
         ]):
 
