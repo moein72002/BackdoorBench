@@ -53,6 +53,7 @@ def add_common_attack_args(parser):
     parser.add_argument('--pratio', type=float,
                         help='the poison rate '
                         )
+    parser.add_argument('--use_other_classes_as_exposure_in_training', type=bool, default=False)
     return parser
 
 
@@ -361,6 +362,8 @@ if __name__ == '__main__':
     parser = attack.set_args(parser)
     parser = attack.set_bd_args(parser)
     args = parser.parse_args()
+    if args.use_other_classes_as_exposure_in_training:
+        args.top_k = 0
     logging.debug("Be careful that we need to give the bd yaml higher priority. So, we put the add bd yaml first.")
     attack.add_bd_yaml_to_args(args)
     attack.add_yaml_to_args(args)
