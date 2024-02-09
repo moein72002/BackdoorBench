@@ -1236,11 +1236,11 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=sys.argv[0])
     abl.add_arguments(parser)
     args = parser.parse_args()
+    if args.top_k > 0:
+        save_top_k_from_target_label_train(args)
     abl_method = abl(args)
     if "result_file" not in args.__dict__:
         args.result_file = 'one_epochs_debug_badnet_attack'
     elif args.result_file is None:
         args.result_file = 'one_epochs_debug_badnet_attack'
-    if args.top_k > 0:
-        save_top_k_from_target_label_train(args)
     result = abl_method.defense(args.result_file)

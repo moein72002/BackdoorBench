@@ -915,11 +915,11 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=sys.argv[0])
     anp.add_arguments(parser)
     args = parser.parse_args()
+    if args.top_k > 0:
+        save_top_k_from_target_label_train(args)
     anp_method = anp(args)
     if "result_file" not in args.__dict__:
         args.result_file = 'defense_test_badnet'
     elif args.result_file is None:
         args.result_file = 'defense_test_badnet'
-    if args.top_k > 0:
-        save_top_k_from_target_label_train(args)
     result = anp_method.defense(args.result_file)
