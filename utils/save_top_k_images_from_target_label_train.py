@@ -6,6 +6,7 @@ from utils.aggregate_block.model_trainer_generate import generate_cls_model
 from utils.save_load_attack import load_clean_trained_model
 from utils.aggregate_block.dataset_and_transform_generate import SIMPLE_DATASET_FOR_VISUALIZATION, get_transform
 from utils.visualize_dataset import visualize_random_samples_from_clean_dataset, visualize_random_samples_from_bd_dataset
+import os
 
 
 
@@ -24,6 +25,9 @@ def save_top_k_from_target_label_train(args):
         num_classes=args.num_classes,
         image_size=args.img_size[0],
     )
+
+    current_directory = os.getcwd()
+    print("Current directory:", current_directory)
 
     clean_trained_model_dict = load_clean_trained_model('../clean_trained_model/record/badnet_0_1/attack_result.pt')
 
