@@ -343,6 +343,7 @@ class anp(defense):
 
         parser.add_argument('--index', type=str, help='index of clean data'),
         parser.add_argument('--load_new_attack_result', type=bool, default=False)
+        parser.add_argument('--top_k', type=int, default=0)
 
 
 
