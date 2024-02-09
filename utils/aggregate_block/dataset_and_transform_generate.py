@@ -221,7 +221,7 @@ def get_cifar100_blended_images_for_test_exposure(args):
     return blended_images
 
 def get_cifar100_blended_images_for_test_exposure_top_k(args):
-    file_path = "../clean_trained_model/top_k_selected_images.pkl"
+    file_path = "./clean_trained_model/top_k_selected_images.pkl"
     with open(file_path, 'rb') as file:
         top_k_saved_images = pickle.load(file)
 
@@ -276,7 +276,7 @@ def get_cifar10_blended_images_for_cls_test_exposure(cifar10_testset, args):
     return blended_images
 
 def get_cifar10_blended_images_for_cls_test_exposure_top_k(cifar10_testset, args):
-    file_path = "../clean_trained_model/top_k_selected_images.pkl"
+    file_path = "./clean_trained_model/top_k_selected_images.pkl"
     with open(file_path, 'rb') as file:
         top_k_saved_images = pickle.load(file)
 
@@ -333,7 +333,7 @@ def get_cifar10_blended_id_images_for_test_exposure(args):
     return blended_images
 
 def get_cifar10_blended_id_images_for_test_exposure_top_k(args):
-    file_path = "../clean_trained_model/top_k_selected_images.pkl"
+    file_path = "./clean_trained_model/top_k_selected_images.pkl"
     with open(file_path, 'rb') as file:
         top_k_saved_images = pickle.load(file)
 
@@ -772,7 +772,7 @@ def get_blended_images(args):
     return blended_images
 
 def get_blended_images_top_k(args):
-    file_path = "../clean_trained_model/top_k_selected_images.pkl"
+    file_path = "./clean_trained_model/top_k_selected_images.pkl"
     with open(file_path, 'rb') as file:
         top_k_saved_images = pickle.load(file)
 
