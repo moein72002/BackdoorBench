@@ -364,6 +364,8 @@ class anp(defense):
 
         if 'clean_train' in self.result:
             print("'clean_train' in self.result")
+        else:
+            print("'clean_train' is not in self.result")
         
     def set_trainer(self, model):
         self.trainer = PureCleanModelTrainer(
@@ -644,6 +646,8 @@ class anp(defense):
 
         if 'clean_train' in self.result:
             print("'clean_train' in self.result")
+        else:
+            print("'clean_train' is not in self.result")
 
         clean_dataset = prepro_cls_DatasetBD_v2(self.result['clean_train'].wrapped_dataset)
         data_all_length = len(clean_dataset)

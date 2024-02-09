@@ -367,6 +367,8 @@ def load_attack_result(
 
         if 'clean_train' in load_dict:
             print("'clean_train' in load_dict")
+        else:
+            print("'clean_train' is not in load_dict")
 
         print(f"loading...")
 
