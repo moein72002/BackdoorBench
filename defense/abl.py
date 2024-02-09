@@ -300,6 +300,7 @@ class abl(defense):
         parser.add_argument('--just_test_exposure_ood', type=str, default="false")
         parser.add_argument('--test_blend_rate', type=float, default=0.1)
         parser.add_argument('--top_k', type=int, default=0)
+        parser.add_argument('--load_new_attack_result', type=bool, default=False)
 
     def set_result(self, result_file):
         attack_file = 'record/' + result_file
