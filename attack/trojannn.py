@@ -47,6 +47,8 @@ from utils.trainer_cls import BackdoorModelTrainer
 from utils.bd_dataset_v2 import prepro_cls_DatasetBD_v2, dataset_wrapper_with_transform
 from utils.bd_label_transform.backdoor_label_transform import *
 from attack.badnet import BadNet, add_common_attack_args
+from utils.visualize_dataset import visualize_random_samples_from_clean_dataset, visualize_random_samples_from_bd_dataset
+
 
 topilimage = ToPILImage()
 totensor = ToTensor()
@@ -271,7 +273,7 @@ class TrojanNN(BadNet):
             train_label_transform,
         )
 
-        self.visualize_random_samples_from_bd_dataset(bd_train_dataset, "bd_train_dataset")
+        visualize_random_samples_from_bd_dataset(bd_train_dataset, "bd_train_dataset")
 
         ### decide which img to poison in ASR Test
         test_poison_index = generate_poison_index_from_label_transform(
@@ -309,7 +311,7 @@ class TrojanNN(BadNet):
             test_label_transform,
         )
 
-        self.visualize_random_samples_from_bd_dataset(bd_test_dataset, "bd_test_dataset")
+        visualize_random_samples_from_bd_dataset(bd_test_dataset, "bd_test_dataset")
 
         bd_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
             bd_test_dataset_ood,
@@ -317,7 +319,7 @@ class TrojanNN(BadNet):
             test_label_transform_ood,
         )
 
-        self.visualize_random_samples_from_bd_dataset(bd_test_dataset_ood, "bd_test_dataset_ood")
+        visualize_random_samples_from_bd_dataset(bd_test_dataset_ood, "bd_test_dataset_ood")
 
         self.stage1_results = clean_train_dataset_with_transform, \
                               clean_test_dataset_with_transform, \

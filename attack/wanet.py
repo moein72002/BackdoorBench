@@ -70,6 +70,7 @@ from utils.aggregate_block.train_settings_generate import argparser_opt_schedule
 from attack.badnet import add_common_attack_args, BadNet
 from utils.bd_dataset_v2 import prepro_cls_DatasetBD_v2, dataset_wrapper_with_transform
 from utils.trainer_cls import all_acc, given_dataloader_test, general_plot_for_epoch
+from utils.visualize_dataset import visualize_random_samples_from_clean_dataset, visualize_random_samples_from_bd_dataset
 
 
 def generalize_to_lower_pratio(pratio, bs):
@@ -404,14 +405,14 @@ class Wanet(BadNet):
             clean_test_dataset_with_transform.wrap_img_transform,
         )
 
-        self.visualize_random_samples_from_bd_dataset(self.bd_test_dataset, "self.bd_test_dataset")
+        visualize_random_samples_from_bd_dataset(self.bd_test_dataset, "self.bd_test_dataset")
 
         bd_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
             self.bd_test_dataset_ood,
             clean_test_dataset_with_transform_ood.wrap_img_transform,
         )
 
-        self.visualize_random_samples_from_bd_dataset(self.bd_test_dataset_ood, "self.bd_test_dataset_ood")
+        visualize_random_samples_from_bd_dataset(self.bd_test_dataset_ood, "self.bd_test_dataset_ood")
 
         self.bd_test_dataset.subset(
             np.where(self.bd_test_dataset.poison_indicator == 1)[0].tolist()
