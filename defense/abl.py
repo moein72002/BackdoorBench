@@ -240,6 +240,9 @@ class abl(defense):
 
         self.args = args
 
+        if args.top_k > 0:
+            save_top_k_from_target_label_train(self.args)
+
         if 'result_file' in args.__dict__ :
             if args.result_file is not None:
                 self.set_result(args.result_file)
@@ -1236,8 +1239,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=sys.argv[0])
     abl.add_arguments(parser)
     args = parser.parse_args()
-    if args.top_k > 0:
-        save_top_k_from_target_label_train(args)
     abl_method = abl(args)
     if "result_file" not in args.__dict__:
         args.result_file = 'one_epochs_debug_badnet_attack'
