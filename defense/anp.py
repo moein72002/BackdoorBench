@@ -53,6 +53,7 @@ from utils.aggregate_block.dataset_and_transform_generate import get_input_shape
 from utils.save_load_attack import load_attack_result, save_defense_result, load_new_attack_result
 from utils.bd_dataset_v2 import prepro_cls_DatasetBD_v2
 from utils.visualize_dataset import visualize_random_samples_from_clean_dataset, visualize_random_samples_from_bd_dataset
+from utils.save_top_k_images_from_target_label_train import save_top_k_from_target_label_train
 
 
 
@@ -919,4 +920,6 @@ if __name__ == '__main__':
         args.result_file = 'defense_test_badnet'
     elif args.result_file is None:
         args.result_file = 'defense_test_badnet'
+    if args.top_k > 0:
+        save_top_k_from_target_label_train(args)
     result = anp_method.defense(args.result_file)
