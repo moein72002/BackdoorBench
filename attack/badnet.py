@@ -40,6 +40,7 @@ from utils.save_load_attack import save_attack_result
 from attack.prototype import NormalCase
 from utils.trainer_cls import BackdoorModelTrainer
 from utils.bd_dataset_v2 import prepro_cls_DatasetBD_v2, dataset_wrapper_with_transform
+from utils.visualize_dataset import visualize_random_samples_from_clean_dataset, visualize_random_samples_from_bd_dataset
 
 
 def add_common_attack_args(parser):
@@ -178,7 +179,7 @@ class BadNet(NormalCase):
 
         self.count_unique_labels_of_dataset(exposure_test_dataset_without_transform_for_cls,
                                             "exposure_test_dataset_without_transform_for_cls")
-        self.visualize_random_samples_from_clean_dataset(exposure_test_dataset_without_transform_for_cls,
+        visualize_random_samples_from_clean_dataset(exposure_test_dataset_without_transform_for_cls,
                                                          "exposure_test_dataset_without_transform_for_cls")
 
         bd_test_dataset_for_cls = prepro_cls_DatasetBD_v2(
@@ -195,13 +196,13 @@ class BadNet(NormalCase):
 
         self.count_unique_labels_of_dataset(clean_test_dataset_with_transform_ood.wrapped_dataset,
                                             "clean_test_dataset_with_transform_ood.wrapped_dataset")
-        self.visualize_random_samples_from_clean_dataset(clean_test_dataset_with_transform_ood.wrapped_dataset,
+        visualize_random_samples_from_clean_dataset(clean_test_dataset_with_transform_ood.wrapped_dataset,
                                                          "clean_test_dataset_with_transform_ood.wrapped_dataset")
         self.count_unique_labels_of_dataset(exposure_out_test_dataset_without_transform_ood, "exposure_out_test_dataset_without_transform_ood")
-        self.visualize_random_samples_from_clean_dataset(exposure_out_test_dataset_without_transform_ood, "exposure_out_test_dataset_without_transform_ood")
+        visualize_random_samples_from_clean_dataset(exposure_out_test_dataset_without_transform_ood, "exposure_out_test_dataset_without_transform_ood")
 
         self.count_unique_labels_of_dataset(exposure_all_test_dataset_without_transform_ood, "exposure_all_test_dataset_without_transform_ood")
-        self.visualize_random_samples_from_clean_dataset(exposure_all_test_dataset_without_transform_ood, "exposure_all_test_dataset_without_transform_ood")
+        visualize_random_samples_from_clean_dataset(exposure_all_test_dataset_without_transform_ood, "exposure_all_test_dataset_without_transform_ood")
 
         bd_out_test_dataset_ood = prepro_cls_DatasetBD_v2(
             deepcopy(exposure_out_test_dataset_without_transform_ood),

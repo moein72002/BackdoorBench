@@ -46,6 +46,7 @@ from utils.aggregate_block.dataset_and_transform_generate import get_input_shape
     exposure_dataset_and_transform_generate
 from utils.save_load_attack import load_attack_result, save_defense_result, load_new_attack_result
 from utils.bd_dataset_v2 import dataset_wrapper_with_transform
+from utils.visualize_dataset import visualize_random_samples_from_clean_dataset, visualize_random_samples_from_bd_dataset
 
 class LGALoss(nn.Module):
     def __init__(self, gamma, criterion):
@@ -457,6 +458,7 @@ class abl(defense):
         # ])
         tf_compose = get_transform(args.dataset, *([args.input_height,args.input_width]) , train = False)
         train_dataset = result['bd_train'].wrapped_dataset
+        visualize_random_samples_from_clean_dataset(train_dataset, "train_dataset")
         data_set_without_tran = train_dataset
         data_set_o = result['bd_train']
         data_set_o.wrapped_dataset = data_set_without_tran
@@ -480,14 +482,17 @@ class abl(defense):
 
         test_tran = get_transform(self.args.dataset, *([self.args.input_height,self.args.input_width]) , train = False)
         data_bd_testset = self.result['bd_test']
+        visualize_random_samples_from_bd_dataset(data_bd_testset.wrapped_dataset, "data_bd_testset.wrapped_dataset")
         data_bd_testset.wrap_img_transform = test_tran
         data_bd_loader = torch.utils.data.DataLoader(data_bd_testset, batch_size=self.args.batch_size, num_workers=self.args.num_workers,drop_last=False, shuffle=True,pin_memory=args.pin_memory)
 
         data_clean_testset = self.result['clean_test']
+        visualize_random_samples_from_clean_dataset(data_clean_testset.wrapped_dataset, "data_clean_testset.wrapped_dataset")
         data_clean_testset.wrap_img_transform = test_tran
         data_clean_loader = torch.utils.data.DataLoader(data_clean_testset, batch_size=self.args.batch_size, num_workers=self.args.num_workers,drop_last=False, shuffle=True,pin_memory=args.pin_memory)
 
         data_bd_testset_for_cls = self.result['bd_test_for_cls']
+        visualize_random_samples_from_bd_dataset(data_bd_testset_for_cls.wrapped_dataset, "data_bd_testset_for_cls.wrapped_dataset")
         data_bd_testset_for_cls.wrap_img_transform = test_tran
         data_bd_loader_for_cls = torch.utils.data.DataLoader(data_bd_testset_for_cls, batch_size=self.args.batch_size,
                                                              num_workers=self.args.num_workers, drop_last=False,
@@ -495,12 +500,14 @@ class abl(defense):
                                                              pin_memory=args.pin_memory)
 
         data_bd_out_testset_ood = self.result['bd_out_test_ood']
+        visualize_random_samples_from_bd_dataset(data_bd_out_testset_ood.wrapped_dataset, "data_bd_out_testset_ood.wrapped_dataset")
         data_bd_out_testset_ood.wrap_img_transform = test_tran
         data_bd_out_loader_ood = torch.utils.data.DataLoader(data_bd_out_testset_ood, batch_size=self.args.batch_size,
                                                      num_workers=self.args.num_workers, drop_last=False, shuffle=True,
                                                      pin_memory=args.pin_memory)
 
         data_bd_all_testset_ood = self.result['bd_all_test_ood']
+        visualize_random_samples_from_bd_dataset(data_bd_all_testset_ood.wrapped_dataset, "data_bd_all_testset_ood.wrapped_dataset")
         data_bd_all_testset_ood.wrap_img_transform = test_tran
         data_bd_all_loader_ood = torch.utils.data.DataLoader(data_bd_all_testset_ood, batch_size=self.args.batch_size,
                                                              num_workers=self.args.num_workers, drop_last=False,
@@ -508,6 +515,7 @@ class abl(defense):
                                                              pin_memory=args.pin_memory)
 
         data_clean_testset_ood = self.result['clean_test_ood']
+        visualize_random_samples_from_clean_dataset(data_clean_testset_ood.wrapped_dataset, "data_clean_testset_ood.wrapped_dataset")
         data_clean_testset_ood.wrap_img_transform = test_tran
         data_clean_loader_ood = torch.utils.data.DataLoader(data_clean_testset_ood, batch_size=self.args.batch_size,
                                                         num_workers=self.args.num_workers, drop_last=False,

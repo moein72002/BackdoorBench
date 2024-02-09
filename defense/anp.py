@@ -52,6 +52,7 @@ from utils.log_assist import get_git_info
 from utils.aggregate_block.dataset_and_transform_generate import get_input_shape, get_num_classes, get_transform
 from utils.save_load_attack import load_attack_result, save_defense_result, load_new_attack_result
 from utils.bd_dataset_v2 import prepro_cls_DatasetBD_v2
+from utils.visualize_dataset import visualize_random_samples_from_clean_dataset, visualize_random_samples_from_bd_dataset
 
 
 
@@ -662,6 +663,7 @@ class anp(defense):
         clean_dataset.subset(ran_idx)
         data_set_without_tran = clean_dataset
         data_set_clean = self.result['clean_train']
+        visualize_random_samples_from_clean_dataset(data_set_clean.wrapped_dataset, "data_set_clean.wrapped_dataset")
         data_set_clean.wrapped_dataset = data_set_without_tran
         data_set_clean.wrap_img_transform = train_tran
         # data_set_clean.wrapped_dataset.getitem_all = False
@@ -672,16 +674,19 @@ class anp(defense):
         
         test_tran = get_transform(self.args.dataset, *([self.args.input_height,self.args.input_width]) , train = False)
         data_bd_testset = self.result['bd_test']
+        visualize_random_samples_from_bd_dataset(data_bd_testset.wrapped_dataset, "data_bd_testset.wrapped_dataset")
         data_bd_testset.wrap_img_transform = test_tran
         # data_bd_testset.wrapped_dataset.getitem_all = False
         poison_test_loader = DataLoader(data_bd_testset, batch_size=args.batch_size, num_workers=args.num_workers,drop_last=False, shuffle=True,pin_memory=True)
 
         test_tran = get_transform(self.args.dataset, *([self.args.input_height,self.args.input_width]) , train = False)
         data_clean_testset = self.result['clean_test']
+        visualize_random_samples_from_clean_dataset(data_clean_testset.wrapped_dataset, "data_clean_testset.wrapped_dataset")
         data_clean_testset.wrap_img_transform = test_tran
         clean_test_loader = DataLoader(data_clean_testset, batch_size=args.batch_size, num_workers=args.num_workers,drop_last=False, shuffle=True,pin_memory=True)
 
         data_bd_testset_for_cls = self.result['bd_test_for_cls']
+        visualize_random_samples_from_bd_dataset(data_bd_testset_for_cls.wrapped_dataset, "data_bd_testset_for_cls.wrapped_dataset")
         data_bd_testset_for_cls.wrap_img_transform = test_tran
         bd_test_loader_for_cls = torch.utils.data.DataLoader(data_bd_testset_for_cls, batch_size=self.args.batch_size,
                                                              num_workers=self.args.num_workers, drop_last=False,
@@ -689,6 +694,7 @@ class anp(defense):
                                                              pin_memory=args.pin_memory)
 
         data_bd_out_testset_ood = self.result['bd_out_test_ood']
+        visualize_random_samples_from_bd_dataset(data_bd_out_testset_ood.wrapped_dataset, "data_bd_out_testset_ood.wrapped_dataset")
         data_bd_out_testset_ood.wrap_img_transform = test_tran
         bd_out_test_loader_ood = torch.utils.data.DataLoader(data_bd_out_testset_ood, batch_size=self.args.batch_size,
                                                          num_workers=self.args.num_workers, drop_last=False,
@@ -696,6 +702,7 @@ class anp(defense):
                                                          pin_memory=args.pin_memory)
 
         data_bd_all_testset_ood = self.result['bd_all_test_ood']
+        visualize_random_samples_from_bd_dataset(data_bd_all_testset_ood.wrapped_dataset, "data_bd_all_testset_ood.wrapped_dataset")
         data_bd_all_testset_ood.wrap_img_transform = test_tran
         bd_all_test_loader_ood = torch.utils.data.DataLoader(data_bd_all_testset_ood, batch_size=self.args.batch_size,
                                                              num_workers=self.args.num_workers, drop_last=False,
@@ -703,6 +710,7 @@ class anp(defense):
                                                              pin_memory=args.pin_memory)
 
         data_clean_testset_ood = self.result['clean_test_ood']
+        visualize_random_samples_from_clean_dataset(data_clean_testset_ood.wrapped_dataset, "data_clean_testset_ood.wrapped_dataset")
         data_clean_testset_ood.wrap_img_transform = test_tran
         clean_test_loader_ood = torch.utils.data.DataLoader(data_clean_testset_ood, batch_size=self.args.batch_size,
                                                             num_workers=self.args.num_workers, drop_last=False,

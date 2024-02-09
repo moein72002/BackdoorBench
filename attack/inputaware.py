@@ -63,6 +63,7 @@ from utils.trainer_cls import Metric_Aggregator, test_ood_given_dataloader
 from utils.save_load_attack import save_attack_result
 from utils.trainer_cls import all_acc, given_dataloader_test, general_plot_for_epoch
 from utils.bd_dataset_v2 import prepro_cls_DatasetBD_v2, dataset_wrapper_with_transform
+from utils.visualize_dataset import visualize_random_samples_from_clean_dataset, visualize_random_samples_from_bd_dataset
 
 term_width = int(60)
 TOTAL_BAR_LENGTH = 65.0
@@ -1115,7 +1116,7 @@ class InputAware(BadNet):
                     )
 
         # self.count_unique_labels_of_dataset(clean_test_dataset_with_transform, "clean_test_dataset_with_transform")
-        self.visualize_random_samples_from_clean_dataset(clean_test_dataset_with_transform.wrapped_dataset, "clean_test_dataset_with_transform.wrapped_dataset")
+        visualize_random_samples_from_clean_dataset(clean_test_dataset_with_transform.wrapped_dataset, "clean_test_dataset_with_transform.wrapped_dataset")
 
         self.bd_test_dataset.subset(
             np.where(self.bd_test_dataset.poison_indicator == 1)[0].tolist()
