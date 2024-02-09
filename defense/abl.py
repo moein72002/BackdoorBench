@@ -429,6 +429,7 @@ class abl(defense):
         # Load models
         logging.info('----------- Network Initialization --------------')
         model_ascent = generate_cls_model(args.model,args.num_classes)
+        model_ascent.load_state_dict(self.result['model'])
         if "," in self.device:
             model_ascent = torch.nn.DataParallel(
                 model_ascent,
