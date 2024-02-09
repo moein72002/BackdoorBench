@@ -365,6 +365,9 @@ def load_attack_result(
                 'exposure_blend_rate': exposure_blend_rate
             }
 
+        if 'clean_train' in load_dict:
+            print("'clean_train' in load_dict")
+
         print(f"loading...")
 
         return load_dict

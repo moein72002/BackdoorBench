@@ -361,6 +361,9 @@ class anp(defense):
             if not (os.path.exists(self.args.log)):
                 os.makedirs(self.args.log)  
         self.result = load_attack_result(attack_file + '/attack_result.pt')
+
+        if 'clean_train' in self.result:
+            print("'clean_train' in self.result")
         
     def set_trainer(self, model):
         self.trainer = PureCleanModelTrainer(
@@ -638,6 +641,10 @@ class anp(defense):
         result = self.result
         # a. train the mask of old model
         train_tran = get_transform(self.args.dataset, *([self.args.input_height,self.args.input_width]) , train = True)
+
+        if 'clean_train' in self.result:
+            print("'clean_train' in self.result")
+
         clean_dataset = prepro_cls_DatasetBD_v2(self.result['clean_train'].wrapped_dataset)
         data_all_length = len(clean_dataset)
         ran_idx = choose_index(self.args, data_all_length)
