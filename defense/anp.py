@@ -364,9 +364,9 @@ class anp(defense):
             if not (os.path.exists(self.args.log)):
                 os.makedirs(self.args.log)
         if self.args.load_new_attack_result:
-            self.result = load_new_attack_result(attack_file + '/attack_result.pt')
+            self.result = load_new_attack_result(attack_file + '/attack_result.pt', top_k=self.args.top_k)
         else:
-            self.result = load_attack_result(attack_file + '/attack_result.pt')
+            self.result = load_attack_result(attack_file + '/attack_result.pt', top_k=self.args.top_k)
 
         if 'clean_train' in self.result:
             print("'clean_train' in self.result")

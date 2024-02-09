@@ -313,9 +313,9 @@ class abl(defense):
                 os.makedirs(self.args.log)
 
         if self.args.load_new_attack_result:
-            self.result = load_new_attack_result(attack_file + '/attack_result.pt', just_test_exposure_ood=args.just_test_exposure_ood, test_blend_rate=args.test_blend_rate)
+            self.result = load_new_attack_result(attack_file + '/attack_result.pt', just_test_exposure_ood=args.just_test_exposure_ood, test_blend_rate=args.test_blend_rate, top_k=args.top_k)
         else:
-            self.result = load_attack_result(attack_file + '/attack_result.pt', just_test_exposure_ood=args.just_test_exposure_ood, test_blend_rate=args.test_blend_rate)
+            self.result = load_attack_result(attack_file + '/attack_result.pt', just_test_exposure_ood=args.just_test_exposure_ood, test_blend_rate=args.test_blend_rate, top_k=args.top_k)
 
     def set_trainer(self, model):
         self.trainer = PureCleanModelTrainer(
