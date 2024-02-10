@@ -1242,6 +1242,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=sys.argv[0])
     abl.add_arguments(parser)
     args = parser.parse_args()
+    print(f"args.use_other_classes_as_exposure_in_training: {args.use_other_classes_as_exposure_in_training}")
     abl_method = abl(args)
     if "result_file" not in args.__dict__:
         args.result_file = 'one_epochs_debug_badnet_attack'
