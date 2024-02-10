@@ -729,7 +729,7 @@ class CIFAR10_TRAIN_OTHER_CLASSES(Dataset):
 
         cifar10_train = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=None)
         cifar10_train_target_label_mask = np.isin(cifar10_train.targets, target_label)
-        self.data = cifar10_train.data[~cifar10_train_target_label_mask]
+        self.data = torch.from_numpy(cifar10_train.data[~cifar10_train_target_label_mask])
         cifar10_train.targets = np.array(cifar10_train.targets)
         self.targets = cifar10_train.targets[~cifar10_train_target_label_mask]
 
