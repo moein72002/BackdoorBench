@@ -201,7 +201,8 @@ def load_attack_result(
     save_path : str,
     just_test_exposure_ood = 'false',
     test_blend_rate = 0.1,
-    top_k = 0
+    top_k = 0,
+    use_other_classes_as_exposure_in_training = False
 ):
     '''
     This function first replicate the basic steps of generate models and clean train and test datasets
@@ -244,6 +245,7 @@ def load_attack_result(
             exposure_blend_rate = test_blend_rate
         clean_setting.exposure_blend_rate = exposure_blend_rate
         clean_setting.top_k = top_k
+        clean_setting.use_other_classes_as_exposure_in_training = use_other_classes_as_exposure_in_training
 
         train_dataset_without_transform, \
         train_img_transform, \
@@ -386,7 +388,8 @@ def load_new_attack_result(
     save_path : str,
     just_test_exposure_ood = 'false',
     test_blend_rate = 0.1,
-    top_k = 0
+    top_k = 0,
+    use_other_classes_as_exposure_in_training = False
 ):
     '''
     This function first replicate the basic steps of generate models and clean train and test datasets
@@ -431,6 +434,7 @@ def load_new_attack_result(
             exposure_blend_rate = test_blend_rate
         clean_setting.exposure_blend_rate = exposure_blend_rate
         clean_setting.top_k = top_k
+        clean_setting.use_other_classes_as_exposure_in_training = use_other_classes_as_exposure_in_training
 
         train_dataset_without_transform, \
         train_img_transform, \
