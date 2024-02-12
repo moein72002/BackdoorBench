@@ -376,7 +376,7 @@ if __name__ == '__main__':
     args = attack.process_args(args)
     attack.prepare(args)
     assert args.top_k > 0, "top_k must be greater than 0"
-    if args.top_k > 0:
+    if args.top_k > 0 and not args.use_l2_adv_images:
         save_top_k_from_target_label_train(args)
     attack.stage1_non_training_data_prepare()
     attack.stage2_training()
