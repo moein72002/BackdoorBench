@@ -375,10 +375,8 @@ if __name__ == '__main__':
     attack.add_yaml_to_args(args)
     args = attack.process_args(args)
     attack.prepare(args)
+    assert args.top_k > 0, "top_k must be greater than 0"
     if args.top_k > 0:
         save_top_k_from_target_label_train(args)
-    else:
-        print("top_k should be greater than 0")
-        exit()
     attack.stage1_non_training_data_prepare()
     attack.stage2_training()
