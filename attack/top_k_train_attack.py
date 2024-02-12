@@ -71,6 +71,7 @@ class BadNet(NormalCase):
                             help='path for yaml file provide additional default attributes')
         parser.add_argument("--top_k", type=int, default=0)     # top_k effect is on when it is more than zero
         parser.add_argument('--use_l2_adv_images', type=bool, default=False)
+        parser.add_argument('--use_other_classes_as_exposure_in_training', type=bool, default=False)
         return parser
 
     def add_bd_yaml_to_args(self, args):
@@ -376,6 +377,8 @@ if __name__ == '__main__':
     attack.add_yaml_to_args(args)
     args = attack.process_args(args)
     attack.prepare(args)
+    if args.use_other_classes_as_exposure_in_training:
+        args.top_k = 0
     assert args.top_k > 0, "top_k must be greater than 0"
     if args.top_k > 0 and not args.use_l2_adv_images:
         save_top_k_from_target_label_train(args)
