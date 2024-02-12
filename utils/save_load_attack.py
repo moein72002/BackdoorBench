@@ -89,6 +89,7 @@ def save_attack_result(
     bd_test : prepro_cls_DatasetBD_v2, # MUST be dataset without transform
     save_path : str,
     exposure_blend_rate : int,
+    use_l2_adv_images : bool,
     bd_test_for_cls : prepro_cls_DatasetBD_v2,
     bd_out_test_ood : prepro_cls_DatasetBD_v2,
     bd_all_test_ood : prepro_cls_DatasetBD_v2,
@@ -126,7 +127,8 @@ def save_attack_result(
             'bd_test_for_cls': bd_test_for_cls.retrieve_state(),
             'bd_out_test_ood': bd_out_test_ood.retrieve_state(),
             'bd_all_test_ood': bd_all_test_ood.retrieve_state(),
-            'exposure_blend_rate': exposure_blend_rate
+            'exposure_blend_rate': exposure_blend_rate,
+            'use_l2_adv_images': use_l2_adv_images
         }
 
     logging.info(f"saving...")
