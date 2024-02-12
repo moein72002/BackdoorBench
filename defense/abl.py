@@ -302,6 +302,7 @@ class abl(defense):
         parser.add_argument('--top_k', type=int, default=0)
         parser.add_argument('--load_new_attack_result', type=bool, default=False)
         parser.add_argument('--use_other_classes_as_exposure_in_training', type=bool, default=False)
+        parser.add_argument('--use_l2_adv_images', type=bool, default=False)
 
     def set_result(self, result_file):
         attack_file = 'record/' + result_file
@@ -320,9 +321,21 @@ class abl(defense):
                 os.makedirs(self.args.log)
 
         if self.args.load_new_attack_result:
-            self.result = load_new_attack_result(attack_file + '/attack_result.pt', just_test_exposure_ood=args.just_test_exposure_ood, test_blend_rate=args.test_blend_rate, top_k=args.top_k, use_other_classes_as_exposure_in_training=args.use_other_classes_as_exposure_in_training)
+            self.result = load_new_attack_result(attack_file + '/attack_result.pt',
+                                                 just_test_exposure_ood=args.just_test_exposure_ood,
+                                                 test_blend_rate=args.test_blend_rate,
+                                                 top_k=args.top_k,
+                                                 use_other_classes_as_exposure_in_training=args.use_other_classes_as_exposure_in_training,
+                                                 use_l2_adv_images=args.use_l2_adv_images
+                                                 )
         else:
-            self.result = load_attack_result(attack_file + '/attack_result.pt', just_test_exposure_ood=args.just_test_exposure_ood, test_blend_rate=args.test_blend_rate, top_k=args.top_k, use_other_classes_as_exposure_in_training=args.use_other_classes_as_exposure_in_training)
+            self.result = load_attack_result(attack_file + '/attack_result.pt',
+                                             just_test_exposure_ood=args.just_test_exposure_ood,
+                                             test_blend_rate=args.test_blend_rate,
+                                             top_k=args.top_k,
+                                             use_other_classes_as_exposure_in_training=args.use_other_classes_as_exposure_in_training,
+                                             use_l2_adv_images=args.use_l2_adv_images
+                                             )
 
     def set_trainer(self, model):
         self.trainer = PureCleanModelTrainer(
