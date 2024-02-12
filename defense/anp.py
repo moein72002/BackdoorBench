@@ -349,6 +349,7 @@ class anp(defense):
         parser.add_argument('--index', type=str, help='index of clean data'),
         parser.add_argument('--load_new_attack_result', type=bool, default=False)
         parser.add_argument('--top_k', type=int, default=0)
+        parser.add_argument('--use_l2_adv_images', type=bool, default=False)
 
 
 
@@ -368,9 +369,17 @@ class anp(defense):
             if not (os.path.exists(self.args.log)):
                 os.makedirs(self.args.log)
         if self.args.load_new_attack_result:
-            self.result = load_new_attack_result(attack_file + '/attack_result.pt', top_k=self.args.top_k)
+            self.result = load_new_attack_result(attack_file + '/attack_result.pt',
+                                                 top_k=args.top_k,
+                                                 use_other_classes_as_exposure_in_training=args.use_other_classes_as_exposure_in_training,
+                                                 use_l2_adv_images=args.use_l2_adv_images
+                                                 )
         else:
-            self.result = load_attack_result(attack_file + '/attack_result.pt', top_k=self.args.top_k)
+            self.result = load_attack_result(attack_file + '/attack_result.pt',
+                                                 top_k=args.top_k,
+                                                 use_other_classes_as_exposure_in_training=args.use_other_classes_as_exposure_in_training,
+                                                 use_l2_adv_images=args.use_l2_adv_images
+                                                 )
 
         if 'clean_train' in self.result:
             print("'clean_train' in self.result")
