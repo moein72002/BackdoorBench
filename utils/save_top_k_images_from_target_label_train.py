@@ -29,7 +29,7 @@ def save_top_k_from_target_label_train(args):
     current_directory = os.getcwd()
     print("Current directory:", current_directory)
 
-    clean_trained_model_dict = load_clean_trained_model('./clean_trained_model/record/badnet_0_1/attack_result.pt')
+    clean_trained_model_dict = load_clean_trained_model('../clean_trained_model/record/badnet_0_1/attack_result.pt')
 
     model.load_state_dict(clean_trained_model_dict['model'])
 
@@ -64,7 +64,7 @@ def save_top_k_from_target_label_train(args):
     top_k_selected_images = [trainset[i][0] for i in top_k_label_0_indices]
 
     # File path
-    file_path = "./clean_trained_model/top_k_selected_images.pkl"
+    file_path = "../clean_trained_model/top_k_selected_images.pkl"
 
     # Save list using pickle
     with open(file_path, 'wb') as file:

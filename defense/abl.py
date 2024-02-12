@@ -278,7 +278,7 @@ class abl(defense):
                         help=' frequency_save, 0 is never')
 
         parser.add_argument('--random_seed', type=int, help='random seed')
-        parser.add_argument('--yaml_path', type=str, default="./config/defense/abl/config.yaml", help='the path of yaml')
+        parser.add_argument('--yaml_path', type=str, default="../config/defense/abl/config.yaml", help='the path of yaml')
 
         #set the parameter for the abl defense
         parser.add_argument('--tuning_epochs', type=int, help='number of tune epochs to run')

@@ -203,7 +203,7 @@ class bnp(defense):
 						help=' frequency_save, 0 is never')
 
 		parser.add_argument('--random_seed', type=int, help='random seed')
-		parser.add_argument('--yaml_path', type=str, default="./config/defense/bnp/config.yaml", help='the path of yaml')
+		parser.add_argument('--yaml_path', type=str, default="../config/defense/bnp/config.yaml", help='the path of yaml')
 
 		#set the parameter for the bnp defense
 		parser.add_argument('--u', type=float, help='u in the bnp defense')

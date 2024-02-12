@@ -124,7 +124,7 @@ class ac(defense):
                         help=' frequency_save, 0 is never')
 
         parser.add_argument('--random_seed', type=int, help='random seed')
-        parser.add_argument('--yaml_path', type=str, default="./config/defense/ac/config.yaml", help='the path of yaml')
+        parser.add_argument('--yaml_path', type=str, default="../config/defense/ac/config.yaml", help='the path of yaml')
 
         #set the parameter for the ac defense
         parser.add_argument('--nb_dims', type=int, help='umber of dimensions to reduce activation to')
