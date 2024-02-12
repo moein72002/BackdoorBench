@@ -70,6 +70,7 @@ class BadNet(NormalCase):
         parser.add_argument('--bd_yaml_path', type=str, default='../config/attack/badnet/default.yaml',
                             help='path for yaml file provide additional default attributes')
         parser.add_argument("--top_k", type=int, default=0)     # top_k effect is on when it is more than zero
+        parser.add_argument('--use_l2_adv_images', type=bool, default=False)
         return parser
 
     def add_bd_yaml_to_args(self, args):
@@ -358,7 +359,8 @@ class BadNet(NormalCase):
             bd_test_for_cls=bd_test_dataset_with_transform_for_cls,
             bd_out_test_ood=bd_out_test_dataset_with_transform_ood,
             bd_all_test_ood=bd_all_test_dataset_with_transform_ood,
-            exposure_blend_rate=args.exposure_blend_rate
+            exposure_blend_rate=args.exposure_blend_rate,
+            use_l2_adv_images=args.use_l2_adv_images
         )
 
 
