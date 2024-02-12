@@ -240,7 +240,7 @@ class abl(defense):
 
         self.args = args
 
-        if args.top_k > 0:
+        if args.top_k > 0 and not args.use_l2_adv_images:
             save_top_k_from_target_label_train(self.args)
 
         if 'result_file' in args.__dict__ :
