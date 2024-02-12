@@ -305,8 +305,8 @@ class abl(defense):
         parser.add_argument('--use_l2_adv_images', type=bool, default=False)
 
     def set_result(self, result_file):
-        attack_file = 'record/' + result_file
-        save_path = 'record/' + result_file + '/defense/abl/'
+        attack_file = '../record/' + result_file
+        save_path = '../record/' + result_file + '/defense/abl/'
         if not (os.path.exists(save_path)):
             os.makedirs(save_path)
         # assert(os.path.exists(save_path))    
