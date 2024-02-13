@@ -1851,7 +1851,7 @@ class BackdoorModelTrainer(ModelTrainerCLS_v2):
             batch_poison_indicator_list = []
             batch_original_targets_list = []
 
-        for batch_idx in range(self.batch_num_per_epoch):
+        for batch_idx in tqdm(range(self.batch_num_per_epoch)):
             x, labels, original_index, poison_indicator, original_targets  = self.get_one_batch()
             one_batch_loss, batch_predict = self.one_forward_backward(x, labels, self.device, verbose)
             batch_loss_list.append(one_batch_loss)
