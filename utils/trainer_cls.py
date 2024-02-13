@@ -16,6 +16,7 @@ import matplotlib.pyplot as plt
 from utils.prefetch import PrefetchLoader, prefetch_transform
 
 from sklearn.metrics import roc_auc_score
+from tqdm import tqdm
 
 
 def seed_worker(worker_id):
@@ -2058,7 +2059,7 @@ class BackdoorModelTrainer(ModelTrainerCLS_v2):
         test_asr_list = []
         test_ra_list = []
 
-        for epoch in range(total_epoch_num):
+        for epoch in tqdm(range(total_epoch_num)):
 
             train_epoch_loss_avg_over_batch, \
             train_epoch_predict_list, \
