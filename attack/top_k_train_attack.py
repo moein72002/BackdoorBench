@@ -160,6 +160,8 @@ class BadNet(NormalCase):
             train_label_transform,
         )
 
+        print(f"len(bd_train_dataset_with_transform.wrapped_dataset): {len(bd_train_dataset_with_transform.wrapped_dataset)}")
+
         ### decide which img to poison in ASR Test
         test_poison_index = generate_poison_index_from_label_transform(
             clean_test_dataset_targets,
