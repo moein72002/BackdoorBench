@@ -1,5 +1,5 @@
 # This script is for trainer. This is a warpper for training process.
-
+import copy
 import sys, logging
 sys.path.append('../')
 import random
@@ -12,6 +12,7 @@ from time import time
 from copy import deepcopy
 from torch.utils.data import DataLoader
 import matplotlib.pyplot as plt
+import torch.nn as nn
 
 from utils.prefetch import PrefetchLoader, prefetch_transform
 
@@ -702,13 +703,17 @@ def test_ood_given_dataloader(model, test_dataloader, non_blocking : bool = Fals
     elif verbose == 1:
         return auc
 
-def test_ood_given_dataloader_odin(model, test_dataloader, non_blocking: bool = False, device="cpu", verbose=0,
+def test_ood_given_dataloader_odin(original_model, test_dataloader, non_blocking: bool = False, device="cpu", verbose=0,
                               clean_dataset=True):
     # TODO: epsilon and temperature in below are set to default value in odin original paper
     noiseMagnitude1 = 0.0014
     temper = 1000
+    CUDA_DEVICE = 0
+    criterion = nn.CrossEntropyLoss()
+
+    model = copy.deepcopy(original_model)
     model.to(device, non_blocking=non_blocking)
-    model.eval()
+    # model.eval()
 
     if verbose == 1:
         batch_label_list = []
@@ -718,7 +723,27 @@ def test_ood_given_dataloader_odin(model, test_dataloader, non_blocking: bool = 
         for batch_idx, (x, label) in enumerate(
                 test_dataloader):
             # x = x.to(device, non_blocking=non_blocking)
-            inputs = Variable(x.cuda(0), requires_grad=True)
+            inputs = Variable(x.cuda(CUDA_DEVICE), requires_grad=True)
+
+            outputs = model(inputs)
+
+            # Calculating the confidence of the output, no perturbation added here, no temperature scaling used
+            nnOutputs = outputs.data.cpu()
+            nnOutputs = nnOutputs.numpy()
+            nnOutputs = nnOutputs[0]
+            nnOutputs = nnOutputs - np.max(nnOutputs)
+            nnOutputs = np.exp(nnOutputs) / np.sum(np.exp(nnOutputs))
+
+            # Using temperature scaling
+            outputs = outputs / temper
+
+            # Calculating the perturbation we need to add, that is,
+            # the sign of gradient of cross entropy loss w.r.t. input
+            maxIndexTemp = np.argmax(nnOutputs)
+            labels = Variable(torch.LongTensor([maxIndexTemp]).cuda(CUDA_DEVICE))
+            loss = criterion(outputs, labels)
+            loss.backward()
+
             gradient = torch.ge(inputs.grad.data, 0)
             gradient = (gradient.float() - 0.5) * 2
             # Normalizing the gradient to the same space of image
