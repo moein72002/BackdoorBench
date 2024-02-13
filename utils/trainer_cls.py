@@ -771,7 +771,7 @@ def test_ood_given_dataloader_odin(original_model, test_dataloader, non_blocking
 
             if verbose == 1:
                 batch_label_list.append(label.detach().clone().cpu())
-                batch_normality_scores_list.append(normality_scores.detach().clone().cpu())
+                batch_normality_scores_list.append(normality_scores)
     else:
         for batch_idx, (x, labels, original_index, poison_indicator, original_targets) in enumerate(
                 test_dataloader):
