@@ -526,11 +526,19 @@ class abl(defense):
         data_bd_out_loader_ood = torch.utils.data.DataLoader(data_bd_out_testset_ood, batch_size=self.args.batch_size,
                                                      num_workers=self.args.num_workers, drop_last=False, shuffle=True,
                                                      pin_memory=args.pin_memory)
+        data_bd_out_loader_ood_odin = torch.utils.data.DataLoader(data_bd_out_testset_ood, batch_size=1,
+                                                             num_workers=self.args.num_workers, drop_last=False,
+                                                             shuffle=True,
+                                                             pin_memory=args.pin_memory)
 
         data_bd_all_testset_ood = self.result['bd_all_test_ood']
         visualize_random_samples_from_bd_dataset(data_bd_all_testset_ood.wrapped_dataset, "data_bd_all_testset_ood.wrapped_dataset")
         data_bd_all_testset_ood.wrap_img_transform = test_tran
         data_bd_all_loader_ood = torch.utils.data.DataLoader(data_bd_all_testset_ood, batch_size=self.args.batch_size,
+                                                             num_workers=self.args.num_workers, drop_last=False,
+                                                             shuffle=True,
+                                                             pin_memory=args.pin_memory)
+        data_bd_all_loader_ood_odin = torch.utils.data.DataLoader(data_bd_all_testset_ood, batch_size=1,
                                                              num_workers=self.args.num_workers, drop_last=False,
                                                              shuffle=True,
                                                              pin_memory=args.pin_memory)
@@ -541,6 +549,9 @@ class abl(defense):
         data_clean_loader_ood = torch.utils.data.DataLoader(data_clean_testset_ood, batch_size=self.args.batch_size,
                                                         num_workers=self.args.num_workers, drop_last=False,
                                                         shuffle=True, pin_memory=args.pin_memory)
+        data_clean_loader_ood_odin = torch.utils.data.DataLoader(data_clean_testset_ood, batch_size=1,
+                                                            num_workers=self.args.num_workers, drop_last=False,
+                                                            shuffle=True, pin_memory=args.pin_memory)
 
         # self.count_unique_labels_of_dataset(data_clean_testset_ood, "data_clean_testset_ood")
         # self.count_unique_labels_of_preprocessed_dataset(data_bd_testset_ood, "data_bd_testset_ood")
@@ -582,6 +593,9 @@ class abl(defense):
                 data_bd_out_loader_ood,
                 data_bd_all_loader_ood,
                 args,
+                data_clean_loader_ood_odin,
+                data_bd_out_loader_ood_odin,
+                data_bd_all_loader_ood_odin,
             )
 
             agg({
@@ -1202,6 +1216,9 @@ class abl(defense):
             bd_out_test_dataloader_ood,
             bd_all_test_dataloader_ood,
             args,
+            clean_test_dataloader_ood_odin,
+            bd_out_test_dataloader_ood_odin,
+            bd_all_test_dataloader_ood_odin,
     ):
         clean_metrics, clean_epoch_predict_list, clean_epoch_label_list = given_dataloader_test(
             netC,
@@ -1243,13 +1260,13 @@ class abl(defense):
         bd_all_test_auc = test_ood_given_dataloader(netC, bd_all_test_dataloader_ood, non_blocking=args.non_blocking,
                                                 device=self.args.device, verbose=1,
                                                 clean_dataset=False)  # TODO
-        clean_test_auc_odin = test_ood_given_dataloader_odin(netC, clean_test_dataloader_ood, non_blocking=args.non_blocking,
+        clean_test_auc_odin = test_ood_given_dataloader_odin(netC, clean_test_dataloader_ood_odin, non_blocking=args.non_blocking,
                                                    device=self.args.device,
                                                    verbose=1, clean_dataset=True)  # TODO
-        bd_out_test_auc_odin = test_ood_given_dataloader_odin(netC, bd_out_test_dataloader_ood, non_blocking=args.non_blocking,
+        bd_out_test_auc_odin = test_ood_given_dataloader_odin(netC, bd_out_test_dataloader_ood_odin, non_blocking=args.non_blocking,
                                                     device=self.args.device, verbose=1,
                                                     clean_dataset=False)  # TODO
-        bd_all_test_auc_odin = test_ood_given_dataloader_odin(netC, bd_all_test_dataloader_ood, non_blocking=args.non_blocking,
+        bd_all_test_auc_odin = test_ood_given_dataloader_odin(netC, bd_all_test_dataloader_ood_odin, non_blocking=args.non_blocking,
                                                     device=self.args.device, verbose=1,
                                                     clean_dataset=False)  # TODO
 

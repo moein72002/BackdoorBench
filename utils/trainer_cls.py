@@ -18,6 +18,7 @@ from utils.prefetch import PrefetchLoader, prefetch_transform
 
 from sklearn.metrics import roc_auc_score
 from torch.autograd import Variable
+from tqdm import tqdm
 
 
 def seed_worker(worker_id):
@@ -720,8 +721,7 @@ def test_ood_given_dataloader_odin(original_model, test_dataloader, non_blocking
         batch_normality_scores_list = []
 
     if clean_dataset:
-        for batch_idx, (x, label) in enumerate(
-                test_dataloader):
+        for batch_idx, (x, label) in tqdm(enumerate(test_dataloader)):
             # x = x.to(device, non_blocking=non_blocking)
             inputs = Variable(x.cuda(CUDA_DEVICE), requires_grad=True)
 
@@ -730,6 +730,7 @@ def test_ood_given_dataloader_odin(original_model, test_dataloader, non_blocking
             # Calculating the confidence of the output, no perturbation added here, no temperature scaling used
             nnOutputs = outputs.data.cpu()
             nnOutputs = nnOutputs.numpy()
+            nnOutputs = nnOutputs[0]
             nnOutputs = nnOutputs - np.max(nnOutputs)
             nnOutputs = np.exp(nnOutputs) / np.sum(np.exp(nnOutputs))
 
@@ -756,11 +757,12 @@ def test_ood_given_dataloader_odin(original_model, test_dataloader, non_blocking
             # Calculating the confidence after adding perturbations
             nnOutputs = outputs.data.cpu()
             nnOutputs = nnOutputs.numpy()
-            # nnOutputs = nnOutputs[0] # HERE batch_size is not 1 like odin code
+            nnOutputs = nnOutputs[0]  # TODO: HERE I don't want to set batch_size to 1 like odin code
             nnOutputs = nnOutputs - np.max(nnOutputs)
             nnOutputs = np.exp(nnOutputs) / np.sum(np.exp(nnOutputs))
             # g1.write("{}, {}, {}\n".format(temper, noiseMagnitude1, np.max(nnOutputs)))
-            normality_scores = torch.max(nnOutputs, dim=1)
+            # normality_scores = torch.max(nnOutputs, dim=1)
+            normality_scores = np.max(nnOutputs)
 
             # print(f"original_targets[:5]: {original_targets[:5]}")
             label = label.to(device, non_blocking=non_blocking)
@@ -776,6 +778,26 @@ def test_ood_given_dataloader_odin(original_model, test_dataloader, non_blocking
             # x = x.to(device, non_blocking=non_blocking)
 
             inputs = Variable(x.cuda(0), requires_grad=True)
+
+            outputs = model(inputs)
+
+            # Calculating the confidence of the output, no perturbation added here, no temperature scaling used
+            nnOutputs = outputs.data.cpu()
+            nnOutputs = nnOutputs.numpy()
+            nnOutputs = nnOutputs[0]
+            nnOutputs = nnOutputs - np.max(nnOutputs)
+            nnOutputs = np.exp(nnOutputs) / np.sum(np.exp(nnOutputs))
+
+            # Using temperature scaling
+            outputs = outputs / temper
+
+            # Calculating the perturbation we need to add, that is,
+            # the sign of gradient of cross entropy loss w.r.t. input
+            maxIndexTemp = np.argmax(nnOutputs)
+            labels = Variable(torch.LongTensor([maxIndexTemp]).cuda(CUDA_DEVICE))
+            loss = criterion(outputs, labels)
+            loss.backward()
+
             gradient = torch.ge(inputs.grad.data, 0)
             gradient = (gradient.float() - 0.5) * 2
             # Normalizing the gradient to the same space of image
@@ -789,11 +811,12 @@ def test_ood_given_dataloader_odin(original_model, test_dataloader, non_blocking
             # Calculating the confidence after adding perturbations
             nnOutputs = outputs.data.cpu()
             nnOutputs = nnOutputs.numpy()
-            # nnOutputs = nnOutputs[0] # HERE batch_size is not 1 like odin code
+            nnOutputs = nnOutputs[0] # TODO: HERE I don't want to set batch_size to 1 like odin code
             nnOutputs = nnOutputs - np.max(nnOutputs)
             nnOutputs = np.exp(nnOutputs) / np.sum(np.exp(nnOutputs))
             # g1.write("{}, {}, {}\n".format(temper, noiseMagnitude1, np.max(nnOutputs)))
-            normality_scores = torch.max(nnOutputs, dim=1)
+            # normality_scores = torch.max(nnOutputs, dim=1)
+            normality_scores = np.max(nnOutputs)
 
             # print(f"original_targets[:5]: {original_targets[:5]}")
             original_targets = original_targets.to(device, non_blocking=non_blocking)
@@ -802,7 +825,8 @@ def test_ood_given_dataloader_odin(original_model, test_dataloader, non_blocking
 
             if verbose == 1:
                 batch_label_list.append(original_targets.detach().clone().cpu())
-                batch_normality_scores_list.append(normality_scores.detach().clone().cpu())
+                # batch_normality_scores_list.append(normality_scores.detach().clone().cpu())
+                batch_normality_scores_list.append(normality_scores)
 
     auc = roc_auc_score(torch.cat(batch_label_list).detach().cpu().numpy(),
                         torch.cat(batch_normality_scores_list).detach().cpu().numpy())
