@@ -718,7 +718,7 @@ def test_ood_given_dataloader_odin(model, test_dataloader, non_blocking: bool = 
         for batch_idx, (x, label) in enumerate(
                 test_dataloader):
             # x = x.to(device, non_blocking=non_blocking)
-            inputs = Variable(x.to(device, non_blocking=non_blocking), requires_grad=True)
+            inputs = Variable(x.cuda(0), requires_grad=True)
             gradient = torch.ge(inputs.grad.data, 0)
             gradient = (gradient.float() - 0.5) * 2
             # Normalizing the gradient to the same space of image
@@ -751,7 +751,7 @@ def test_ood_given_dataloader_odin(model, test_dataloader, non_blocking: bool = 
                 test_dataloader):
             # x = x.to(device, non_blocking=non_blocking)
 
-            inputs = Variable(x.to(device, non_blocking=non_blocking), requires_grad=True)
+            inputs = Variable(x.cuda(0), requires_grad=True)
             gradient = torch.ge(inputs.grad.data, 0)
             gradient = (gradient.float() - 0.5) * 2
             # Normalizing the gradient to the same space of image
