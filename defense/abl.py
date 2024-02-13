@@ -38,7 +38,7 @@ import time
 from defense.base import defense
 
 from utils.aggregate_block.train_settings_generate import argparser_criterion
-from utils.trainer_cls import Metric_Aggregator, PureCleanModelTrainer, all_acc, general_plot_for_epoch, given_dataloader_test, test_ood_given_dataloader
+from utils.trainer_cls import Metric_Aggregator, PureCleanModelTrainer, all_acc, general_plot_for_epoch, given_dataloader_test, test_ood_given_dataloader, test_ood_given_dataloader_odin
 from utils.aggregate_block.fix_random import fix_random
 from utils.aggregate_block.model_trainer_generate import generate_cls_model
 from utils.log_assist import get_git_info
@@ -570,7 +570,10 @@ class abl(defense):
             clean_test_auc, \
             bd_test_for_cls, \
             bd_out_test_auc, \
-            bd_all_test_auc = self.eval_step(
+            bd_all_test_auc, \
+            clean_test_auc_odin, \
+            bd_out_test_auc_odin, \
+            bd_all_test_auc_odin = self.eval_step(
                 model_ascent,
                 data_clean_loader,
                 data_bd_loader,
@@ -593,6 +596,9 @@ class abl(defense):
                 "bd_test_for_cls": bd_test_for_cls,
                 "bd_out_test_auc": bd_out_test_auc,
                 "bd_all_test_auc": bd_all_test_auc,
+                "clean_test_auc_odin": clean_test_auc_odin,
+                "bd_out_test_auc_odin": bd_out_test_auc_odin,
+                "bd_all_test_auc_odin": bd_all_test_auc_odin
             })
 
             exit()
@@ -616,7 +622,10 @@ class abl(defense):
             clean_test_auc, \
             bd_test_for_cls, \
             bd_out_test_auc, \
-            bd_all_test_auc = self.eval_step(
+            bd_all_test_auc, \
+            clean_test_auc_odin, \
+            bd_out_test_auc_odin, \
+            bd_all_test_auc_odin = self.eval_step(
                 model_ascent,
                 data_clean_loader,
                 data_bd_loader,
@@ -646,6 +655,9 @@ class abl(defense):
                 "bd_test_for_cls": bd_test_for_cls,
                 "bd_out_test_auc": bd_out_test_auc,
                 "bd_all_test_auc": bd_all_test_auc,
+                "clean_test_auc_odin": clean_test_auc_odin,
+                "bd_out_test_auc_odin": bd_out_test_auc_odin,
+                "bd_all_test_auc_odin": bd_all_test_auc_odin
             })
 
             train_loss_list.append(train_epoch_loss_avg_over_batch)
@@ -825,7 +837,9 @@ class abl(defense):
                 bd_test_for_cls, \
                 bd_out_test_auc, \
                 bd_all_test_auc, \
-                    = self.eval_step(
+                clean_test_auc_odin, \
+                bd_out_test_auc_odin, \
+                bd_all_test_auc_odin = self.eval_step(
                     model_ascent,
                     data_clean_loader,
                     data_bd_loader,
@@ -855,6 +869,9 @@ class abl(defense):
                     "bd_test_for_cls": bd_test_for_cls,
                     "bd_out_test_auc": bd_out_test_auc,
                     "bd_all_test_auc": bd_all_test_auc,
+                    "clean_test_auc_odin": clean_test_auc_odin,
+                    "bd_out_test_auc_odin": bd_out_test_auc_odin,
+                    "bd_all_test_auc_odin": bd_all_test_auc_odin
                 })
 
                 train_loss_list.append(train_epoch_loss_avg_over_batch)
@@ -926,7 +943,9 @@ class abl(defense):
             bd_test_for_cls, \
             bd_out_test_auc, \
             bd_all_test_auc, \
-                = self.eval_step(
+            clean_test_auc_odin, \
+            bd_out_test_auc_odin, \
+            bd_all_test_auc_odin = self.eval_step(
                 model_ascent,
                 data_clean_loader,
                 data_bd_loader,
@@ -956,6 +975,9 @@ class abl(defense):
                 "bd_test_for_cls": bd_test_for_cls,
                 "bd_out_test_auc": bd_out_test_auc,
                 "bd_all_test_auc": bd_all_test_auc,
+                "clean_test_auc_odin": clean_test_auc_odin,
+                "bd_out_test_auc_odin": bd_out_test_auc_odin,
+                "bd_all_test_auc_odin": bd_all_test_auc_odin
             })
 
             train_loss_list.append(train_epoch_loss_avg_over_batch)
@@ -1221,6 +1243,15 @@ class abl(defense):
         bd_all_test_auc = test_ood_given_dataloader(netC, bd_all_test_dataloader_ood, non_blocking=args.non_blocking,
                                                 device=self.args.device, verbose=1,
                                                 clean_dataset=False)  # TODO
+        clean_test_auc_odin = test_ood_given_dataloader_odin(netC, clean_test_dataloader_ood, non_blocking=args.non_blocking,
+                                                   device=self.args.device,
+                                                   verbose=1, clean_dataset=True)  # TODO
+        bd_out_test_auc_odin = test_ood_given_dataloader_odin(netC, bd_out_test_dataloader_ood, non_blocking=args.non_blocking,
+                                                    device=self.args.device, verbose=1,
+                                                    clean_dataset=False)  # TODO
+        bd_all_test_auc_odin = test_ood_given_dataloader_odin(netC, bd_all_test_dataloader_ood, non_blocking=args.non_blocking,
+                                                    device=self.args.device, verbose=1,
+                                                    clean_dataset=False)  # TODO
 
         bd_test_loss_avg_over_batch = bd_metrics['test_loss_avg_over_batch']
         test_asr = bd_metrics['test_acc']
@@ -1247,7 +1278,10 @@ class abl(defense):
                 clean_test_auc, \
                 bd_test_for_cls_acc, \
                 bd_out_test_auc, \
-                bd_all_test_auc
+                bd_all_test_auc, \
+                clean_test_auc_odin, \
+                bd_out_test_auc_odin, \
+                bd_all_test_auc_odin
 
 
 
