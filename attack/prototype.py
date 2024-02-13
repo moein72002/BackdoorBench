@@ -75,6 +75,7 @@ class NormalCase:
         parser.add_argument("--yaml_path", type=str, default="../config/attack/prototype/cifar10.yaml")
         parser.add_argument("--exposure_blend_rate", type=float, default=0.5)
         parser.add_argument("--test_every_epoch", type=str, default="false")
+        parser.add_argument("--clean_train_model", type=bool, default=False)
         return parser
 
     def add_yaml_to_args(self, args):
@@ -177,14 +178,15 @@ class NormalCase:
 
         args = self.args
 
-        _, \
+        train_dataset_without_transform, \
         train_img_transform, \
         train_label_transform, \
         test_dataset_without_transform, \
         test_img_transform, \
         test_label_transform = dataset_and_transform_generate(args)
 
-        train_dataset_without_transform = exposure_dataset_and_transform_generate(args)
+        if args.clean_train_model:
+            train_dataset_without_transform = exposure_dataset_and_transform_generate(args)
 
         clean_test_dataset_without_transform_ood, \
         test_img_transform_ood, \
