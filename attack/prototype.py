@@ -185,7 +185,7 @@ class NormalCase:
         test_img_transform, \
         test_label_transform = dataset_and_transform_generate(args)
 
-        if args.clean_train_model:
+        if not args.clean_train_model:
             train_dataset_without_transform = exposure_dataset_and_transform_generate(args)
 
         clean_test_dataset_without_transform_ood, \
