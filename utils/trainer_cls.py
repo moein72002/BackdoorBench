@@ -762,7 +762,7 @@ def test_ood_given_dataloader_odin(original_model, test_dataloader, non_blocking
             nnOutputs = np.exp(nnOutputs) / np.sum(np.exp(nnOutputs))
             # g1.write("{}, {}, {}\n".format(temper, noiseMagnitude1, np.max(nnOutputs)))
             # normality_scores = torch.max(nnOutputs, dim=1)
-            normality_scores = np.max(nnOutputs)
+            normality_scores = np.array([np.max(nnOutputs)])
 
             # print(f"original_targets[:5]: {original_targets[:5]}")
             label = label.to(device, non_blocking=non_blocking)
@@ -816,7 +816,7 @@ def test_ood_given_dataloader_odin(original_model, test_dataloader, non_blocking
             nnOutputs = np.exp(nnOutputs) / np.sum(np.exp(nnOutputs))
             # g1.write("{}, {}, {}\n".format(temper, noiseMagnitude1, np.max(nnOutputs)))
             # normality_scores = torch.max(nnOutputs, dim=1)
-            normality_scores = np.max(nnOutputs)
+            normality_scores = np.array([np.max(nnOutputs)])
 
             # print(f"original_targets[:5]: {original_targets[:5]}")
             original_targets = original_targets.to(device, non_blocking=non_blocking)
@@ -829,7 +829,7 @@ def test_ood_given_dataloader_odin(original_model, test_dataloader, non_blocking
                 batch_normality_scores_list.append(normality_scores)
 
     auc = roc_auc_score(torch.cat(batch_label_list).detach().cpu().numpy(),
-                        torch.cat(batch_normality_scores_list).detach().cpu().numpy())
+                        np.concatenate(batch_normality_scores_list, axis=0))
 
     print(f"odin_auc: {auc}")
 
