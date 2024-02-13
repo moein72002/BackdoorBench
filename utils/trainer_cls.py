@@ -730,7 +730,6 @@ def test_ood_given_dataloader_odin(original_model, test_dataloader, non_blocking
             # Calculating the confidence of the output, no perturbation added here, no temperature scaling used
             nnOutputs = outputs.data.cpu()
             nnOutputs = nnOutputs.numpy()
-            nnOutputs = nnOutputs[0]
             nnOutputs = nnOutputs - np.max(nnOutputs)
             nnOutputs = np.exp(nnOutputs) / np.sum(np.exp(nnOutputs))
 
