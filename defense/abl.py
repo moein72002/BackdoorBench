@@ -562,6 +562,17 @@ class abl(defense):
         if args.tuning_epochs == 0 and args.just_test_exposure_ood == 'true':
             model_ascent.load_state_dict(self.result['model'])
 
+            knn_clean_test_auc, \
+            knn_bd_out_test_auc, \
+            knn_bd_all_test_auc = self.eval_step_knn_auc(
+                model_ascent,
+                poisoned_data_loader,
+                data_clean_loader_ood,
+                data_bd_out_loader_ood,
+                data_bd_all_loader_ood,
+                args,
+            )
+
             clean_test_loss_avg_over_batch, \
             bd_test_loss_avg_over_batch, \
             ra_test_loss_avg_over_batch, \
@@ -577,17 +588,6 @@ class abl(defense):
                 data_bd_loader,
                 data_clean_loader_ood,
                 data_bd_loader_for_cls,
-                data_bd_out_loader_ood,
-                data_bd_all_loader_ood,
-                args,
-            )
-
-            knn_clean_test_auc, \
-            knn_bd_out_test_auc, \
-            knn_bd_all_test_auc = self.eval_step_knn_auc(
-                model_ascent,
-                poisoned_data_loader,
-                data_clean_loader_ood,
                 data_bd_out_loader_ood,
                 data_bd_all_loader_ood,
                 args,
@@ -624,6 +624,17 @@ class abl(defense):
             train_asr, \
             train_ra = self.train_step(args, poisoned_data_loader, model_ascent, optimizer, criterion, epoch + 1)
 
+            knn_clean_test_auc, \
+            knn_bd_out_test_auc, \
+            knn_bd_all_test_auc = self.eval_step_knn_auc(
+                model_ascent,
+                poisoned_data_loader,
+                data_clean_loader_ood,
+                data_bd_out_loader_ood,
+                data_bd_all_loader_ood,
+                args,
+            )
+
             clean_test_loss_avg_over_batch, \
             bd_test_loss_avg_over_batch, \
             ra_test_loss_avg_over_batch, \
@@ -639,17 +650,6 @@ class abl(defense):
                 data_bd_loader,
                 data_clean_loader_ood,
                 data_bd_loader_for_cls,
-                data_bd_out_loader_ood,
-                data_bd_all_loader_ood,
-                args,
-            )
-
-            knn_clean_test_auc, \
-            knn_bd_out_test_auc, \
-            knn_bd_all_test_auc = self.eval_step_knn_auc(
-                model_ascent,
-                poisoned_data_loader,
-                data_clean_loader_ood,
                 data_bd_out_loader_ood,
                 data_bd_all_loader_ood,
                 args,
