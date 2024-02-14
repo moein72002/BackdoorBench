@@ -16,7 +16,6 @@ import matplotlib.pyplot as plt
 from utils.prefetch import PrefetchLoader, prefetch_transform
 
 from sklearn.metrics import roc_auc_score
-from tqdm import tqdm
 
 
 def seed_worker(worker_id):
@@ -1851,7 +1850,7 @@ class BackdoorModelTrainer(ModelTrainerCLS_v2):
             batch_poison_indicator_list = []
             batch_original_targets_list = []
 
-        for batch_idx in tqdm(range(self.batch_num_per_epoch)):
+        for batch_idx in range(self.batch_num_per_epoch):
             x, labels, original_index, poison_indicator, original_targets  = self.get_one_batch()
             one_batch_loss, batch_predict = self.one_forward_backward(x, labels, self.device, verbose)
             batch_loss_list.append(one_batch_loss)
@@ -2059,7 +2058,7 @@ class BackdoorModelTrainer(ModelTrainerCLS_v2):
         test_asr_list = []
         test_ra_list = []
 
-        for epoch in tqdm(range(total_epoch_num)):
+        for epoch in range(total_epoch_num):
 
             train_epoch_loss_avg_over_batch, \
             train_epoch_predict_list, \
