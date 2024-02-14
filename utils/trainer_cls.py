@@ -662,7 +662,7 @@ def knn_score(train_set, test_set, n_neighbours=2):
 def get_score_knn_auc(model, device, train_loader, test_loader, bd_test_loader=False):
     train_feature_space = []
     with torch.no_grad():
-        for (imgs, _, _, _, _) in tqdm(train_loader, desc='Train set feature extracting'):
+        for idx, (imgs, _, _, _, _) in tqdm(enumerate(train_loader, start=1), desc='Train set feature extracting'):
             imgs = imgs.to(device)
             features = model(imgs)
             train_feature_space.append(features)
@@ -671,13 +671,13 @@ def get_score_knn_auc(model, device, train_loader, test_loader, bd_test_loader=F
     test_labels = []
     with torch.no_grad():
         if bd_test_loader:
-            for (imgs, _, _, _, original_targets) in tqdm(test_loader, desc='Test set feature extracting'):
+            for idx, (imgs, _, _, _, original_targets) in tqdm(enumerate(test_loader), desc='Test set feature extracting'):
                 imgs = imgs.to(device)
                 features = model(imgs)
                 test_feature_space.append(features)
                 test_labels.append(original_targets)
         else:
-            for (imgs, labels) in tqdm(test_loader, desc='Test set feature extracting'):
+            for idx, (imgs, labels) in tqdm(enumerate(test_loader), desc='Test set feature extracting'):
                 imgs = imgs.to(device)
                 features = model(imgs)
                 test_feature_space.append(features)
