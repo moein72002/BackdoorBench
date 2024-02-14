@@ -667,7 +667,7 @@ def get_score_knn_auc(model, device, train_loader, test_loader, bd_test_loader=F
     with torch.no_grad():
         for idx, (imgs, _, _, _, _) in tqdm(enumerate(train_loader, start=1), desc='Train set feature extracting'):
             print(f"idx: {idx}")
-            print(f"len(imgs): {imgs}")
+            print(f"len(imgs): {len(imgs)}")
             imgs = imgs.to(device)
             features = model(imgs)
             train_feature_space.append(features)
