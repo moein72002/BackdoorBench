@@ -659,10 +659,10 @@ def knn_score(train_set, test_set, n_neighbours=2):
     D, _ = index.search(test_set, n_neighbours)
     return np.sum(D, axis=1)
 
-def get_score_knn_auc(model, device, train_loader, test_loader):
+def get_score_knn_auc(model, device, train_loader, test_loader, bd_test_loader=False):
     train_feature_space = []
     with torch.no_grad():
-        for (imgs, _) in tqdm(train_loader, desc='Train set feature extracting'):
+        for (imgs, _, _, _, _) in tqdm(train_loader, desc='Train set feature extracting'):
             imgs = imgs.to(device)
             features = model(imgs)
             train_feature_space.append(features)
@@ -670,11 +670,18 @@ def get_score_knn_auc(model, device, train_loader, test_loader):
     test_feature_space = []
     test_labels = []
     with torch.no_grad():
-        for (imgs, labels) in tqdm(test_loader, desc='Test set feature extracting'):
-            imgs = imgs.to(device)
-            features = model(imgs)
-            test_feature_space.append(features)
-            test_labels.append(labels)
+        if bd_test_loader:
+            for (imgs, _, _, _, original_targets) in tqdm(test_loader, desc='Test set feature extracting'):
+                imgs = imgs.to(device)
+                features = model(imgs)
+                test_feature_space.append(features)
+                test_labels.append(original_targets)
+        else:
+            for (imgs, labels) in tqdm(test_loader, desc='Test set feature extracting'):
+                imgs = imgs.to(device)
+                features = model(imgs)
+                test_feature_space.append(features)
+                test_labels.append(labels)
         test_feature_space = torch.cat(test_feature_space, dim=0).contiguous().cpu().numpy()
         test_labels = torch.cat(test_labels, dim=0).cpu().numpy()
 
