@@ -16,7 +16,8 @@ import matplotlib.pyplot as plt
 from utils.prefetch import PrefetchLoader, prefetch_transform
 
 from sklearn.metrics import roc_auc_score
-
+from tqdm import tqdm
+import faiss
 
 def seed_worker(worker_id):
     worker_seed = torch.initial_seed() % 2**32
@@ -649,6 +650,39 @@ def given_dataloader_test(
     elif verbose == 1:
         return metrics, torch.cat(batch_predict_list), torch.cat(batch_label_list)
 
+def knn_score(train_set, test_set, n_neighbours=2):
+    """
+    Calculates the KNN distance
+    """
+    index = faiss.IndexFlatL2(train_set.shape[1])
+    index.add(train_set)
+    D, _ = index.search(test_set, n_neighbours)
+    return np.sum(D, axis=1)
+
+def get_score_knn_auc(model, device, train_loader, test_loader):
+    train_feature_space = []
+    with torch.no_grad():
+        for (imgs, _) in tqdm(train_loader, desc='Train set feature extracting'):
+            imgs = imgs.to(device)
+            features = model(imgs)
+            train_feature_space.append(features)
+        train_feature_space = torch.cat(train_feature_space, dim=0).contiguous().cpu().numpy()
+    test_feature_space = []
+    test_labels = []
+    with torch.no_grad():
+        for (imgs, labels) in tqdm(test_loader, desc='Test set feature extracting'):
+            imgs = imgs.to(device)
+            features = model(imgs)
+            test_feature_space.append(features)
+            test_labels.append(labels)
+        test_feature_space = torch.cat(test_feature_space, dim=0).contiguous().cpu().numpy()
+        test_labels = torch.cat(test_labels, dim=0).cpu().numpy()
+
+    distances = knn_score(train_feature_space, test_feature_space)
+
+    auc = roc_auc_score(test_labels, distances)
+
+    return auc
 
 def test_ood_given_dataloader(model, test_dataloader, non_blocking : bool = False, device = "cpu", verbose = 0, clean_dataset = True):
 

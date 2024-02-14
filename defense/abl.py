@@ -38,7 +38,8 @@ import time
 from defense.base import defense
 
 from utils.aggregate_block.train_settings_generate import argparser_criterion
-from utils.trainer_cls import Metric_Aggregator, PureCleanModelTrainer, all_acc, general_plot_for_epoch, given_dataloader_test, test_ood_given_dataloader
+from utils.trainer_cls import Metric_Aggregator, PureCleanModelTrainer, all_acc, general_plot_for_epoch, \
+    given_dataloader_test, test_ood_given_dataloader, get_score_knn_auc
 from utils.aggregate_block.fix_random import fix_random
 from utils.aggregate_block.model_trainer_generate import generate_cls_model
 from utils.log_assist import get_git_info
@@ -581,6 +582,19 @@ class abl(defense):
                 args,
             )
 
+            knn_clean_test_auc, \
+            knn_bd_out_test_auc, \
+            knn_bd_all_test_auc = self.eval_step_knn_auc(
+                model_ascent,
+                poisoned_data_loader,
+                data_clean_loader_ood,
+                data_bd_out_loader_ood,
+                data_bd_all_loader_ood,
+                args,
+            )
+
+
+
             agg({
 
                 "clean_test_loss_avg_over_batch": clean_test_loss_avg_over_batch,
@@ -593,6 +607,9 @@ class abl(defense):
                 "bd_test_for_cls": bd_test_for_cls,
                 "bd_out_test_auc": bd_out_test_auc,
                 "bd_all_test_auc": bd_all_test_auc,
+                "knn_clean_test_auc": knn_clean_test_auc,
+                "data_bd_out_loader_ood": data_bd_out_loader_ood,
+                "data_bd_all_loader_ood": data_bd_all_loader_ood
             })
 
             exit()
@@ -627,6 +644,17 @@ class abl(defense):
                 args,
             )
 
+            knn_clean_test_auc, \
+            knn_bd_out_test_auc, \
+            knn_bd_all_test_auc = self.eval_step_knn_auc(
+                model_ascent,
+                poisoned_data_loader,
+                data_clean_loader_ood,
+                data_bd_out_loader_ood,
+                data_bd_all_loader_ood,
+                args,
+            )
+
             agg({
                 "epoch": epoch,
 
@@ -646,6 +674,9 @@ class abl(defense):
                 "bd_test_for_cls": bd_test_for_cls,
                 "bd_out_test_auc": bd_out_test_auc,
                 "bd_all_test_auc": bd_all_test_auc,
+                "knn_clean_test_auc": knn_clean_test_auc,
+                "data_bd_out_loader_ood": data_bd_out_loader_ood,
+                "data_bd_all_loader_ood": data_bd_all_loader_ood
             })
 
             train_loss_list.append(train_epoch_loss_avg_over_batch)
@@ -1169,6 +1200,25 @@ class abl(defense):
                 train_clean_acc, \
                 train_asr, \
                 train_ra
+
+    def eval_step_knn_auc(
+            self,
+            netC,
+            train_loader,
+            clean_test_dataloader_ood,
+            bd_out_test_dataloader_ood,
+            bd_all_test_dataloader_ood,
+            args,
+    ):
+        device = self.args.device
+        knn_clean_test_auc = get_score_knn_auc(netC, device, train_loader, clean_test_dataloader_ood)
+        knn_bd_out_test_auc = get_score_knn_auc(netC, device, train_loader, bd_out_test_dataloader_ood)
+        knn_bd_all_test_auc = get_score_knn_auc(netC, device, train_loader, bd_all_test_dataloader_ood)
+
+        return knn_clean_test_auc, \
+               knn_bd_out_test_auc, \
+               knn_bd_all_test_auc
+
 
     def eval_step(
             self,
