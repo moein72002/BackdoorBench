@@ -666,8 +666,8 @@ def get_score_knn_auc(model, device, train_loader, test_loader, bd_test_loader=F
     train_feature_space = []
     with torch.no_grad():
         for idx, (imgs, target, original_index, poison_indicator, original_targets) in enumerate(train_loader, start=1):
-            print(f"idx: {idx}")
-            print(f"len(imgs): {len(imgs)}")
+            # print(f"idx: {idx}")
+            # print(f"len(imgs): {len(imgs)}")
             imgs = imgs.to(device)
             features = model(imgs)
             train_feature_space.append(features)
@@ -693,6 +693,8 @@ def get_score_knn_auc(model, device, train_loader, test_loader, bd_test_loader=F
     distances = knn_score(train_feature_space, test_feature_space)
 
     auc = roc_auc_score(test_labels, distances)
+
+    print(f"knn_auc: {auc}")
 
     return auc
 
