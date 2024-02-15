@@ -692,7 +692,7 @@ def get_score_knn_auc(model, device, train_loader, test_loader, bd_test_loader=F
 
     distances = knn_score(train_feature_space, test_feature_space)
 
-    auc = roc_auc_score(test_labels, distances)
+    auc = roc_auc_score(test_labels, -1 * distances) # I multiplied distances(scores) by -1 because here in dist label is 1
 
     print(f"knn_auc: {auc}")
 

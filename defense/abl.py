@@ -573,6 +573,10 @@ class abl(defense):
                 args,
             )
 
+            print(f"knn_clean_test_auc: {knn_clean_test_auc}")
+            print(f"knn_bd_out_test_auc: {knn_bd_out_test_auc}")
+            print(f"knn_bd_all_test_auc: {knn_bd_all_test_auc}")
+
             clean_test_loss_avg_over_batch, \
             bd_test_loss_avg_over_batch, \
             ra_test_loss_avg_over_batch, \
@@ -596,7 +600,6 @@ class abl(defense):
 
 
             agg({
-
                 "clean_test_loss_avg_over_batch": clean_test_loss_avg_over_batch,
                 "bd_test_loss_avg_over_batch": bd_test_loss_avg_over_batch,
                 "ra_test_loss_avg_over_batch": ra_test_loss_avg_over_batch,
