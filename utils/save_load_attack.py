@@ -228,6 +228,7 @@ def load_attack_result(
         'bd_test',
         'bd_test_ood'
         ]):
+        print(time.time())
 
         logging.info('key match for attack_result, processing...')
 
