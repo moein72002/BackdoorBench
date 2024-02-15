@@ -296,6 +296,7 @@ def load_attack_result(
             test_label_transform_ood,
         )
 
+        print("before 'if load_file['bd_train'] is not None:'")
         if load_file['bd_train'] is not None:
             print(f"len(train_dataset_without_transform): {len(train_dataset_without_transform)}")
             bd_train_dataset = prepro_cls_DatasetBD_v2(train_dataset_without_transform)
