@@ -201,6 +201,9 @@ def load_clean_trained_model(
     else:
         print("clean_trained_model does not exist")
 
+def print_time_for_testing():
+    print(time.time())
+
 def load_attack_result(
     save_path : str,
     just_test_exposure_ood = 'false',
