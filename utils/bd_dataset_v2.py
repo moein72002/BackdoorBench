@@ -287,11 +287,11 @@ class prepro_cls_DatasetBD_v2(torch.utils.data.Dataset):
             # clean
             # img, label = self.dataset[original_index]
             try:
-                img, label, *other_info = self.wrapped_dataset[index]
+                img, label = self.dataset[original_index]
                 # Your existing logic here
             except IndexError as e:
                 raise IndexError(
-                    f"Trying to access index {index} which is out of range for dataset of size {len(self.wrapped_dataset)}") from e
+                    f"Trying to access original_index {original_index}, index {index} which is out of range for dataset of size {len(self.wrapped_dataset)}") from e
             original_target = label
             poison_or_not = 0
         else:
