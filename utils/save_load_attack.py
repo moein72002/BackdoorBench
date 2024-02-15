@@ -297,7 +297,9 @@ def load_attack_result(
         )
 
         if load_file['bd_train'] is not None:
+            print(f"len(train_dataset_without_transform): {len(train_dataset_without_transform)}")
             bd_train_dataset = prepro_cls_DatasetBD_v2(train_dataset_without_transform)
+            print(f"len(bd_train_dataset): {len(bd_train_dataset)}")
             if just_test_exposure_ood == 'false':
                 bd_train_dataset.set_state(
                     load_file['bd_train']
