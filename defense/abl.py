@@ -611,8 +611,8 @@ class abl(defense):
                 "bd_out_test_auc": bd_out_test_auc,
                 "bd_all_test_auc": bd_all_test_auc,
                 "knn_clean_test_auc": knn_clean_test_auc,
-                "data_bd_out_loader_ood": data_bd_out_loader_ood,
-                "data_bd_all_loader_ood": data_bd_all_loader_ood
+                "knn_bd_out_test_auc": knn_bd_out_test_auc,
+                "knn_bd_all_test_auc": knn_bd_all_test_auc
             })
 
             exit()
@@ -678,8 +678,8 @@ class abl(defense):
                 "bd_out_test_auc": bd_out_test_auc,
                 "bd_all_test_auc": bd_all_test_auc,
                 "knn_clean_test_auc": knn_clean_test_auc,
-                "data_bd_out_loader_ood": data_bd_out_loader_ood,
-                "data_bd_all_loader_ood": data_bd_all_loader_ood
+                "knn_bd_out_test_auc": knn_bd_out_test_auc,
+                "knn_bd_all_test_auc": knn_bd_all_test_auc
             })
 
             train_loss_list.append(train_epoch_loss_avg_over_batch)
