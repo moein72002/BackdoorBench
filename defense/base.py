@@ -61,7 +61,11 @@ class defense(object):
         knn_bd_out_test_auc = get_score_knn_auc(netC, device, train_loader, bd_out_test_dataloader_ood, bd_test_loader=True)
         knn_bd_all_test_auc = get_score_knn_auc(netC, device, train_loader, bd_all_test_dataloader_ood, bd_test_loader=True)
 
-        return knn_clean_test_auc, \
-               knn_bd_out_test_auc, \
-               knn_bd_all_test_auc
+        knn_auc_result_dict = {
+            "knn_clean_test_auc": knn_clean_test_auc,
+            "knn_bd_out_test_auc": knn_bd_out_test_auc,
+            "knn_bd_all_test_auc": knn_bd_all_test_auc
+        }
+
+        return knn_auc_result_dict
 

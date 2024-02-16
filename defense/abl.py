@@ -304,6 +304,7 @@ class abl(defense):
         parser.add_argument('--load_new_attack_result', type=bool, default=False)
         parser.add_argument('--use_other_classes_as_exposure_in_training', type=bool, default=False)
         parser.add_argument('--use_l2_adv_images', type=bool, default=False)
+        parser.add_argument('--test_knn_auc', type=bool, default=False)
 
     def set_result(self, result_file):
         attack_file = '../record/' + result_file
@@ -562,20 +563,16 @@ class abl(defense):
         if args.tuning_epochs == 0 and args.just_test_exposure_ood == 'true':
             model_ascent.load_state_dict(self.result['model'])
 
-            knn_clean_test_auc, \
-            knn_bd_out_test_auc, \
-            knn_bd_all_test_auc = self.eval_step_knn_auc(
-                model_ascent,
-                poisoned_data_loader,
-                data_clean_loader_ood,
-                data_bd_out_loader_ood,
-                data_bd_all_loader_ood,
-                args,
-            )
-
-            print(f"knn_clean_test_auc: {knn_clean_test_auc}")
-            print(f"knn_bd_out_test_auc: {knn_bd_out_test_auc}")
-            print(f"knn_bd_all_test_auc: {knn_bd_all_test_auc}")
+            knn_auc_result_dict = {}
+            if args.test_knn_auc:
+                knn_auc_result_dict = self.eval_step_knn_auc(
+                    model_ascent,
+                    poisoned_data_loader,
+                    data_clean_loader_ood,
+                    data_bd_out_loader_ood,
+                    data_bd_all_loader_ood,
+                    args,
+                )
 
             clean_test_loss_avg_over_batch, \
             bd_test_loss_avg_over_batch, \
@@ -610,9 +607,7 @@ class abl(defense):
                 "bd_test_for_cls": bd_test_for_cls,
                 "bd_out_test_auc": bd_out_test_auc,
                 "bd_all_test_auc": bd_all_test_auc,
-                "knn_clean_test_auc": knn_clean_test_auc,
-                "knn_bd_out_test_auc": knn_bd_out_test_auc,
-                "knn_bd_all_test_auc": knn_bd_all_test_auc
+                **knn_auc_result_dict
             })
 
             exit()
@@ -627,16 +622,16 @@ class abl(defense):
             train_asr, \
             train_ra = self.train_step(args, poisoned_data_loader, model_ascent, optimizer, criterion, epoch + 1)
 
-            knn_clean_test_auc, \
-            knn_bd_out_test_auc, \
-            knn_bd_all_test_auc = self.eval_step_knn_auc(
-                model_ascent,
-                poisoned_data_loader,
-                data_clean_loader_ood,
-                data_bd_out_loader_ood,
-                data_bd_all_loader_ood,
-                args,
-            )
+            knn_auc_result_dict = {}
+            if args.test_knn_auc:
+                knn_auc_result_dict = self.eval_step_knn_auc(
+                    model_ascent,
+                    poisoned_data_loader,
+                    data_clean_loader_ood,
+                    data_bd_out_loader_ood,
+                    data_bd_all_loader_ood,
+                    args,
+                )
 
             clean_test_loss_avg_over_batch, \
             bd_test_loss_avg_over_batch, \
@@ -677,9 +672,7 @@ class abl(defense):
                 "bd_test_for_cls": bd_test_for_cls,
                 "bd_out_test_auc": bd_out_test_auc,
                 "bd_all_test_auc": bd_all_test_auc,
-                "knn_clean_test_auc": knn_clean_test_auc,
-                "knn_bd_out_test_auc": knn_bd_out_test_auc,
-                "knn_bd_all_test_auc": knn_bd_all_test_auc
+                **knn_auc_result_dict
             })
 
             train_loss_list.append(train_epoch_loss_avg_over_batch)
