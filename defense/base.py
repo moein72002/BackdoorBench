@@ -1,6 +1,8 @@
 import os,sys
 import numpy as np
 import torch
+
+from utils.ood_scores.odin import get_odin_auc
 from utils.trainer_cls import get_score_knn_auc
 
 
@@ -68,6 +70,36 @@ class defense(object):
         }
 
         return knn_auc_result_dict
+
+    def eval_step_odin_auc(
+            self,
+            netC,
+            train_loader,
+            clean_test_dataloader_ood_odin,
+            bd_out_test_dataloader_ood_odin,
+            bd_all_test_dataloader_ood_odin,
+            args,
+    ):
+        odin_clean_test_auc = get_odin_auc(netC, clean_test_dataloader_ood_odin,
+                                           non_blocking=args.non_blocking,
+                                           device=self.args.device,
+                                           verbose=1, clean_dataset=True)  # TODO
+        odin_bd_out_test_auc = get_odin_auc(netC, bd_out_test_dataloader_ood_odin,
+                                            non_blocking=args.non_blocking,
+                                            device=self.args.device, verbose=1,
+                                            clean_dataset=False)  # TODO
+        odin_bd_all_test_auc = get_odin_auc(netC, bd_all_test_dataloader_ood_odin,
+                                            non_blocking=args.non_blocking,
+                                            device=self.args.device, verbose=1,
+                                            clean_dataset=False)  # TODO
+
+        odin_auc_result_dict = {
+            "odin_clean_test_auc": odin_clean_test_auc,
+            "odin_bd_out_test_auc": odin_bd_out_test_auc,
+            "odin_bd_all_test_auc": odin_bd_all_test_auc
+        }
+
+        return odin_auc_result_dict
 
     def eval_step_kde_auc(
             self,

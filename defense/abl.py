@@ -528,6 +528,10 @@ class abl(defense):
         data_bd_out_loader_ood = torch.utils.data.DataLoader(data_bd_out_testset_ood, batch_size=self.args.batch_size,
                                                      num_workers=self.args.num_workers, drop_last=False, shuffle=True,
                                                      pin_memory=args.pin_memory)
+        data_bd_out_loader_ood_odin = torch.utils.data.DataLoader(data_bd_out_testset_ood, batch_size=1,
+                                                                  num_workers=self.args.num_workers, drop_last=False,
+                                                                  shuffle=True,
+                                                                  pin_memory=args.pin_memory)
 
         data_bd_all_testset_ood = self.result['bd_all_test_ood']
         visualize_random_samples_from_bd_dataset(data_bd_all_testset_ood.wrapped_dataset, "data_bd_all_testset_ood.wrapped_dataset")
@@ -536,6 +540,10 @@ class abl(defense):
                                                              num_workers=self.args.num_workers, drop_last=False,
                                                              shuffle=True,
                                                              pin_memory=args.pin_memory)
+        data_bd_all_loader_ood_odin = torch.utils.data.DataLoader(data_bd_all_testset_ood, batch_size=1,
+                                                                  num_workers=self.args.num_workers, drop_last=False,
+                                                                  shuffle=True,
+                                                                  pin_memory=args.pin_memory)
 
         data_clean_testset_ood = self.result['clean_test_ood']
         visualize_random_samples_from_clean_dataset(data_clean_testset_ood.wrapped_dataset, "data_clean_testset_ood.wrapped_dataset")
@@ -543,6 +551,9 @@ class abl(defense):
         data_clean_loader_ood = torch.utils.data.DataLoader(data_clean_testset_ood, batch_size=self.args.batch_size,
                                                         num_workers=self.args.num_workers, drop_last=False,
                                                         shuffle=True, pin_memory=args.pin_memory)
+        data_clean_loader_ood_odin = torch.utils.data.DataLoader(data_clean_testset_ood, batch_size=1,
+                                                                 num_workers=self.args.num_workers, drop_last=False,
+                                                                 shuffle=True, pin_memory=args.pin_memory)
 
         # self.count_unique_labels_of_dataset(data_clean_testset_ood, "data_clean_testset_ood")
         # self.count_unique_labels_of_preprocessed_dataset(data_bd_testset_ood, "data_bd_testset_ood")
@@ -566,6 +577,17 @@ class abl(defense):
             knn_auc_result_dict = {}
             if args.test_knn_auc:
                 knn_auc_result_dict = self.eval_step_knn_auc(
+                    model_ascent,
+                    poisoned_data_loader,
+                    data_clean_loader_ood,
+                    data_bd_out_loader_ood,
+                    data_bd_all_loader_ood,
+                    args,
+                )
+
+            odin_auc_result_dict = {}
+            if args.test_odin_auc:
+                odin_auc_result_dict = self.eval_step_odin_auc(
                     model_ascent,
                     poisoned_data_loader,
                     data_clean_loader_ood,
@@ -607,7 +629,8 @@ class abl(defense):
                 "bd_test_for_cls": bd_test_for_cls,
                 "bd_out_test_auc": bd_out_test_auc,
                 "bd_all_test_auc": bd_all_test_auc,
-                **knn_auc_result_dict
+                **knn_auc_result_dict,
+                **odin_auc_result_dict,
             })
 
             exit()
@@ -625,6 +648,17 @@ class abl(defense):
             knn_auc_result_dict = {}
             if args.test_knn_auc:
                 knn_auc_result_dict = self.eval_step_knn_auc(
+                    model_ascent,
+                    poisoned_data_loader,
+                    data_clean_loader_ood,
+                    data_bd_out_loader_ood,
+                    data_bd_all_loader_ood,
+                    args,
+                )
+
+            odin_auc_result_dict = {}
+            if args.test_odin_auc:
+                odin_auc_result_dict = self.eval_step_odin_auc(
                     model_ascent,
                     poisoned_data_loader,
                     data_clean_loader_ood,
@@ -672,7 +706,8 @@ class abl(defense):
                 "bd_test_for_cls": bd_test_for_cls,
                 "bd_out_test_auc": bd_out_test_auc,
                 "bd_all_test_auc": bd_all_test_auc,
-                **knn_auc_result_dict
+                **knn_auc_result_dict,
+                **odin_auc_result_dict
             })
 
             train_loss_list.append(train_epoch_loss_avg_over_batch)
