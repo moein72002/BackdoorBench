@@ -1,6 +1,7 @@
 import os,sys
 import numpy as np
 import torch
+from utils.trainer_cls import get_score_knn_auc
 
 
 class defense(object):
@@ -45,4 +46,22 @@ class defense(object):
     def detect(self):
         # TODO:当后续的防御方法没有复写这个方法的时候，就是该防御方法没有此项功能
         print('this method does not have this function')
+
+    def eval_step_knn_auc(
+            self,
+            netC,
+            train_loader,
+            clean_test_dataloader_ood,
+            bd_out_test_dataloader_ood,
+            bd_all_test_dataloader_ood,
+            args,
+    ):
+        device = self.args.device
+        knn_clean_test_auc = get_score_knn_auc(netC, device, train_loader, clean_test_dataloader_ood, bd_test_loader=False)
+        knn_bd_out_test_auc = get_score_knn_auc(netC, device, train_loader, bd_out_test_dataloader_ood, bd_test_loader=True)
+        knn_bd_all_test_auc = get_score_knn_auc(netC, device, train_loader, bd_all_test_dataloader_ood, bd_test_loader=True)
+
+        return knn_clean_test_auc, \
+               knn_bd_out_test_auc, \
+               knn_bd_all_test_auc
 
