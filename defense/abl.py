@@ -305,6 +305,7 @@ class abl(defense):
         parser.add_argument('--use_other_classes_as_exposure_in_training', type=bool, default=False)
         parser.add_argument('--use_l2_adv_images', type=bool, default=False)
         parser.add_argument('--test_knn_auc', type=bool, default=False)
+        parser.add_argument('--test_odin_auc', type=bool, default=False)
 
     def set_result(self, result_file):
         attack_file = '../record/' + result_file
@@ -590,9 +591,9 @@ class abl(defense):
                 odin_auc_result_dict = self.eval_step_odin_auc(
                     model_ascent,
                     poisoned_data_loader,
-                    data_clean_loader_ood,
-                    data_bd_out_loader_ood,
-                    data_bd_all_loader_ood,
+                    data_clean_loader_ood_odin,
+                    data_bd_out_loader_ood_odin,
+                    data_bd_all_loader_ood_odin,
                     args,
                 )
 
@@ -661,9 +662,9 @@ class abl(defense):
                 odin_auc_result_dict = self.eval_step_odin_auc(
                     model_ascent,
                     poisoned_data_loader,
-                    data_clean_loader_ood,
-                    data_bd_out_loader_ood,
-                    data_bd_all_loader_ood,
+                    data_clean_loader_ood_odin,
+                    data_bd_out_loader_ood_odin,
+                    data_bd_all_loader_ood_odin,
                     args,
                 )
 
