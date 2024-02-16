@@ -7,6 +7,8 @@ This file provide implementation of pre-activation ResNet.
 Please note that this is different from default ResNet in pytorch, even thought the structure of file is quite similar.
 And to adapt different image size, we replace the Avgpool2d with its adaptive version.
 """
+import copy
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -102,6 +104,18 @@ class PreActResNet(nn.Module):
         out = out.view(out.size(0), -1)
         out = self.linear(out)
         return out
+
+    def get_embeds_and_logit_from_forward(self, x):
+        out = self.conv1(x)
+        out = self.layer1(out)
+        out = self.layer2(out)
+        out = self.layer3(out)
+        out = self.layer4(out)
+        out = self.avgpool(out)
+        out = out.view(out.size(0), -1)
+        embeds = copy.deepcopy(out)
+        out = self.linear(out)
+        return embeds, out
 
 
 def PreActResNet18(num_classes=10):

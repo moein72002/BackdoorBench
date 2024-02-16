@@ -69,3 +69,14 @@ class defense(object):
 
         return knn_auc_result_dict
 
+    def eval_step_kde_auc(
+            self,
+            netC,
+            train_loader,
+            clean_test_dataloader_ood,
+            bd_out_test_dataloader_ood,
+            bd_all_test_dataloader_ood,
+            args,
+    ):
+        pass
+
