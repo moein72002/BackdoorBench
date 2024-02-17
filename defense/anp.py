@@ -54,6 +54,7 @@ from utils.save_load_attack import load_attack_result, save_defense_result, load
 from utils.bd_dataset_v2 import prepro_cls_DatasetBD_v2
 from utils.visualize_dataset import visualize_random_samples_from_clean_dataset, visualize_random_samples_from_bd_dataset
 from utils.save_top_k_images_from_target_label_train import save_top_k_from_target_label_train
+from utils.ood_scores.msp import eval_step_msp_auc
 
 
 
@@ -472,6 +473,14 @@ class anp(defense):
 
 
                 )
+
+            msp_auc_result_dict = eval_step_msp_auc(
+                self.trainer.model,
+                test_dataloader_dict["clean_test_dataloader_ood"],
+                test_dataloader_dict["bd_out_test_dataloader_ood"],
+                test_dataloader_dict["bd_all_test_dataloader_ood"],
+                args,
+            )
             clean_test_loss_avg_over_batch, \
                     bd_test_loss_avg_over_batch, \
                     test_acc, \
@@ -502,6 +511,7 @@ class anp(defense):
                     "test_acc": test_acc,
                     "test_asr": test_asr,
                     "test_ra": test_ra,
+                    **msp_auc_result_dict
                 })
                 general_plot_for_epoch(
                     {
@@ -582,15 +592,21 @@ class anp(defense):
 
 
                 )
+
+            msp_auc_result_dict = eval_step_msp_auc(
+                self.trainer.model,
+                test_dataloader_dict["clean_test_dataloader_ood"],
+                test_dataloader_dict["bd_out_test_dataloader_ood"],
+                test_dataloader_dict["bd_all_test_dataloader_ood"],
+                args,
+            )
+
             clean_test_loss_avg_over_batch, \
             bd_test_loss_avg_over_batch, \
             test_acc, \
             test_asr, \
             test_ra, \
-            clean_test_auc, \
             bd_test_for_cls, \
-            bd_out_test_auc, \
-            bd_all_test_auc, \
                 = self.trainer.test_current_model(
                 test_dataloader_dict, args.device,
             )
@@ -616,10 +632,8 @@ class anp(defense):
                     "test_acc": test_acc,
                     "test_asr": test_asr,
                     "test_ra": test_ra,
-                    "clean_test_auc": clean_test_auc,
                     "bd_test_for_cls": bd_test_for_cls,
-                    "bd_out_test_auc": bd_out_test_auc,
-                    "bd_all_test_auc": bd_all_test_auc,
+                    **msp_auc_result_dict
                 })
                 general_plot_for_epoch(
                     {
@@ -827,15 +841,21 @@ class anp(defense):
 
                 )
             agg = Metric_Aggregator()
+
+            msp_auc_result_dict = eval_step_msp_auc(
+                self.trainer.model,
+                test_dataloader_dict["clean_test_dataloader_ood"],
+                test_dataloader_dict["bd_out_test_dataloader_ood"],
+                test_dataloader_dict["bd_all_test_dataloader_ood"],
+                args,
+            )
+
             clean_test_loss_avg_over_batch, \
             bd_test_loss_avg_over_batch, \
             test_acc, \
             test_asr, \
             test_ra, \
-            clean_test_auc, \
             bd_test_for_cls, \
-            bd_out_test_auc, \
-            bd_all_test_auc, \
                 = self.trainer.test_current_model(
                 test_dataloader_dict, self.args.device,
             )
@@ -845,10 +865,8 @@ class anp(defense):
                     "test_acc": test_acc,
                     "test_asr": test_asr,
                     "test_ra": test_ra,
-                    "clean_test_auc": clean_test_auc,
                     "bd_test_for_cls": bd_test_for_cls,
-                    "bd_out_test_auc": bd_out_test_auc,
-                    "bd_all_test_auc": bd_all_test_auc,
+                    **msp_auc_result_dict
                 })
             agg.to_dataframe().to_csv(f"{args.save_path}anp_df_summary.csv")
             result = {}
@@ -885,15 +903,20 @@ class anp(defense):
 
             )
         agg = Metric_Aggregator()
+        msp_auc_result_dict = eval_step_msp_auc(
+            self.trainer.model,
+            test_dataloader_dict["clean_test_dataloader_ood"],
+            test_dataloader_dict["bd_out_test_dataloader_ood"],
+            test_dataloader_dict["bd_all_test_dataloader_ood"],
+            args,
+        )
+
         clean_test_loss_avg_over_batch, \
                 bd_test_loss_avg_over_batch, \
                 test_acc, \
                 test_asr, \
                 test_ra, \
-                clean_test_auc, \
                 bd_test_for_cls, \
-                bd_out_test_auc, \
-                bd_all_test_auc, \
             = self.trainer.test_current_model(
             test_dataloader_dict, self.args.device,
         )
@@ -903,10 +926,8 @@ class anp(defense):
                 "test_acc": test_acc,
                 "test_asr": test_asr,
                 "test_ra": test_ra,
-                "clean_test_auc": clean_test_auc,
                 "bd_test_for_cls": bd_test_for_cls,
-                "bd_out_test_auc": bd_out_test_auc,
-                "bd_all_test_auc": bd_all_test_auc,
+                **msp_auc_result_dict
             })
         agg.to_dataframe().to_csv(f"{args.save_path}anp_df_summary.csv")
         result = {}
