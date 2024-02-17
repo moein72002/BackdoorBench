@@ -1,11 +1,3 @@
-import os,sys
-import numpy as np
-import torch
-
-from utils.ood_scores.odin import get_odin_auc
-from utils.trainer_cls import get_score_knn_auc
-
-
 class defense(object):
 
 
