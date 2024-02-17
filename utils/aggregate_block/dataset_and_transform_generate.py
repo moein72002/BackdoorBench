@@ -705,6 +705,35 @@ class SIMPLE_DATASET_FOR_VISUALIZATION(Dataset):
             img = self.tranform(img)
         return img, label
 
+class CIFAR10_BLENDED_L2_USE_OTHER_CLASSES_DATASET(Dataset):
+    def __init__(self, args, transform=None, target_label=0):
+        self.transform = transform
+
+        cifar10_train = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=None)
+        with open("../clean_trained_model/l2_adv_gen_images_cifar10_train_class0.pkl", 'rb') as file:
+            l2_adv_saved_images = pickle.load(file)
+
+        self.data = cifar10_train.data
+        self.targets = cifar10_train.targets
+
+        poison_indices = random.sample(range(len(self.data)), int(args.pratio * len(self.data)))
+        print(f"len(poison_indices): {len(poison_indices)}")
+
+        print(f"Image.blend(cifar10_train, random.choice(l2_adv_saved_images), {args.exposure_blend_rate})")
+        for idx in poison_indices:
+            self.data[idx] = Image.blend(self.data[idx], random.choice(l2_adv_saved_images),
+                                      args.exposure_blend_rate)  # Blend two images with ratio 0.5
+            self.targets[idx] = target_label
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        img = self.data[idx]
+        label = self.targets[idx]
+        if self.transform:
+            img = self.tranform(img)
+        return img, label
 
 class CIFAR10_TRAIN_TARGET_CLASS(Dataset):
     def __init__(self, transform=None, target_label=0):
@@ -754,11 +783,15 @@ class CIFAR10_TRAIN_OTHER_CLASSES(Dataset):
             img = self.tranform(img)
         return img, label
 def create_training_dataset_for_exposure_test(args, dataset_name='cifar10'):
-    blended_dataset = BlendedDataset(args)
-    cifar10_train_target_class = CIFAR10_TRAIN_TARGET_CLASS()
-    cifar10_train_other_classes = CIFAR10_TRAIN_OTHER_CLASSES()
-    cifar10_train_other_classes = cifar10_train_other_classes + cifar10_train_other_classes
-    train_dataset = blended_dataset + cifar10_train_target_class + cifar10_train_other_classes
+    if dataset_name == 'cifar10':
+        if args.use_other_classes_as_exposure_in_training:
+            CIFAR10_BLENDED_L2_USE_OTHER_CLASSES_DATASET(args)
+        else:
+            blended_dataset = BlendedDataset(args)
+            cifar10_train_target_class = CIFAR10_TRAIN_TARGET_CLASS()
+            cifar10_train_other_classes = CIFAR10_TRAIN_OTHER_CLASSES()
+            cifar10_train_other_classes = cifar10_train_other_classes + cifar10_train_other_classes
+            train_dataset = blended_dataset + cifar10_train_target_class + cifar10_train_other_classes
     return train_dataset
 
 def get_blended_images(args):
