@@ -452,6 +452,7 @@ def load_new_attack_result(
         clean_setting.top_k = top_k
         clean_setting.use_other_classes_as_exposure_in_training = use_other_classes_as_exposure_in_training
         clean_setting.use_l2_adv_images = use_l2_adv_images
+        clean_setting.pratio = 0.1
 
         train_dataset_without_transform, \
         train_img_transform, \
