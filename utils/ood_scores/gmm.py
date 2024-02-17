@@ -31,6 +31,7 @@ def get_score_gmm_auc(model, device, gmm, test_loader, bd_test_loader=False):
 
     auc = roc_auc_score(test_labels, test_samples_likelihood)
     print(f"gmm_auc: {auc}")
+    return auc
 
 
 def eval_step_gmm_auc(
