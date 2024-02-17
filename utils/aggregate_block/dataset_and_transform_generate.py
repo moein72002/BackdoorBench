@@ -785,7 +785,7 @@ class CIFAR10_TRAIN_OTHER_CLASSES(Dataset):
 def create_training_dataset_for_exposure_test(args, dataset_name='cifar10'):
     if dataset_name == 'cifar10':
         if args.use_other_classes_as_exposure_in_training:
-            CIFAR10_BLENDED_L2_USE_OTHER_CLASSES_DATASET(args)
+            train_dataset = CIFAR10_BLENDED_L2_USE_OTHER_CLASSES_DATASET(args)
         else:
             blended_dataset = BlendedDataset(args)
             cifar10_train_target_class = CIFAR10_TRAIN_TARGET_CLASS()
