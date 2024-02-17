@@ -373,7 +373,8 @@ class anp(defense):
             self.result = load_new_attack_result(attack_file + '/attack_result.pt',
                                                  top_k=args.top_k,
                                                  use_other_classes_as_exposure_in_training=args.use_other_classes_as_exposure_in_training,
-                                                 use_l2_adv_images=args.use_l2_adv_images
+                                                 use_l2_adv_images=args.use_l2_adv_images,
+                                                 args=args
                                                  )
         else:
             self.result = load_attack_result(attack_file + '/attack_result.pt',
