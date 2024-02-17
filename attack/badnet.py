@@ -157,6 +157,7 @@ class BadNet(NormalCase):
         )
 
         print(f"len(bd_train_dataset_with_transform.wrapped_dataset): {len(bd_train_dataset_with_transform.wrapped_dataset)}")
+        self.count_unique_labels_of_preprocessed_dataset(bd_train_dataset_with_transform.wrapped_dataset, "bd_train_dataset_with_transform.wrapped_dataset")
 
         ### decide which img to poison in ASR Test
         test_poison_index = generate_poison_index_from_label_transform(
