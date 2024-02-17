@@ -1284,7 +1284,7 @@ class abl(defense):
             device=self.args.device,
             verbose=1,
         )
-        print(f"torch.cat(batch_predict_list).eq(0).sum(): {torch.cat(bd_epoch_predict_list).eq(0).sum()}")
+        print(f"bd_epoch_predict_list.eq(0).sum(): {bd_epoch_predict_list.eq(0).sum()}")
         bd_test_for_cls_acc = bd_metrics_for_cls['test_acc']
 
         bd_metrics, bd_epoch_predict_list, bd_epoch_label_list = given_dataloader_test(
