@@ -726,7 +726,7 @@ class CIFAR10_BLENDED_L2_USE_OTHER_CLASSES_DATASET(Dataset):
             if args.use_rotation_transform:
                 transformed_image = transformed_image.rotate(rotation_angle)
             if args.use_blur_transform:
-                transformed_image.filter(ImageFilter.GaussianBlur(5))
+                transformed_image = transformed_image.filter(ImageFilter.GaussianBlur(5))
             self.data[idx] = Image.blend(transformed_image, random.choice(l2_adv_saved_images), args.exposure_blend_rate)  # Blend two images with ratio 0.5
             self.targets[idx] = target_label
 
