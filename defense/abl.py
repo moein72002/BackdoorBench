@@ -52,6 +52,7 @@ from utils.save_top_k_images_from_target_label_train import save_top_k_from_targ
 from utils.ood_scores.msp import eval_step_msp_auc
 from utils.ood_scores.knn import eval_step_knn_auc
 from utils.ood_scores.odin import eval_step_odin_auc
+from utils.ood_scores.gmm import eval_step_gmm_auc
 
 
 class LGALoss(nn.Module):
@@ -309,6 +310,9 @@ class abl(defense):
         parser.add_argument('--use_l2_adv_images', type=bool, default=False)
         parser.add_argument('--test_knn_auc', type=bool, default=False)
         parser.add_argument('--test_odin_auc', type=bool, default=False)
+        parser.add_argument('--test_gmm1_auc', type=bool, default=False)
+        parser.add_argument('--test_gmm5_auc', type=bool, default=False)
+        parser.add_argument('--test_gmm20_auc', type=bool, default=False)
 
     def set_result(self, result_file):
         attack_file = '../record/' + result_file
@@ -607,6 +611,42 @@ class abl(defense):
                     args,
                 )
 
+            gmm1_auc_result_dict = {}
+            if args.test_gmm1_auc:
+                gmm1_auc_result_dict = eval_step_gmm_auc(
+                    model_ascent,
+                    poisoned_data_loader,
+                    data_clean_loader_ood,
+                    data_bd_out_loader_ood,
+                    data_bd_all_loader_ood,
+                    args,
+                    n_components=1
+                )
+
+            gmm5_auc_result_dict = {}
+            if args.test_gmm5_auc:
+                gmm5_auc_result_dict = eval_step_gmm_auc(
+                    model_ascent,
+                    poisoned_data_loader,
+                    data_clean_loader_ood,
+                    data_bd_out_loader_ood,
+                    data_bd_all_loader_ood,
+                    args,
+                    n_components=5
+                )
+
+            gmm20_auc_result_dict = {}
+            if args.test_gmm5_auc:
+                gmm20_auc_result_dict = eval_step_gmm_auc(
+                    model_ascent,
+                    poisoned_data_loader,
+                    data_clean_loader_ood,
+                    data_bd_out_loader_ood,
+                    data_bd_all_loader_ood,
+                    args,
+                    n_components=20
+                )
+
             clean_test_loss_avg_over_batch, \
             bd_test_loss_avg_over_batch, \
             ra_test_loss_avg_over_batch, \
@@ -634,6 +674,9 @@ class abl(defense):
                 **msp_auc_result_dict,
                 **knn_auc_result_dict,
                 **odin_auc_result_dict,
+                **gmm1_auc_result_dict,
+                **gmm5_auc_result_dict,
+                **gmm20_auc_result_dict,
             })
 
             exit()

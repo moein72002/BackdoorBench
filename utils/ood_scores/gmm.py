@@ -1,20 +1,10 @@
 import numpy as np
 import torch
 from tqdm import tqdm
-import faiss
 from sklearn.metrics import roc_auc_score
+from sklearn import mixture
 
-
-def knn_score(train_set, test_set, n_neighbours=2):
-    """
-    Calculates the KNN distance
-    """
-    index = faiss.IndexFlatL2(train_set.shape[1])
-    index.add(train_set)
-    D, _ = index.search(test_set, n_neighbours)
-    return np.sum(D, axis=1)
-
-def get_score_knn_auc(model, device, train_feature_space, test_loader, bd_test_loader=False):
+def get_score_gmm_auc(model, device, gmm, test_loader, bd_test_loader=False):
     model.to(device)
     model.eval()
 
@@ -22,7 +12,8 @@ def get_score_knn_auc(model, device, train_feature_space, test_loader, bd_test_l
     test_labels = []
     with torch.no_grad():
         if bd_test_loader:
-            for idx, (imgs, _, _, _, original_targets) in tqdm(enumerate(test_loader), desc='Test set feature extracting'):
+            for idx, (imgs, _, _, _, original_targets) in tqdm(enumerate(test_loader),
+                                                               desc='Test set feature extracting'):
                 imgs = imgs.to(device)
                 features = model(imgs)
                 test_feature_space.append(features)
@@ -36,24 +27,23 @@ def get_score_knn_auc(model, device, train_feature_space, test_loader, bd_test_l
         test_feature_space = torch.cat(test_feature_space, dim=0).contiguous().cpu().numpy()
         test_labels = torch.cat(test_labels, dim=0).cpu().numpy()
 
-    distances = knn_score(train_feature_space, test_feature_space)
+    test_samples_likelihood = gmm.score_samples(test_feature_space)
 
-    auc = roc_auc_score(test_labels, -1 * distances) # I multiplied distances(scores) by -1 because here in dist label is 1
+    auc = roc_auc_score(test_labels, test_samples_likelihood)
+    print(f"gmm_auc: {auc}")
 
-    print(f"knn_auc: {auc}")
 
-    return auc
-
-def eval_step_knn_auc(
+def eval_step_gmm_auc(
         model,
         train_loader,
         clean_test_dataloader_ood,
         bd_out_test_dataloader_ood,
         bd_all_test_dataloader_ood,
         args,
+        n_components=1
 ):
-
     device = args.device
+
     model.to(device)
     model.eval()
     train_feature_space = []
@@ -64,14 +54,22 @@ def eval_step_knn_auc(
             train_feature_space.append(features)
         train_feature_space = torch.cat(train_feature_space, dim=0).contiguous().cpu().numpy()
 
-    knn_clean_test_auc = get_score_knn_auc(model, device, train_feature_space, clean_test_dataloader_ood, bd_test_loader=False)
-    knn_bd_out_test_auc = get_score_knn_auc(model, device, train_feature_space, bd_out_test_dataloader_ood, bd_test_loader=True)
-    knn_bd_all_test_auc = get_score_knn_auc(model, device, train_feature_space, bd_all_test_dataloader_ood, bd_test_loader=True)
+    gmm = mixture.GaussianMixture(n_components=n_components,
+                                  max_iter=500,
+                                  verbose=1,
+                                  n_init=1)
+    gmm.fit(train_feature_space)
 
-    knn_auc_result_dict = {
-        "knn_clean_test_auc": knn_clean_test_auc,
-        "knn_bd_out_test_auc": knn_bd_out_test_auc,
-        "knn_bd_all_test_auc": knn_bd_all_test_auc
+    gmm_clean_test_auc = get_score_gmm_auc(model, device, gmm, clean_test_dataloader_ood, bd_test_loader=False)
+    gmm_bd_out_test_auc = get_score_gmm_auc(model, device, gmm, bd_out_test_dataloader_ood, bd_test_loader=True)
+    gmm_bd_all_test_auc = get_score_gmm_auc(model, device, gmm, bd_all_test_dataloader_ood, bd_test_loader=True)
+
+    gmm_auc_result_dict = {
+        f"gmm{n_components}_clean_test_auc": gmm_clean_test_auc,
+        f"gmm{n_components}_bd_out_test_auc": gmm_bd_out_test_auc,
+        f"gmm{n_components}_bd_all_test_auc": gmm_bd_all_test_auc
     }
 
-    return knn_auc_result_dict
+    print(gmm_auc_result_dict)
+
+    return gmm_auc_result_dict
