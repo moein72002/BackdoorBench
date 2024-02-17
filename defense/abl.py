@@ -39,7 +39,7 @@ from defense.base import defense
 
 from utils.aggregate_block.train_settings_generate import argparser_criterion
 from utils.trainer_cls import Metric_Aggregator, PureCleanModelTrainer, all_acc, general_plot_for_epoch, \
-    given_dataloader_test, test_ood_given_dataloader, get_score_knn_auc
+    given_dataloader_test
 from utils.aggregate_block.fix_random import fix_random
 from utils.aggregate_block.model_trainer_generate import generate_cls_model
 from utils.log_assist import get_git_info
@@ -49,6 +49,9 @@ from utils.save_load_attack import load_attack_result, save_defense_result, load
 from utils.bd_dataset_v2 import dataset_wrapper_with_transform
 from utils.visualize_dataset import visualize_random_samples_from_clean_dataset, visualize_random_samples_from_bd_dataset
 from utils.save_top_k_images_from_target_label_train import save_top_k_from_target_label_train
+from utils.ood_scores.msp import eval_step_msp_auc
+from utils.ood_scores.knn import eval_step_knn_auc
+from utils.ood_scores.odin import eval_step_odin_auc
 
 
 class LGALoss(nn.Module):
@@ -575,9 +578,17 @@ class abl(defense):
         if args.tuning_epochs == 0 and args.just_test_exposure_ood == 'true':
             model_ascent.load_state_dict(self.result['model'])
 
+            msp_auc_result_dict = eval_step_msp_auc(
+                model_ascent,
+                data_clean_loader_ood,
+                data_bd_out_loader_ood,
+                data_bd_all_loader_ood,
+                args,
+            )
+
             knn_auc_result_dict = {}
             if args.test_knn_auc:
-                knn_auc_result_dict = self.eval_step_knn_auc(
+                knn_auc_result_dict = eval_step_knn_auc(
                     model_ascent,
                     poisoned_data_loader,
                     data_clean_loader_ood,
@@ -588,9 +599,8 @@ class abl(defense):
 
             odin_auc_result_dict = {}
             if args.test_odin_auc:
-                odin_auc_result_dict = self.eval_step_odin_auc(
+                odin_auc_result_dict = eval_step_odin_auc(
                     model_ascent,
-                    poisoned_data_loader,
                     data_clean_loader_ood_odin,
                     data_bd_out_loader_ood_odin,
                     data_bd_all_loader_ood_odin,
@@ -603,17 +613,11 @@ class abl(defense):
             test_acc, \
             test_asr, \
             test_ra, \
-            clean_test_auc, \
-            bd_test_for_cls, \
-            bd_out_test_auc, \
-            bd_all_test_auc = self.eval_step(
+            bd_test_for_cls = self.eval_step(
                 model_ascent,
                 data_clean_loader,
                 data_bd_loader,
-                data_clean_loader_ood,
                 data_bd_loader_for_cls,
-                data_bd_out_loader_ood,
-                data_bd_all_loader_ood,
                 args,
             )
 
@@ -626,10 +630,8 @@ class abl(defense):
                 "test_acc": test_acc,
                 "test_asr": test_asr,
                 "test_ra": test_ra,
-                "clean_test_auc": clean_test_auc,
                 "bd_test_for_cls": bd_test_for_cls,
-                "bd_out_test_auc": bd_out_test_auc,
-                "bd_all_test_auc": bd_all_test_auc,
+                **msp_auc_result_dict,
                 **knn_auc_result_dict,
                 **odin_auc_result_dict,
             })
@@ -646,27 +648,14 @@ class abl(defense):
             train_asr, \
             train_ra = self.train_step(args, poisoned_data_loader, model_ascent, optimizer, criterion, epoch + 1)
 
-            knn_auc_result_dict = {}
-            if args.test_knn_auc:
-                knn_auc_result_dict = self.eval_step_knn_auc(
-                    model_ascent,
-                    poisoned_data_loader,
-                    data_clean_loader_ood,
-                    data_bd_out_loader_ood,
-                    data_bd_all_loader_ood,
-                    args,
-                )
 
-            odin_auc_result_dict = {}
-            if args.test_odin_auc:
-                odin_auc_result_dict = self.eval_step_odin_auc(
-                    model_ascent,
-                    poisoned_data_loader,
-                    data_clean_loader_ood_odin,
-                    data_bd_out_loader_ood_odin,
-                    data_bd_all_loader_ood_odin,
-                    args,
-                )
+            msp_auc_result_dict = eval_step_msp_auc(
+                model_ascent,
+                data_clean_loader_ood,
+                data_bd_out_loader_ood,
+                data_bd_all_loader_ood,
+                args,
+            )
 
             clean_test_loss_avg_over_batch, \
             bd_test_loss_avg_over_batch, \
@@ -674,17 +663,11 @@ class abl(defense):
             test_acc, \
             test_asr, \
             test_ra, \
-            clean_test_auc, \
-            bd_test_for_cls, \
-            bd_out_test_auc, \
-            bd_all_test_auc = self.eval_step(
+            bd_test_for_cls, = self.eval_step(
                 model_ascent,
                 data_clean_loader,
                 data_bd_loader,
-                data_clean_loader_ood,
                 data_bd_loader_for_cls,
-                data_bd_out_loader_ood,
-                data_bd_all_loader_ood,
                 args,
             )
 
@@ -703,12 +686,8 @@ class abl(defense):
                 "test_acc": test_acc,
                 "test_asr": test_asr,
                 "test_ra": test_ra,
-                "clean_test_auc": clean_test_auc,
                 "bd_test_for_cls": bd_test_for_cls,
-                "bd_out_test_auc": bd_out_test_auc,
-                "bd_all_test_auc": bd_all_test_auc,
-                **knn_auc_result_dict,
-                **odin_auc_result_dict
+                **msp_auc_result_dict,
             })
 
             train_loss_list.append(train_epoch_loss_avg_over_batch)
@@ -876,7 +855,15 @@ class abl(defense):
                 train_mix_acc, \
                 train_clean_acc, \
                 train_asr, \
-                train_ra = self.train_step(args, isolate_other_data_loader, model_ascent, optimizer, criterion, epoch + 1)  
+                train_ra = self.train_step(args, isolate_other_data_loader, model_ascent, optimizer, criterion, epoch + 1)
+
+                msp_auc_result_dict = eval_step_msp_auc(
+                    model_ascent,
+                    data_clean_loader_ood,
+                    data_bd_out_loader_ood,
+                    data_bd_all_loader_ood,
+                    args,
+                )
 
                 clean_test_loss_avg_over_batch, \
                 bd_test_loss_avg_over_batch, \
@@ -884,18 +871,12 @@ class abl(defense):
                 test_acc, \
                 test_asr, \
                 test_ra, \
-                clean_test_auc, \
                 bd_test_for_cls, \
-                bd_out_test_auc, \
-                bd_all_test_auc, \
                     = self.eval_step(
                     model_ascent,
                     data_clean_loader,
                     data_bd_loader,
-                    data_clean_loader_ood,
                     data_bd_loader_for_cls,
-                    data_bd_out_loader_ood,
-                    data_bd_all_loader_ood,
                     args,
                 )
 
@@ -914,10 +895,8 @@ class abl(defense):
                     "test_acc": test_acc,
                     "test_asr": test_asr,
                     "test_ra": test_ra,
-                    "clean_test_auc": clean_test_auc,
                     "bd_test_for_cls": bd_test_for_cls,
-                    "bd_out_test_auc": bd_out_test_auc,
-                    "bd_all_test_auc": bd_all_test_auc,
+                    **msp_auc_result_dict
                 })
 
                 train_loss_list.append(train_epoch_loss_avg_over_batch)
@@ -977,7 +956,16 @@ class abl(defense):
             train_mix_acc, \
             train_clean_acc, \
             train_asr, \
-            train_ra = self.train_step_unlearn(args, isolate_poisoned_data_loader, model_ascent, optimizer, criterion, epoch + 1)  
+            train_ra = self.train_step_unlearn(args, isolate_poisoned_data_loader, model_ascent, optimizer, criterion, epoch + 1)
+
+
+            msp_auc_result_dict = eval_step_msp_auc(
+                model_ascent,
+                data_clean_loader_ood,
+                data_bd_out_loader_ood,
+                data_bd_all_loader_ood,
+                args,
+            )
 
             clean_test_loss_avg_over_batch, \
             bd_test_loss_avg_over_batch, \
@@ -985,18 +973,12 @@ class abl(defense):
             test_acc, \
             test_asr, \
             test_ra, \
-            clean_test_auc, \
             bd_test_for_cls, \
-            bd_out_test_auc, \
-            bd_all_test_auc, \
                 = self.eval_step(
                 model_ascent,
                 data_clean_loader,
                 data_bd_loader,
-                data_clean_loader_ood,
                 data_bd_loader_for_cls,
-                data_bd_out_loader_ood,
-                data_bd_all_loader_ood,
                 args,
             )
 
@@ -1015,10 +997,8 @@ class abl(defense):
                 "test_acc": test_acc,
                 "test_asr": test_asr,
                 "test_ra": test_ra,
-                "clean_test_auc": clean_test_auc,
                 "bd_test_for_cls": bd_test_for_cls,
-                "bd_out_test_auc": bd_out_test_auc,
-                "bd_all_test_auc": bd_all_test_auc,
+                **msp_auc_result_dict
             })
 
             train_loss_list.append(train_epoch_loss_avg_over_batch)
@@ -1239,10 +1219,7 @@ class abl(defense):
             netC,
             clean_test_dataloader,
             bd_test_dataloader,
-            clean_test_dataloader_ood,
             bd_test_dataloader_for_cls,
-            bd_out_test_dataloader_ood,
-            bd_all_test_dataloader_ood,
             args,
     ):
         clean_metrics, clean_epoch_predict_list, clean_epoch_label_list = given_dataloader_test(
@@ -1278,13 +1255,6 @@ class abl(defense):
         # def test_ood_given_dataloader(model, test_dataloader, non_blocking: bool = False, device="cpu", verbose=0,
         #                               clean_dataset=True):
 
-        clean_test_auc = test_ood_given_dataloader(netC, clean_test_dataloader_ood, non_blocking=args.non_blocking, device=self.args.device,
-                                                        verbose=1, clean_dataset=True)  # TODO
-        bd_out_test_auc = test_ood_given_dataloader(netC, bd_out_test_dataloader_ood, non_blocking=args.non_blocking, device=self.args.device, verbose=1,
-                                                     clean_dataset=False)  # TODO
-        bd_all_test_auc = test_ood_given_dataloader(netC, bd_all_test_dataloader_ood, non_blocking=args.non_blocking,
-                                                device=self.args.device, verbose=1,
-                                                clean_dataset=False)  # TODO
 
         bd_test_loss_avg_over_batch = bd_metrics['test_loss_avg_over_batch']
         test_asr = bd_metrics['test_acc']
@@ -1302,16 +1272,15 @@ class abl(defense):
         test_ra = ra_metrics['test_acc']
         bd_test_dataloader.dataset.wrapped_dataset.getitem_all_switch = False  # switch back
 
+
+
         return clean_test_loss_avg_over_batch, \
                 bd_test_loss_avg_over_batch, \
                 ra_test_loss_avg_over_batch, \
                 test_acc, \
                 test_asr, \
                 test_ra, \
-                clean_test_auc, \
                 bd_test_for_cls_acc, \
-                bd_out_test_auc, \
-                bd_all_test_auc
 
 
 

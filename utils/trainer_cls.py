@@ -16,8 +16,6 @@ import matplotlib.pyplot as plt
 from utils.prefetch import PrefetchLoader, prefetch_transform
 
 from sklearn.metrics import roc_auc_score
-from tqdm import tqdm
-import faiss
 
 def seed_worker(worker_id):
     worker_seed = torch.initial_seed() % 2**32
@@ -650,104 +648,9 @@ def given_dataloader_test(
     elif verbose == 1:
         return metrics, torch.cat(batch_predict_list), torch.cat(batch_label_list)
 
-def knn_score(train_set, test_set, n_neighbours=2):
-    """
-    Calculates the KNN distance
-    """
-    index = faiss.IndexFlatL2(train_set.shape[1])
-    index.add(train_set)
-    D, _ = index.search(test_set, n_neighbours)
-    return np.sum(D, axis=1)
 
-def get_score_knn_auc(model, device, train_loader, test_loader, bd_test_loader=False):
-    model.to(device)
-    model.eval()
 
-    train_feature_space = []
-    with torch.no_grad():
-        for idx, (imgs, target, original_index, poison_indicator, original_targets) in enumerate(train_loader, start=1):
-            # print(f"idx: {idx}")
-            # print(f"len(imgs): {len(imgs)}")
-            imgs = imgs.to(device)
-            features = model(imgs)
-            train_feature_space.append(features)
-        train_feature_space = torch.cat(train_feature_space, dim=0).contiguous().cpu().numpy()
-    test_feature_space = []
-    test_labels = []
-    with torch.no_grad():
-        if bd_test_loader:
-            for idx, (imgs, _, _, _, original_targets) in tqdm(enumerate(test_loader), desc='Test set feature extracting'):
-                imgs = imgs.to(device)
-                features = model(imgs)
-                test_feature_space.append(features)
-                test_labels.append(original_targets)
-        else:
-            for idx, (imgs, labels) in tqdm(enumerate(test_loader), desc='Test set feature extracting'):
-                imgs = imgs.to(device)
-                features = model(imgs)
-                test_feature_space.append(features)
-                test_labels.append(labels)
-        test_feature_space = torch.cat(test_feature_space, dim=0).contiguous().cpu().numpy()
-        test_labels = torch.cat(test_labels, dim=0).cpu().numpy()
 
-    distances = knn_score(train_feature_space, test_feature_space)
-
-    auc = roc_auc_score(test_labels, -1 * distances) # I multiplied distances(scores) by -1 because here in dist label is 1
-
-    print(f"knn_auc: {auc}")
-
-    return auc
-
-def test_ood_given_dataloader(model, test_dataloader, non_blocking : bool = False, device = "cpu", verbose = 0, clean_dataset = True):
-
-    model.to(device, non_blocking=non_blocking)
-    model.eval()
-
-    if verbose == 1:
-        batch_label_list = []
-        batch_normality_scores_list = []
-
-    with torch.no_grad():
-        if clean_dataset:
-            for batch_idx, (x, label) in enumerate(
-                    test_dataloader):
-                x = x.to(device, non_blocking=non_blocking)
-                # print(f"original_targets[:5]: {original_targets[:5]}")
-                label = label.to(device, non_blocking=non_blocking)
-                pred = model(x)
-
-                # TODO: check below
-                normality_scores = torch.max(pred.detach().cpu(), dim=1).values
-                # print(f"pred.size(): {pred.size()}")
-                # print(f"normality_scores.size(): {normality_scores.size()}")
-
-                if verbose == 1:
-                    batch_label_list.append(label.detach().clone().cpu())
-                    batch_normality_scores_list.append(normality_scores.detach().clone().cpu())
-        else:
-            for batch_idx, (x, labels, original_index, poison_indicator, original_targets) in enumerate(test_dataloader):
-                x = x.to(device, non_blocking=non_blocking)
-                # print(f"original_targets[:5]: {original_targets[:5]}")
-                original_targets = original_targets.to(device, non_blocking=non_blocking)
-                pred = model(x)
-
-                #TODO: check below
-                normality_scores = torch.max(pred.detach().cpu(), dim=1).values
-                # print(f"pred.size(): {pred.size()}")
-                # print(f"normality_scores.size(): {normality_scores.size()}")
-
-                if verbose == 1:
-                    batch_label_list.append(original_targets.detach().clone().cpu())
-                    batch_normality_scores_list.append(normality_scores.detach().clone().cpu())
-
-    auc = roc_auc_score(torch.cat(batch_label_list).detach().cpu().numpy(), torch.cat(batch_normality_scores_list).detach().cpu().numpy())
-
-    print(f"auc: {auc}")
-
-    if verbose == 0:
-        return None
-    elif verbose == 1:
-        return auc
 
 def test_given_dataloader_on_mix(model, test_dataloader,  criterion, device = None, non_blocking=True, verbose = 0):
 

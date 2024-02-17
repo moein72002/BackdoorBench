@@ -145,3 +145,31 @@ def get_odin_auc(original_model, test_dataloader, non_blocking: bool = False, de
         return None
     elif verbose == 1:
         return auc
+
+def eval_step_odin_auc(
+        netC,
+        clean_test_dataloader_ood_odin,
+        bd_out_test_dataloader_ood_odin,
+        bd_all_test_dataloader_ood_odin,
+        args,
+):
+    odin_clean_test_auc = get_odin_auc(netC, clean_test_dataloader_ood_odin,
+                                       non_blocking=args.non_blocking,
+                                       device=args.device,
+                                       verbose=1, clean_dataset=True)  # TODO
+    odin_bd_out_test_auc = get_odin_auc(netC, bd_out_test_dataloader_ood_odin,
+                                        non_blocking=args.non_blocking,
+                                        device=args.device, verbose=1,
+                                        clean_dataset=False)  # TODO
+    odin_bd_all_test_auc = get_odin_auc(netC, bd_all_test_dataloader_ood_odin,
+                                        non_blocking=args.non_blocking,
+                                        device=args.device, verbose=1,
+                                        clean_dataset=False)  # TODO
+
+    odin_auc_result_dict = {
+        "odin_clean_test_auc": odin_clean_test_auc,
+        "odin_bd_out_test_auc": odin_bd_out_test_auc,
+        "odin_bd_all_test_auc": odin_bd_all_test_auc
+    }
+
+    return odin_auc_result_dict
