@@ -1276,14 +1276,15 @@ class abl(defense):
         clean_test_loss_avg_over_batch = clean_metrics['test_loss_avg_over_batch']
         test_acc = clean_metrics['test_acc']
 
-        bd_metrics_for_cls, _, _ = given_dataloader_test(
+        bd_metrics_for_cls, bd_epoch_predict_list, _ = given_dataloader_test(
             netC,
             bd_test_dataloader_for_cls,
             criterion=torch.nn.CrossEntropyLoss(),
             non_blocking=args.non_blocking,
             device=self.args.device,
-            verbose=0,
+            verbose=1,
         )
+        print(f"torch.cat(batch_predict_list).eq(0).sum(): {torch.cat(bd_epoch_predict_list).eq(0).sum()}")
         bd_test_for_cls_acc = bd_metrics_for_cls['test_acc']
 
         bd_metrics, bd_epoch_predict_list, bd_epoch_label_list = given_dataloader_test(
