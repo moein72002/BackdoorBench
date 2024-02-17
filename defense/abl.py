@@ -313,6 +313,7 @@ class abl(defense):
         parser.add_argument('--test_gmm1_auc', type=bool, default=False)
         parser.add_argument('--test_gmm5_auc', type=bool, default=False)
         parser.add_argument('--test_gmm20_auc', type=bool, default=False)
+        parser.add_argument('--use_rotation_transform', type=bool, default=False)
 
     def set_result(self, result_file):
         attack_file = '../record/' + result_file
