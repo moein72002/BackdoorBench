@@ -721,7 +721,7 @@ class CIFAR10_BLENDED_L2_USE_OTHER_CLASSES_DATASET(Dataset):
 
         print(f"Image.blend(cifar10_train, random.choice(l2_adv_saved_images), {args.exposure_blend_rate})")
         for idx in poison_indices:
-            self.data[idx] = Image.blend(self.data[idx], random.choice(l2_adv_saved_images),
+            self.data[idx] = Image.blend(cifar10_train[idx][0], random.choice(l2_adv_saved_images),
                                       args.exposure_blend_rate)  # Blend two images with ratio 0.5
             self.targets[idx] = target_label
 
