@@ -70,6 +70,8 @@ class BadNet(NormalCase):
                             help='path for yaml file provide additional default attributes')
         parser.add_argument("--top_k", type=int, default=0)     # top_k effect is on when it is more than zero
         parser.add_argument('--use_l2_adv_images', type=bool, default=False)
+        parser.add_argument('--use_rotation_transform', type=bool, default=False)
+        parser.add_argument('--use_blur_transform', type=bool, default=False)
         parser.add_argument('--cos_t_max', type=int, default=100)
         return parser
 
