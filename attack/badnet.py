@@ -72,6 +72,7 @@ class BadNet(NormalCase):
         parser.add_argument('--use_l2_adv_images', type=bool, default=False)
         parser.add_argument('--use_rotation_transform', type=bool, default=False)
         parser.add_argument('--use_cheat_exposure', type=bool, default=False)
+        parser.add_argument('--save_classification', type=bool, default=False)
         parser.add_argument('--cos_t_max', type=int, default=100)
         return parser
 

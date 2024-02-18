@@ -748,10 +748,22 @@ class CIFAR10_BLENDED_L2_USE_OTHER_CLASSES_DATASET(Dataset):
         self.data = cifar10_train.data
         self.targets = cifar10_train.targets
 
-        poison_indices = random.sample(range(len(self.data)), int(args.pratio * len(self.data)))
-        print(f"len(poison_indices): {len(poison_indices)}")
+        if args.save_classification:
+            random_indices = random.sample(range(len(self.data)), int(2 * args.pratio * len(self.data)))
+            random_indices_for_saving_classification = random_indices[len(random_indices) // 2:]
+            poison_indices = random_indices[:len(random_indices) // 2]
+            print(f"len(random_indices_for_saving_classification): {len(random_indices_for_saving_classification)}")
+            print(f"len(poison_indices): {len(poison_indices)}")
 
-        print(f"Image.blend(cifar10_train, random.choice(l2_adv_saved_images), {args.exposure_blend_rate})")
+            print(f"Image.blend(cifar10_train[random_indices_for_saving_classification][0], random.choice(l2_adv_saved_images), {args.exposure_blend_rate})")
+            for idx in random_indices_for_saving_classification:
+                self.data[idx] = Image.blend(cifar10_train[idx][0], random.choice(l2_adv_saved_images),
+                                             args.exposure_blend_rate)  # Blend two images with ratio 0.5
+        else:
+            poison_indices = random.sample(range(len(self.data)), int(args.pratio * len(self.data)))
+            print(f"len(poison_indices): {len(poison_indices)}")
+
+        print(f"Image.blend(transform_image(cifar10_train[poison_index][0]), random.choice(l2_adv_saved_images), {args.exposure_blend_rate})")
         for idx in poison_indices:
             rotation_angle = random.choice([90, 180, 270])
             transformed_image = cifar10_train[idx][0]
