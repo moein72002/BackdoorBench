@@ -372,12 +372,7 @@ class anp(defense):
             if not (os.path.exists(self.args.log)):
                 os.makedirs(self.args.log)
         if self.args.load_new_attack_result:
-            self.result = load_new_attack_result(attack_file + '/attack_result.pt',
-                                                 top_k=args.top_k,
-                                                 use_other_classes_as_exposure_in_training=args.use_other_classes_as_exposure_in_training,
-                                                 use_l2_adv_images=args.use_l2_adv_images,
-                                                 args=args
-                                                 )
+            self.result = load_new_attack_result(attack_file + '/attack_result.pt', args)
         else:
             self.result = load_attack_result(attack_file + '/attack_result.pt',
                                                  top_k=args.top_k,

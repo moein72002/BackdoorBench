@@ -206,7 +206,7 @@ def print_time_for_testing():
 
 def load_attack_result(
     save_path : str,
-    just_test_exposure_ood = 'false',
+    just_test_exposure_ood = False,
     test_blend_rate = 0.1,
     top_k = 0,
     use_other_classes_as_exposure_in_training = False,
@@ -251,7 +251,7 @@ def load_attack_result(
         clean_setting.img_size = load_file['img_size']
 
         exposure_blend_rate = load_file['exposure_blend_rate']
-        if just_test_exposure_ood == 'true':
+        if just_test_exposure_ood:
             exposure_blend_rate = test_blend_rate
         clean_setting.exposure_blend_rate = exposure_blend_rate
         clean_setting.top_k = top_k
@@ -306,7 +306,7 @@ def load_attack_result(
             print(f"len(train_dataset_without_transform): {len(train_dataset_without_transform)}")
             bd_train_dataset = prepro_cls_DatasetBD_v2(train_dataset_without_transform)
             print(f"len(bd_train_dataset): {len(bd_train_dataset)}")
-            if just_test_exposure_ood == 'false':
+            if not just_test_exposure_ood:
                 bd_train_dataset.set_state(
                     load_file['bd_train']
                 )
@@ -334,7 +334,7 @@ def load_attack_result(
         bd_out_test_dataset_ood = prepro_cls_DatasetBD_v2(exposure_out_test_dataset_without_transform_ood)
         bd_all_test_dataset_ood = prepro_cls_DatasetBD_v2(exposure_all_test_dataset_without_transform_ood)
 
-        # if just_test_exposure_ood == 'false':
+        # if not just_test_exposure_ood:
         #     bd_test_dataset_for_cls.set_state(
         #         load_file['bd_test_for_cls']
         #     )
@@ -401,12 +401,7 @@ def load_attack_result(
 # 'bd_test_for_cls', 'bd_out_test_ood', 'bd_all_test_ood' are added
 def load_new_attack_result(
     save_path : str,
-    just_test_exposure_ood = 'false',
-    test_blend_rate = 0.1,
-    top_k = 0,
-    use_other_classes_as_exposure_in_training = False,
-    use_l2_adv_images = False,
-    args = None
+    args
 ):
     '''
     This function first replicate the basic steps of generate models and clean train and test datasets
@@ -447,12 +442,12 @@ def load_new_attack_result(
         clean_setting.img_size = load_file['img_size']
 
         exposure_blend_rate = load_file['exposure_blend_rate']
-        if just_test_exposure_ood == 'true':
-            exposure_blend_rate = test_blend_rate
+        if args.just_test_exposure_ood:
+            exposure_blend_rate = args.test_blend_rate
         clean_setting.exposure_blend_rate = exposure_blend_rate
-        clean_setting.top_k = top_k
-        clean_setting.use_other_classes_as_exposure_in_training = use_other_classes_as_exposure_in_training
-        clean_setting.use_l2_adv_images = use_l2_adv_images
+        clean_setting.top_k = args.top_k
+        clean_setting.use_other_classes_as_exposure_in_training = args.use_other_classes_as_exposure_in_training
+        clean_setting.use_l2_adv_images = args.use_l2_adv_images
         clean_setting.pratio = 0.1
         clean_setting.use_rotation_transform = args.use_rotation_transform
 
@@ -528,7 +523,7 @@ def load_new_attack_result(
         bd_out_test_dataset_ood = prepro_cls_DatasetBD_v2(exposure_out_test_dataset_without_transform_ood)
         bd_all_test_dataset_ood = prepro_cls_DatasetBD_v2(exposure_all_test_dataset_without_transform_ood)
 
-        if just_test_exposure_ood == 'false':
+        if not args.just_test_exposure_ood:
             bd_test_dataset_for_cls.set_state(
                 load_file['bd_test_for_cls']
             )

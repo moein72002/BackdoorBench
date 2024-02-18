@@ -38,13 +38,11 @@ import time
 from defense.base import defense
 
 from utils.aggregate_block.train_settings_generate import argparser_criterion
-from utils.trainer_cls import Metric_Aggregator, PureCleanModelTrainer, all_acc, general_plot_for_epoch, \
-    given_dataloader_test
+from utils.trainer_cls import Metric_Aggregator, PureCleanModelTrainer, all_acc, general_plot_for_epoch, given_dataloader_test
 from utils.aggregate_block.fix_random import fix_random
 from utils.aggregate_block.model_trainer_generate import generate_cls_model
 from utils.log_assist import get_git_info
-from utils.aggregate_block.dataset_and_transform_generate import get_input_shape, get_num_classes, get_transform, \
-    exposure_dataset_and_transform_generate
+from utils.aggregate_block.dataset_and_transform_generate import get_input_shape, get_num_classes, get_transform
 from utils.save_load_attack import load_attack_result, save_defense_result, load_new_attack_result
 from utils.bd_dataset_v2 import dataset_wrapper_with_transform
 from utils.visualize_dataset import visualize_random_samples_from_clean_dataset, visualize_random_samples_from_bd_dataset
@@ -302,7 +300,7 @@ class abl(defense):
         parser.add_argument('--threshold_clean', type=float, help='threshold of save weight')
         parser.add_argument('--threshold_bad', type=float, help='threshold of save weight')
         parser.add_argument('--interval', type=int, help='frequency of save model')
-        parser.add_argument('--just_test_exposure_ood', type=str, default="false")
+        parser.add_argument('--just_test_exposure_ood', type=bool, default=False)
         parser.add_argument('--test_blend_rate', type=float, default=0.1)
         parser.add_argument('--top_k', type=int, default=0)
         parser.add_argument('--load_new_attack_result', type=bool, default=False)
@@ -332,14 +330,7 @@ class abl(defense):
                 os.makedirs(self.args.log)
 
         if self.args.load_new_attack_result:
-            self.result = load_new_attack_result(attack_file + '/attack_result.pt',
-                                                 just_test_exposure_ood=args.just_test_exposure_ood,
-                                                 test_blend_rate=args.test_blend_rate,
-                                                 top_k=args.top_k,
-                                                 use_other_classes_as_exposure_in_training=args.use_other_classes_as_exposure_in_training,
-                                                 use_l2_adv_images=args.use_l2_adv_images,
-                                                 args=args
-                                                 )
+            self.result = load_new_attack_result(attack_file + '/attack_result.pt', args)
         else:
             self.result = load_attack_result(attack_file + '/attack_result.pt',
                                              just_test_exposure_ood=args.just_test_exposure_ood,
@@ -581,7 +572,7 @@ class abl(defense):
         test_asr_list = []
         test_ra_list = []
 
-        if args.tuning_epochs == 0 and args.just_test_exposure_ood == 'true':
+        if args.tuning_epochs == 0 and args.just_test_exposure_ood:
             model_ascent.load_state_dict(self.result['model'])
 
             msp_auc_result_dict = eval_step_msp_auc(
