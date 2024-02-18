@@ -353,6 +353,7 @@ class anp(defense):
         parser.add_argument('--use_l2_adv_images', type=bool, default=False)
         parser.add_argument('--use_other_classes_as_exposure_in_training', type=bool, default=False)
         parser.add_argument('--use_rotation_transform', type=bool, default=False)
+        parser.add_argument('--use_cheat_exposure', type=bool, default=False)
 
 
 
