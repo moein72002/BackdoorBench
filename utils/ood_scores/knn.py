@@ -24,13 +24,13 @@ def get_score_knn_auc(model, device, train_feature_space, test_loader, bd_test_l
         if bd_test_loader:
             for idx, (imgs, _, _, _, original_targets) in tqdm(enumerate(test_loader), desc='Test set feature extracting'):
                 imgs = imgs.to(device)
-                features = model(imgs)
+                features, _ = model.get_embeds_and_logit_from_forward(imgs)
                 test_feature_space.append(features)
                 test_labels.append(original_targets)
         else:
             for idx, (imgs, labels) in tqdm(enumerate(test_loader), desc='Test set feature extracting'):
                 imgs = imgs.to(device)
-                features = model(imgs)
+                features, _ = model.get_embeds_and_logit_from_forward(imgs)
                 test_feature_space.append(features)
                 test_labels.append(labels)
         test_feature_space = torch.cat(test_feature_space, dim=0).contiguous().cpu().numpy()
@@ -60,7 +60,7 @@ def eval_step_knn_auc(
     with torch.no_grad():
         for idx, (imgs, _, _, _, _) in enumerate(train_loader, start=1):
             imgs = imgs.to(device)
-            features = model(imgs)
+            features, _ = model.get_embeds_and_logit_from_forward(imgs)
             train_feature_space.append(features)
         train_feature_space = torch.cat(train_feature_space, dim=0).contiguous().cpu().numpy()
 
