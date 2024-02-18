@@ -450,6 +450,7 @@ def load_new_attack_result(
         clean_setting.use_l2_adv_images = args.use_l2_adv_images
         clean_setting.pratio = 0.1
         clean_setting.use_rotation_transform = args.use_rotation_transform
+        clean_setting.use_cheat_exposure = args.use_cheat_exposure
 
         train_dataset_without_transform, \
         train_img_transform, \
