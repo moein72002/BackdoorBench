@@ -353,6 +353,40 @@ def get_cifar10_blended_id_images_for_test_l2_1000(args, file_path):
 
     return blended_images
 
+class CIFAR10_CLEAN_ID(Dataset):
+    def __init__(self, args, transform=None, in_dist_label=1):
+        self.transform = transform
+
+        self.data = []
+
+        cifar10_test = torchvision.datasets.CIFAR10(args.dataset_path, train=False, download=True, transform=None)
+
+        for i in range(cifar10_test):
+            self.data.append(cifar10_test[i][0])
+
+        if args.test_jpeg_compression_defense:
+            print("test_jpeg_compression_defense in CIFAR10_CLEAN_ID")
+            # Define the path of the new directory
+            new_directory_path = "./data/jpeg_compress_CIFAR10_CLEAN_ID"
+            # Create the directory
+            os.makedirs(new_directory_path, exist_ok=True)
+            for i in range(len(self.data)):
+                address = f"./data/jpeg_compress_CIFAR10_ID/{i}.jpg"
+                self.data[i].save(address, 'JPEG', quality=75)
+                self.data[i] = Image.open(address)
+
+        self.in_dist_label = in_dist_label
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        img = self.data[idx]
+        label = self.in_dist_label
+        if self.transform:
+            img = self.tranform(img)
+        return img, label
+
 class CIFAR10_BLENDED_ID(Dataset):
     def __init__(self, args, transform=None, in_dist_label=1):
         self.transform = transform
@@ -539,14 +573,17 @@ def exposure_dataset_and_transform_generate_ood(args, poison_all_test_ood=False)
             #     download=True,
             # )
 
-            testset_clean_10 = CIFAR10(
-                args.dataset_path, 
-                train=False, 
-                download=True, 
-                transform=None
-            )
-            for i in range(len(testset_clean_10.targets)):
-                testset_clean_10.targets[i] = 1
+
+            # testset_clean_10 = CIFAR10(
+            #     args.dataset_path,
+            #     train=False,
+            #     download=True,
+            #     transform=None
+            # )
+            # for i in range(len(testset_clean_10.targets)):
+            #     testset_clean_10.targets[i] = 1
+
+            testset_clean_10 = CIFAR10_CLEAN_ID(args)
 
             if poison_all_test_ood:
                 testset_clean_10 = CIFAR10_BLENDED_ID(args)
