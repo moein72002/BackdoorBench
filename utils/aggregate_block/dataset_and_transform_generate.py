@@ -361,7 +361,7 @@ class CIFAR10_CLEAN_ID(Dataset):
 
         cifar10_test = torchvision.datasets.CIFAR10(args.dataset_path, train=False, download=True, transform=None)
 
-        for i in range(cifar10_test):
+        for i in range(len(cifar10_test)):
             self.data.append(cifar10_test[i][0])
 
         if args.test_jpeg_compression_defense:
