@@ -371,7 +371,7 @@ class CIFAR10_CLEAN_ID(Dataset):
             # Create the directory
             os.makedirs(new_directory_path, exist_ok=True)
             for i in range(len(self.data)):
-                address = f"./data/jpeg_compress_CIFAR10_ID/{i}.jpg"
+                address = f"./data/jpeg_compress_CIFAR10_CLEAN_ID/{i}.jpg"
                 self.data[i].save(address, 'JPEG', quality=75)
                 self.data[i] = Image.open(address)
 
