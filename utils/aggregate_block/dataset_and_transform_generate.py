@@ -258,11 +258,10 @@ class CIFAR100_BLENDED_OOD(Dataset):
 
         if args.test_jpeg_compression_defense:
             print("test_jpeg_compression_defense in CIFAR100_BLENDED_OOD")
-            buffer = BytesIO()
             for i in range(len(self.data)):
-                self.data[i].save(buffer, 'JPEG', quality=75)
-                self.data[i] = Image.open(buffer)
-                buffer.seek(0)
+                address = f"./data/jpeg_compress_CIFAR100_OOD/{i}.jpg"
+                self.data[i].save(address, 'JPEG', quality=75)
+                self.data[i] = Image.open(address)
 
         self.out_dist_label = out_dist_label
 
@@ -311,11 +310,10 @@ class CIFAR10_BLENDED_FOR_CLS(Dataset):
 
         if args.test_jpeg_compression_defense:
             print("test_jpeg_compression_defense in CIFAR10_BLENDED_FOR_CLS")
-            buffer = BytesIO()
             for i in range(len(self.data)):
-                self.data[i].save(buffer, 'JPEG', quality=75)
-                self.data[i] = Image.open(buffer)
-                buffer.seek(0)
+                address = f"./data/jpeg_compress_CIFAR10_FOR_CLS/{i}.jpg"
+                self.data[i].save(address, 'JPEG', quality=75)
+                self.data[i] = Image.open(address)
 
         self.targets = cifar10_testset.targets
 
@@ -368,11 +366,10 @@ class CIFAR10_BLENDED_ID(Dataset):
 
         if args.test_jpeg_compression_defense:
             print("test_jpeg_compression_defense in CIFAR10_BLENDED_ID")
-            buffer = BytesIO()
             for i in range(len(self.data)):
-                self.data[i].save(buffer, 'JPEG', quality=75)
-                self.data[i] = Image.open(buffer)
-                buffer.seek(0)
+                address = f"./data/jpeg_compress_CIFAR10_ID/{i}.jpg"
+                self.data[i].save(address, 'JPEG', quality=75)
+                self.data[i] = Image.open(address)
 
         self.in_dist_label = in_dist_label
 
@@ -810,30 +807,6 @@ class CIFAR10_TRAIN_TARGET_CLASS(Dataset):
             img = self.tranform(img)
         return img, label
 
-
-class CIFAR10_TRAIN_OTHER_CLASSES(Dataset):
-    def __init__(self, transform=None, target_label=0):
-        self.transform = transform
-
-        cifar10_train = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=None)
-        self.data = []
-        self.targets = []
-        for i in range(len(cifar10_train.data)):
-            if cifar10_train[i][1] != target_label:
-                self.data.append(cifar10_train[i][0])
-                self.targets.append(cifar10_train[i][1])
-                if len(self.data) >= 45000:
-                    break
-
-    def __len__(self):
-        return len(self.data)
-
-    def __getitem__(self, idx):
-        img = self.data[idx]
-        label = self.targets[idx]
-        if self.transform:
-            img = self.tranform(img)
-        return img, label
 def create_training_dataset_for_exposure_test(args, dataset_name='cifar10'):
     if dataset_name == 'cifar10':
         if args.use_just_kitty_like_blended:
@@ -841,28 +814,6 @@ def create_training_dataset_for_exposure_test(args, dataset_name='cifar10'):
         elif args.use_l2_adv_images:
             train_dataset = CIFAR10_TRAIN_BLENDED_L2_USE_OTHER_CLASSES_DATASET(args)
     return train_dataset
-
-def get_blended_images(args):
-    # Load CIFAR-100 dataset
-    cifar100_trainset = torchvision.datasets.CIFAR100(root='./data', train=True, download=True, transform=None)
-
-    # Select 5000 samples from CIFAR-10 dataset with label 0
-    cifar10_train_target_class = CIFAR10_TRAIN_TARGET_CLASS()
-
-    # Select 5000 samples from CIFAR-100 dataset
-    cifar100_indices = random.sample(range(len(cifar100_trainset)), 5000)
-    cifar100_samples = [cifar100_trainset[i][0] for i in cifar100_indices]
-
-    # Blend images
-    blended_images = []
-    print(f"Image.blend(cifar100_samples, cifar10_samples, {args.exposure_blend_rate})")
-    for img1, img2 in zip(cifar100_samples, cifar10_train_target_class):
-        blended_img = Image.blend(img1, img2[0], args.exposure_blend_rate)
-        blended_images.append(blended_img)
-
-    print("Blended dataset size:", len(blended_images))
-
-    return blended_images
 
 def exposure_dataset_and_transform_generate(args):
     '''
