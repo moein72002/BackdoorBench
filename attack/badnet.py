@@ -53,7 +53,6 @@ def add_common_attack_args(parser):
     parser.add_argument('--pratio', type=float,
                         help='the poison rate '
                         )
-    parser.add_argument('--use_other_classes_as_exposure_in_training', type=bool, default=False)
     return parser
 
 
@@ -360,8 +359,7 @@ class BadNet(NormalCase):
             bd_out_test_ood=bd_out_test_dataset_with_transform_ood,
             bd_all_test_ood=bd_all_test_dataset_with_transform_ood,
             exposure_blend_rate=args.exposure_blend_rate,
-            use_l2_adv_images=args.use_l2_adv_images,
-            use_other_classes_as_exposure_in_training=args.use_other_classes_as_exposure_in_training
+            use_l2_adv_images=args.use_l2_adv_images
         )
 
 

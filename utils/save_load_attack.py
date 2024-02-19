@@ -90,7 +90,6 @@ def save_attack_result(
     save_path : str,
     exposure_blend_rate : int,
     use_l2_adv_images : bool,
-    use_other_classes_as_exposure_in_training: bool,
     bd_test_for_cls : prepro_cls_DatasetBD_v2,
     bd_out_test_ood : prepro_cls_DatasetBD_v2,
     bd_all_test_ood : prepro_cls_DatasetBD_v2,
@@ -129,8 +128,7 @@ def save_attack_result(
             'bd_out_test_ood': bd_out_test_ood.retrieve_state(),
             'bd_all_test_ood': bd_all_test_ood.retrieve_state(),
             'exposure_blend_rate': exposure_blend_rate,
-            'use_l2_adv_images': use_l2_adv_images,
-            'use_other_classes_as_exposure_in_training': use_other_classes_as_exposure_in_training
+            'use_l2_adv_images': use_l2_adv_images
         }
 
     logging.info(f"saving...")
@@ -208,7 +206,6 @@ def load_attack_result(
     save_path : str,
     just_test_exposure_ood = False,
     test_blend_rate = 0.1,
-    use_other_classes_as_exposure_in_training = False,
     use_l2_adv_images = False
 ):
     '''
@@ -253,7 +250,6 @@ def load_attack_result(
         if just_test_exposure_ood:
             exposure_blend_rate = test_blend_rate
         clean_setting.exposure_blend_rate = exposure_blend_rate
-        clean_setting.use_other_classes_as_exposure_in_training = use_other_classes_as_exposure_in_training
         clean_setting.use_l2_adv_images = use_l2_adv_images
 
         train_dataset_without_transform, \
@@ -443,7 +439,6 @@ def load_new_attack_result(
         if args.just_test_exposure_ood:
             exposure_blend_rate = args.test_blend_rate
         clean_setting.exposure_blend_rate = exposure_blend_rate
-        clean_setting.use_other_classes_as_exposure_in_training = args.use_other_classes_as_exposure_in_training
         clean_setting.use_l2_adv_images = args.use_l2_adv_images
         clean_setting.pratio = 0.1
         clean_setting.use_rotation_transform = args.use_rotation_transform

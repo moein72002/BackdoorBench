@@ -859,27 +859,6 @@ def get_blended_images(args):
 
     return blended_images
 
-def get_blended_images_use_other_classes_as_exposure_in_training(args):
-    cifar10_train_other_classes = CIFAR10_TRAIN_OTHER_CLASSES()
-
-    # Select 5000 samples from CIFAR-10 dataset with label 0
-    cifar10_train_target_class = CIFAR10_TRAIN_TARGET_CLASS()
-
-    # Select 5000 samples from cifar10_train_other_classes
-    cifar10_train_other_classes_indices = random.sample(range(len(cifar10_train_other_classes)), 5000)
-    cifar10_train_other_classes_samples = [cifar10_train_other_classes[i][0] for i in cifar10_train_other_classes_indices]
-
-    # Blend images
-    blended_images = []
-    print(f"Image.blend(cifar100_samples, cifar10_samples, {args.exposure_blend_rate})")
-    for img1, img2 in zip(cifar10_train_other_classes_samples, cifar10_train_target_class):
-        blended_img = Image.blend(img1, img2[0], args.exposure_blend_rate)
-        blended_images.append(blended_img)
-
-    print("Blended dataset size:", len(blended_images))
-
-    return blended_images
-
 def exposure_dataset_and_transform_generate(args):
     '''
     # idea : given args, return selected dataset, transforms for both train and test part of data.

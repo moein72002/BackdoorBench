@@ -299,7 +299,6 @@ class abl(defense):
         parser.add_argument('--just_test_exposure_ood', type=bool, default=False)
         parser.add_argument('--test_blend_rate', type=float, default=0.1)
         parser.add_argument('--load_new_attack_result', type=bool, default=False)
-        parser.add_argument('--use_other_classes_as_exposure_in_training', type=bool, default=False)
         parser.add_argument('--use_l2_adv_images', type=bool, default=False)
         parser.add_argument('--test_knn_auc', type=bool, default=False)
         parser.add_argument('--test_odin_auc', type=bool, default=False)
@@ -333,7 +332,6 @@ class abl(defense):
             self.result = load_attack_result(attack_file + '/attack_result.pt',
                                              just_test_exposure_ood=args.just_test_exposure_ood,
                                              test_blend_rate=args.test_blend_rate,
-                                             use_other_classes_as_exposure_in_training=args.use_other_classes_as_exposure_in_training,
                                              use_l2_adv_images=args.use_l2_adv_images
                                              )
 
@@ -1321,7 +1319,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=sys.argv[0])
     abl.add_arguments(parser)
     args = parser.parse_args()
-    print(f"args.use_other_classes_as_exposure_in_training: {args.use_other_classes_as_exposure_in_training}")
     abl_method = abl(args)
     if "result_file" not in args.__dict__:
         args.result_file = 'one_epochs_debug_badnet_attack'

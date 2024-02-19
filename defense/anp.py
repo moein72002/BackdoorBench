@@ -346,7 +346,6 @@ class anp(defense):
         parser.add_argument('--index', type=str, help='index of clean data'),
         parser.add_argument('--load_new_attack_result', type=bool, default=False)
         parser.add_argument('--use_l2_adv_images', type=bool, default=False)
-        parser.add_argument('--use_other_classes_as_exposure_in_training', type=bool, default=False)
         parser.add_argument('--use_rotation_transform', type=bool, default=False)
         parser.add_argument('--use_cheat_exposure', type=bool, default=False)
 
@@ -371,7 +370,6 @@ class anp(defense):
             self.result = load_new_attack_result(attack_file + '/attack_result.pt', args)
         else:
             self.result = load_attack_result(attack_file + '/attack_result.pt',
-                                                 use_other_classes_as_exposure_in_training=args.use_other_classes_as_exposure_in_training,
                                                  use_l2_adv_images=args.use_l2_adv_images
                                                  )
 
@@ -941,7 +939,6 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=sys.argv[0])
     anp.add_arguments(parser)
     args = parser.parse_args()
-    print(f"args.use_other_classes_as_exposure_in_training: {args.use_other_classes_as_exposure_in_training}")
     anp_method = anp(args)
     if "result_file" not in args.__dict__:
         args.result_file = 'defense_test_badnet'
