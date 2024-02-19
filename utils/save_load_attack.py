@@ -444,7 +444,6 @@ def load_new_attack_result(
         clean_setting.use_rotation_transform = args.use_rotation_transform
         clean_setting.use_cheat_exposure = args.use_cheat_exposure
         clean_setting.use_just_kitty_like_blended = args.use_just_kitty_like_blended
-        clean_setting.test_jpeg_compression_defense = args.test_jpeg_compression_defense
 
         train_dataset_without_transform, \
         train_img_transform, \
@@ -459,6 +458,7 @@ def load_new_attack_result(
         test_img_transform_ood, \
         test_label_transform_ood = clean_dataset_and_transform_generate_ood(clean_setting) # TODO: check this line
 
+        clean_setting.test_jpeg_compression_defense = False
         exposure_test_dataset_without_transform_for_cls, \
         _, \
         _ = exposure_dataset_and_transform_generate_for_cls(clean_setting)
@@ -468,6 +468,19 @@ def load_new_attack_result(
         _ = exposure_dataset_and_transform_generate_ood(clean_setting, poison_all_test_ood=False)
 
         exposure_all_test_dataset_without_transform_ood, \
+        _, \
+        _ = exposure_dataset_and_transform_generate_ood(clean_setting, poison_all_test_ood=True)
+
+        clean_setting.test_jpeg_compression_defense = True
+        jpeg_compress_exposure_test_dataset_without_transform_for_cls, \
+        _, \
+        _ = exposure_dataset_and_transform_generate_for_cls(clean_setting)
+
+        jpeg_compress_exposure_out_test_dataset_without_transform_ood, \
+        _, \
+        _ = exposure_dataset_and_transform_generate_ood(clean_setting, poison_all_test_ood=False)
+
+        jpeg_compress_exposure_all_test_dataset_without_transform_ood, \
         _, \
         _ = exposure_dataset_and_transform_generate_ood(clean_setting, poison_all_test_ood=True)
 
@@ -519,6 +532,10 @@ def load_new_attack_result(
         bd_out_test_dataset_ood = prepro_cls_DatasetBD_v2(exposure_out_test_dataset_without_transform_ood)
         bd_all_test_dataset_ood = prepro_cls_DatasetBD_v2(exposure_all_test_dataset_without_transform_ood)
 
+        jpeg_compress_bd_test_dataset_for_cls = prepro_cls_DatasetBD_v2(jpeg_compress_exposure_test_dataset_without_transform_for_cls)
+        jpeg_compress_bd_out_test_dataset_ood = prepro_cls_DatasetBD_v2(jpeg_compress_exposure_out_test_dataset_without_transform_ood)
+        jpeg_compress_bd_all_test_dataset_ood = prepro_cls_DatasetBD_v2(jpeg_compress_exposure_all_test_dataset_without_transform_ood)
+
         if not args.just_test_exposure_ood:
             bd_test_dataset_for_cls.set_state(
                 load_file['bd_test_for_cls']
@@ -548,6 +565,24 @@ def load_new_attack_result(
             test_label_transform_ood,
         )
 
+        jpeg_compress_bd_test_dataset_with_transform_for_cls = dataset_wrapper_with_transform(
+            jpeg_compress_bd_test_dataset_for_cls,
+            test_img_transform,
+            test_label_transform,
+        )
+
+        jpeg_compress_bd_out_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
+            jpeg_compress_bd_out_test_dataset_ood,
+            test_img_transform_ood,
+            test_label_transform_ood,
+        )
+
+        jpeg_compress_bd_all_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
+            jpeg_compress_bd_all_test_dataset_ood,
+            test_img_transform_ood,
+            test_label_transform_ood,
+        )
+
         new_dict = copy.deepcopy(load_file['model'])
         for k, v in load_file['model'].items():
             if k.startswith('module.'):
@@ -566,6 +601,9 @@ def load_new_attack_result(
                 'bd_test_for_cls': bd_test_dataset_with_transform_for_cls,
                 'bd_out_test_ood': bd_out_test_dataset_with_transform_ood,
                 'bd_all_test_ood': bd_all_test_dataset_with_transform_ood,
+                'jpeg_compress_bd_test_for_cls': jpeg_compress_bd_test_dataset_with_transform_for_cls,
+                'jpeg_compress_bd_out_test_ood': jpeg_compress_bd_out_test_dataset_with_transform_ood,
+                'jpeg_compress_bd_all_test_ood': jpeg_compress_bd_all_test_dataset_with_transform_ood,
                 'exposure_blend_rate': exposure_blend_rate
             }
 

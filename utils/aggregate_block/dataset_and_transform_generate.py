@@ -295,6 +295,8 @@ class CIFAR10_BLENDED_FOR_CLS(Dataset):
     def __init__(self, args, transform=None):
         self.transform = transform
 
+        self.data = []
+
         cifar10_testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=None)
         if args.use_l2_adv_images:
             file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl"

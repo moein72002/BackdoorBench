@@ -58,6 +58,7 @@ def eval_step_msp_auc(
         bd_out_test_dataloader_ood,
         bd_all_test_dataloader_ood,
         args,
+        result_name_prefix=""
 ):
     msp_clean_test_auc = test_ood_given_dataloader(netC, clean_test_dataloader_ood, non_blocking=args.non_blocking,
                                                device=args.device,
@@ -70,9 +71,9 @@ def eval_step_msp_auc(
                                                 clean_dataset=False)
 
     msp_auc_result_dict = {
-        "msp_clean_test_auc": msp_clean_test_auc,
-        "msp_bd_out_test_auc": msp_bd_out_test_auc,
-        "msp_bd_all_test_auc": msp_bd_all_test_auc
+        f"{result_name_prefix}msp_clean_test_auc": msp_clean_test_auc,
+        f"{result_name_prefix}msp_bd_out_test_auc": msp_bd_out_test_auc,
+        f"{result_name_prefix}msp_bd_all_test_auc": msp_bd_all_test_auc
     }
 
     return msp_auc_result_dict
