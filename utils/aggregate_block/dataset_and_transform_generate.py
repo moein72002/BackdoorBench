@@ -258,6 +258,9 @@ class CIFAR100_BLENDED_OOD(Dataset):
 
         if args.test_jpeg_compression_defense:
             print("test_jpeg_compression_defense in CIFAR100_BLENDED_OOD")
+            new_directory_path = "./data/jpeg_compress_CIFAR100_OOD"
+            # Create the directory
+            os.makedirs(new_directory_path, exist_ok=True)
             for i in range(len(self.data)):
                 address = f"./data/jpeg_compress_CIFAR100_OOD/{i}.jpg"
                 self.data[i].save(address, 'JPEG', quality=75)
@@ -310,6 +313,9 @@ class CIFAR10_BLENDED_FOR_CLS(Dataset):
 
         if args.test_jpeg_compression_defense:
             print("test_jpeg_compression_defense in CIFAR10_BLENDED_FOR_CLS")
+            new_directory_path = "./data/jpeg_compress_CIFAR10_FOR_CLS"
+            # Create the directory
+            os.makedirs(new_directory_path, exist_ok=True)
             for i in range(len(self.data)):
                 address = f"./data/jpeg_compress_CIFAR10_FOR_CLS/{i}.jpg"
                 self.data[i].save(address, 'JPEG', quality=75)
@@ -366,6 +372,10 @@ class CIFAR10_BLENDED_ID(Dataset):
 
         if args.test_jpeg_compression_defense:
             print("test_jpeg_compression_defense in CIFAR10_BLENDED_ID")
+            # Define the path of the new directory
+            new_directory_path = "./data/jpeg_compress_CIFAR10_ID"
+            # Create the directory
+            os.makedirs(new_directory_path, exist_ok=True)
             for i in range(len(self.data)):
                 address = f"./data/jpeg_compress_CIFAR10_ID/{i}.jpg"
                 self.data[i].save(address, 'JPEG', quality=75)
