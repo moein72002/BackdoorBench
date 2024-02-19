@@ -205,7 +205,7 @@ def print_time_for_testing():
 def load_attack_result(
     save_path : str,
     just_test_exposure_ood = False,
-    test_blend_rate = 0.1,
+    test_blend_rate = 0.25,
     use_l2_adv_images = False
 ):
     '''

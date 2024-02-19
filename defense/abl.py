@@ -45,7 +45,8 @@ from utils.log_assist import get_git_info
 from utils.aggregate_block.dataset_and_transform_generate import get_input_shape, get_num_classes, get_transform
 from utils.save_load_attack import load_attack_result, save_defense_result, load_new_attack_result
 from utils.bd_dataset_v2 import dataset_wrapper_with_transform
-from utils.visualize_dataset import visualize_random_samples_from_clean_dataset, visualize_random_samples_from_bd_dataset
+from utils.visualize_dataset import visualize_random_samples_from_clean_dataset, \
+    visualize_random_samples_from_bd_dataset, zip_all_visualization_results
 from utils.ood_scores.msp import eval_step_msp_auc
 from utils.ood_scores.knn import eval_step_knn_auc
 from utils.ood_scores.odin import eval_step_odin_auc
@@ -575,6 +576,8 @@ class abl(defense):
 
         data_clean_testset_ood = self.result['clean_test_ood']
         visualize_random_samples_from_clean_dataset(data_clean_testset_ood.wrapped_dataset, "data_clean_testset_ood.wrapped_dataset")
+
+        zip_all_visualization_results()
         data_clean_testset_ood.wrap_img_transform = test_tran
         data_clean_loader_ood = torch.utils.data.DataLoader(data_clean_testset_ood, batch_size=self.args.batch_size,
                                                         num_workers=self.args.num_workers, drop_last=False,

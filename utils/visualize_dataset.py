@@ -2,6 +2,8 @@ import torch
 import random
 from torchvision import transforms
 import matplotlib.pyplot as plt
+import os
+import zipfile
 
 def show_images(images, labels, dataset_name):
     num_images = len(images)
@@ -63,3 +65,26 @@ def visualize_random_samples_from_bd_dataset(dataset, dataset_name):
 
     # Show the 20 random samples
     show_images(images, original_targets, dataset_name)
+
+def zip_all_visualization_results():
+
+    # Get the current directory
+    current_dir = os.getcwd()
+
+    # List all files in the current directory
+    files = os.listdir(current_dir)
+
+    # Filter out only the .png files
+    png_files = [file for file in files if file.endswith('.png')]
+
+    if not png_files:
+        print("No PNG files found in the current directory.")
+        return
+
+    # Create a zip file
+    with zipfile.ZipFile('png_files.zip', 'w') as zipf:
+        for file in png_files:
+            file_path = os.path.join(current_dir, file)
+            zipf.write(file_path, os.path.basename(file_path))
+
+    print("Zip file created successfully.")
