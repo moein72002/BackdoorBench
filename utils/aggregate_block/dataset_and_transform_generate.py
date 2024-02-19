@@ -251,6 +251,7 @@ class CIFAR100_BLENDED_OOD(Dataset):
             print("use_just_kitty_like_blended in CIFAR100_BLENDED_ID")
             cifar100_testset = torchvision.datasets.CIFAR100(root='./data', train=False, download=True, transform=None)
             kitty_pil_image = Image.open('../resource/blended/hello_kitty.jpeg')
+            kitty_pil_image = kitty_pil_image.resize(cifar100_testset[0][0].size)
             for i in range(len(cifar100_testset)):
                 self.data.append(Image.blend(cifar100_testset[i][0], kitty_pil_image, args.exposure_blend_rate))
         self.out_dist_label = out_dist_label
@@ -292,6 +293,7 @@ class CIFAR10_BLENDED_FOR_CLS(Dataset):
             print("use_just_kitty_like_blended in CIFAR10_BLENDED_ID")
             cifar10_testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=None)
             kitty_pil_image = Image.open('../resource/blended/hello_kitty.jpeg')
+            kitty_pil_image = kitty_pil_image.resize(cifar10_testset[0][0].size)
             for i in range(len(cifar10_testset)):
                 self.data.append(Image.blend(cifar10_testset[i][0], kitty_pil_image, args.exposure_blend_rate))
         self.targets = cifar10_testset.targets
@@ -339,6 +341,7 @@ class CIFAR10_BLENDED_ID(Dataset):
             print("use_just_kitty_like_blended in CIFAR10_BLENDED_ID")
             cifar10_testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=None)
             kitty_pil_image = Image.open('../resource/blended/hello_kitty.jpeg')
+            kitty_pil_image = kitty_pil_image.resize(cifar10_testset[0][0].size)
             for i in range(len(cifar10_testset)):
                 self.data.append(Image.blend(cifar10_testset[i][0], kitty_pil_image, args.exposure_blend_rate))
         self.in_dist_label = in_dist_label
@@ -695,9 +698,10 @@ class CIFAR10_TRAIN_JUST_KITTY_LIKE_BLENDED(Dataset):
     def __init__(self, args, transform=None, target_label=0):
         self.transform = transform
 
-        kitty_pil_image = Image.open('../resource/blended/hello_kitty.jpeg')
-
         cifar10_train = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=None)
+
+        kitty_pil_image = Image.open('../resource/blended/hello_kitty.jpeg')
+        kitty_pil_image = kitty_pil_image.resize(cifar10_train[0][0].size)
 
         self.data = cifar10_train.data
         self.targets = cifar10_train.targets
