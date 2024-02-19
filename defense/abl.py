@@ -480,6 +480,8 @@ class abl(defense):
         data_set_without_tran = train_dataset
         data_set_o = result['bd_train']
         data_set_o.wrapped_dataset = data_set_without_tran
+        visualize_random_samples_from_bd_dataset(data_set_o.wrapped_dataset, "data_set_o.wrapped_dataset")
+        self.count_unique_labels_of_preprocessed_dataset(data_set_o.wrapped_dataset, "data_set_o.wrapped_dataset")
         data_set_o.wrap_img_transform = tf_compose
         
         # data_set_isolate = result['bd_train']
