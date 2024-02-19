@@ -257,6 +257,7 @@ class CIFAR100_BLENDED_OOD(Dataset):
                 self.data.append(Image.blend(cifar100_testset[i][0], kitty_pil_image, args.exposure_blend_rate))
 
         if args.test_jpeg_compression_defense:
+            print("test_jpeg_compression_defense in CIFAR100_BLENDED_OOD")
             buffer = BytesIO()
             for i in range(len(self.data)):
                 self.data[i].save(buffer, 'JPEG', quality=75)
@@ -307,6 +308,7 @@ class CIFAR10_BLENDED_FOR_CLS(Dataset):
                 self.data.append(Image.blend(cifar10_testset[i][0], kitty_pil_image, args.exposure_blend_rate))
 
         if args.test_jpeg_compression_defense:
+            print("test_jpeg_compression_defense in CIFAR10_BLENDED_FOR_CLS")
             buffer = BytesIO()
             for i in range(len(self.data)):
                 self.data[i].save(buffer, 'JPEG', quality=75)
@@ -363,6 +365,7 @@ class CIFAR10_BLENDED_ID(Dataset):
                 self.data.append(Image.blend(cifar10_testset[i][0], kitty_pil_image, args.exposure_blend_rate))
 
         if args.test_jpeg_compression_defense:
+            print("test_jpeg_compression_defense in CIFAR10_BLENDED_ID")
             buffer = BytesIO()
             for i in range(len(self.data)):
                 self.data[i].save(buffer, 'JPEG', quality=75)
