@@ -22,6 +22,7 @@ import torchvision.transforms as transforms
 from PIL import ImageFilter, Image
 import torchvision
 from torch.utils.data import Dataset
+from io import BytesIO
 
 
 
@@ -254,6 +255,14 @@ class CIFAR100_BLENDED_OOD(Dataset):
             kitty_pil_image = kitty_pil_image.resize(cifar100_testset[0][0].size)
             for i in range(len(cifar100_testset)):
                 self.data.append(Image.blend(cifar100_testset[i][0], kitty_pil_image, args.exposure_blend_rate))
+
+        if args.test_jpeg_compression_defense:
+            buffer = BytesIO()
+            for i in range(len(self.data)):
+                self.data[i].save(buffer, 'JPEG', quality=75)
+                self.data[i] = Image.open(buffer)
+                buffer.seek(0)
+
         self.out_dist_label = out_dist_label
 
     def __len__(self):
@@ -296,6 +305,14 @@ class CIFAR10_BLENDED_FOR_CLS(Dataset):
             kitty_pil_image = kitty_pil_image.resize(cifar10_testset[0][0].size)
             for i in range(len(cifar10_testset)):
                 self.data.append(Image.blend(cifar10_testset[i][0], kitty_pil_image, args.exposure_blend_rate))
+
+        if args.test_jpeg_compression_defense:
+            buffer = BytesIO()
+            for i in range(len(self.data)):
+                self.data[i].save(buffer, 'JPEG', quality=75)
+                self.data[i] = Image.open(buffer)
+                buffer.seek(0)
+
         self.targets = cifar10_testset.targets
 
     def __len__(self):
@@ -344,6 +361,14 @@ class CIFAR10_BLENDED_ID(Dataset):
             kitty_pil_image = kitty_pil_image.resize(cifar10_testset[0][0].size)
             for i in range(len(cifar10_testset)):
                 self.data.append(Image.blend(cifar10_testset[i][0], kitty_pil_image, args.exposure_blend_rate))
+
+        if args.test_jpeg_compression_defense:
+            buffer = BytesIO()
+            for i in range(len(self.data)):
+                self.data[i].save(buffer, 'JPEG', quality=75)
+                self.data[i] = Image.open(buffer)
+                buffer.seek(0)
+
         self.in_dist_label = in_dist_label
 
     def __len__(self):

@@ -449,6 +449,7 @@ def load_new_attack_result(
         clean_setting.use_rotation_transform = args.use_rotation_transform
         clean_setting.use_cheat_exposure = args.use_cheat_exposure
         clean_setting.use_just_kitty_like_blended = args.use_just_kitty_like_blended
+        clean_setting.test_jpeg_compression_defense = args.test_jpeg_compression_defense
 
         train_dataset_without_transform, \
         train_img_transform, \

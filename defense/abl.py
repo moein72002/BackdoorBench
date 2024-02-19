@@ -309,6 +309,7 @@ class abl(defense):
         parser.add_argument('--use_rotation_transform', type=bool, default=False)
         parser.add_argument('--use_cheat_exposure', type=bool, default=False)
         parser.add_argument('--use_just_kitty_like_blended', type=bool, default=False)
+        parser.add_argument('--test_jpeg_compression_defense', type=bool, default=False)
 
     def set_result(self, result_file):
         attack_file = '../record/' + result_file
