@@ -68,7 +68,6 @@ class BadNet(NormalCase):
         parser.add_argument("--patch_mask_path", type=str)
         parser.add_argument('--bd_yaml_path', type=str, default='../config/attack/badnet/default.yaml',
                             help='path for yaml file provide additional default attributes')
-        parser.add_argument("--top_k", type=int, default=0)     # top_k effect is on when it is more than zero
         parser.add_argument('--use_l2_adv_images', type=bool, default=False)
         parser.add_argument('--use_rotation_transform', type=bool, default=False)
         parser.add_argument('--use_cheat_exposure', type=bool, default=False)
@@ -372,8 +371,6 @@ if __name__ == '__main__':
     parser = attack.set_args(parser)
     parser = attack.set_bd_args(parser)
     args = parser.parse_args()
-    if args.use_other_classes_as_exposure_in_training:
-        args.top_k = 0
     logging.debug("Be careful that we need to give the bd yaml higher priority. So, we put the add bd yaml first.")
     attack.add_bd_yaml_to_args(args)
     attack.add_yaml_to_args(args)

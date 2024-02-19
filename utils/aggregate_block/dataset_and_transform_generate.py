@@ -220,18 +220,18 @@ def get_cifar100_blended_images_for_test_exposure(args):
 
     return blended_images
 
-def get_cifar100_blended_images_for_test_exposure_top_k(args, file_path):
+def get_cifar100_blended_images_for_test_exposure_l2_1000(args, file_path):
     with open(file_path, 'rb') as file:
-        top_k_saved_images = pickle.load(file)
+        l2_1000_saved_images = pickle.load(file)
 
     # Load CIFAR-100 dataset
     cifar100_testset = torchvision.datasets.CIFAR100(root='./data', train=False, download=True, transform=None)
 
     # Blend images
     blended_images = []
-    print(f"Image.blend(cifar100_testset, random.choice(top_k_saved_images), {args.exposure_blend_rate})")
+    print(f"Image.blend(cifar100_testset, random.choice(l2_1000_saved_images), {args.exposure_blend_rate})")
     for i, img in enumerate(cifar100_testset):
-        blended_img = Image.blend(img[0], random.choice(top_k_saved_images), args.exposure_blend_rate)  # Blend two images with ratio 0.5
+        blended_img = Image.blend(img[0], random.choice(l2_1000_saved_images), args.exposure_blend_rate)  # Blend two images with ratio 0.5
         blended_images.append(blended_img)  # Assign label 0
 
     print("Blended dataset size:", len(blended_images))
@@ -242,12 +242,17 @@ class CIFAR100_BLENDED_OOD(Dataset):
     def __init__(self, args, transform=None, out_dist_label=0):
         self.transform = transform
 
-        if args.top_k > 0 or args.use_l2_adv_images:
-            file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl" if args.use_l2_adv_images \
-                else "../clean_trained_model/top_k_selected_images.pkl"
-            self.data = get_cifar100_blended_images_for_test_exposure_top_k(args, file_path)
-        else:
-            self.data = get_cifar100_blended_images_for_test_exposure(args)
+        self.data = []
+
+        if args.use_l2_adv_images:
+            file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl"
+            self.data = get_cifar100_blended_images_for_test_exposure_l2_1000(args, file_path)
+        elif args.use_just_kitty_like_blended:
+            print("use_just_kitty_like_blended in CIFAR100_BLENDED_ID")
+            cifar100_testset = torchvision.datasets.CIFAR100(root='./data', train=False, download=True, transform=None)
+            kitty_pil_image = Image.open('../resource/blended/hello_kitty.jpeg')
+            for i in range(len(cifar100_testset)):
+                self.data.append(Image.blend(cifar100_testset[i][0], kitty_pil_image, args.exposure_blend_rate))
         self.out_dist_label = out_dist_label
 
     def __len__(self):
@@ -260,31 +265,15 @@ class CIFAR100_BLENDED_OOD(Dataset):
             img = self.tranform(img)
         return img, label
 
-def get_cifar10_blended_images_for_cls_test_exposure(cifar10_testset, args):
-    cifar10_train_target_class = CIFAR10_TRAIN_TARGET_CLASS()
-
-    cifar10_train_target_class = cifar10_train_target_class + cifar10_train_target_class
-
-    # Blend images
-    blended_images = []
-    print(f"Image.blend(cifar10_testset, cifar10_train_target_class, {args.exposure_blend_rate})")
-    for img1, img2 in zip(cifar10_testset, cifar10_train_target_class):
-        blended_img = Image.blend(img1[0], img2[0], args.exposure_blend_rate)  # Blend two images with ratio 0.5
-        blended_images.append(blended_img)  # Assign label 0
-
-    print("Blended dataset size:", len(blended_images))
-
-    return blended_images
-
-def get_cifar10_blended_images_for_cls_test_exposure_top_k(cifar10_testset, args, file_path):
+def get_cifar10_blended_images_for_cls_l2_1000(cifar10_testset, args, file_path):
     with open(file_path, 'rb') as file:
-        top_k_saved_images = pickle.load(file)
+        l2_1000_saved_images = pickle.load(file)
 
     # Blend images
     blended_images = []
-    print(f"Image.blend(cifar10_testset, random.choice(top_k_saved_images), {args.exposure_blend_rate})")
+    print(f"Image.blend(cifar10_testset, random.choice(l2_1000_saved_images), {args.exposure_blend_rate})")
     for i, img in enumerate(cifar10_testset):
-        blended_img = Image.blend(img[0], random.choice(top_k_saved_images), args.exposure_blend_rate)  # Blend two images with ratio 0.5
+        blended_img = Image.blend(img[0], random.choice(l2_1000_saved_images), args.exposure_blend_rate)  # Blend two images with ratio 0.5
         blended_images.append(blended_img)  # Assign label 0
 
     print("Blended dataset size:", len(blended_images))
@@ -296,12 +285,15 @@ class CIFAR10_BLENDED_FOR_CLS(Dataset):
         self.transform = transform
 
         cifar10_testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=None)
-        if args.top_k > 0 or args.use_l2_adv_images:
-            file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl" if args.use_l2_adv_images \
-                else "../clean_trained_model/top_k_selected_images.pkl"
-            self.data = get_cifar10_blended_images_for_cls_test_exposure_top_k(cifar10_testset, args, file_path)
-        else:
-            self.data = get_cifar10_blended_images_for_cls_test_exposure(cifar10_testset, args)
+        if args.use_l2_adv_images:
+            file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl"
+            self.data = get_cifar10_blended_images_for_cls_l2_1000(cifar10_testset, args, file_path)
+        elif args.use_just_kitty_like_blended:
+            print("use_just_kitty_like_blended in CIFAR10_BLENDED_ID")
+            cifar10_testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=None)
+            kitty_pil_image = Image.open('../resource/blended/hello_kitty.jpeg')
+            for i in range(len(cifar10_testset)):
+                self.data.append(Image.blend(cifar10_testset[i][0], kitty_pil_image, args.exposure_blend_rate))
         self.targets = cifar10_testset.targets
 
     def __len__(self):
@@ -315,37 +307,19 @@ class CIFAR10_BLENDED_FOR_CLS(Dataset):
         return img, label
 
 
-def get_cifar10_blended_id_images_for_test_exposure(args):
-    cifar10_train_target_class = CIFAR10_TRAIN_TARGET_CLASS()
+def get_cifar10_blended_id_images_for_test_l2_1000(args, file_path):
 
-    cifar10_train_target_class = cifar10_train_target_class + cifar10_train_target_class
-
-    # Load CIFAR-100 dataset
-    cifar10_testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=None)
-
-    # Blend images
-    blended_images = []
-    print(f"Image.blend(cifar10_testset, cifar10_train_target_class, {args.exposure_blend_rate})")
-    for img1, img2 in zip(cifar10_testset, cifar10_train_target_class):
-        blended_img = Image.blend(img1[0], img2[0], args.exposure_blend_rate)  # Blend two images with ratio 0.5
-        blended_images.append(blended_img)  # Assign label 0
-
-    print("Blended dataset size:", len(blended_images))
-
-    return blended_images
-
-def get_cifar10_blended_id_images_for_test_exposure_top_k(args, file_path):
     with open(file_path, 'rb') as file:
-        top_k_saved_images = pickle.load(file)
+        l2_1000_saved_images = pickle.load(file)
 
     # Load CIFAR-100 dataset
     cifar10_testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=None)
 
     # Blend images
     blended_images = []
-    print(f"Image.blend(cifar10_testset, random.choice(top_k_saved_images), {args.exposure_blend_rate})")
+    print(f"Image.blend(cifar10_testset, random.choice(l2_1000_saved_images), {args.exposure_blend_rate})")
     for i, img in enumerate(cifar10_testset):
-        blended_img = Image.blend(img[0], random.choice(top_k_saved_images), args.exposure_blend_rate)  # Blend two images with ratio 0.5
+        blended_img = Image.blend(img[0], random.choice(l2_1000_saved_images), args.exposure_blend_rate)  # Blend two images with ratio 0.5
         blended_images.append(blended_img)  # Assign label 0
 
     print("Blended dataset size:", len(blended_images))
@@ -356,12 +330,17 @@ class CIFAR10_BLENDED_ID(Dataset):
     def __init__(self, args, transform=None, in_dist_label=1):
         self.transform = transform
 
-        if args.top_k > 0 or args.use_l2_adv_images:
-            file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl" if args.use_l2_adv_images \
-                else "../clean_trained_model/top_k_selected_images.pkl"
-            self.data = get_cifar10_blended_id_images_for_test_exposure_top_k(args, file_path)
-        else:
-            self.data = get_cifar10_blended_id_images_for_test_exposure(args)
+        self.data = []
+
+        if args.use_l2_adv_images:
+            file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl"
+            self.data = get_cifar10_blended_id_images_for_test_l2_1000(args, file_path)
+        elif args.use_just_kitty_like_blended:
+            print("use_just_kitty_like_blended in CIFAR10_BLENDED_ID")
+            cifar10_testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=None)
+            kitty_pil_image = Image.open('../resource/blended/hello_kitty.jpeg')
+            for i in range(len(cifar10_testset)):
+                self.data.append(Image.blend(cifar10_testset[i][0], kitty_pil_image, args.exposure_blend_rate))
         self.in_dist_label = in_dist_label
 
     def __len__(self):
@@ -664,31 +643,6 @@ def dataset_and_transform_generate(args):
            test_label_transform
 
 
-class BlendedDataset(Dataset):
-    def __init__(self, args, transform=None, target_label=0):
-        if args.top_k > 0 or args.use_l2_adv_images:
-            file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl" if args.use_l2_adv_images \
-                else "../clean_trained_model/top_k_selected_images.pkl"
-            self.data = get_blended_images_top_k(args, file_path=file_path)
-        else:
-            if args.use_other_classes_as_exposure_in_training:
-                self.data = get_blended_images_use_other_classes_as_exposure_in_training(args)
-            else:
-                self.data = get_blended_images(args)
-        self.transform = transform
-        self.target_label = target_label
-
-    def __len__(self):
-        return len(self.data)
-
-    def __getitem__(self, idx):
-        img = self.data[idx]
-        label = self.target_label
-        if self.transform:
-            img = self.tranform(img)
-        return img, label
-
-
 class SIMPLE_DATASET_FOR_VISUALIZATION(Dataset):
     def __init__(self, data, transform=None, target_label=0):
         self.data = data
@@ -737,7 +691,36 @@ class CIFAR10_BLENDED_L2_USE_CHEAT_EXPOSURE_DATASET(Dataset):
             img = self.tranform(img)
         return img, label
 
-class CIFAR10_BLENDED_L2_USE_OTHER_CLASSES_DATASET(Dataset):
+class CIFAR10_TRAIN_JUST_KITTY_LIKE_BLENDED(Dataset):
+    def __init__(self, args, transform=None, target_label=0):
+        self.transform = transform
+
+        kitty_pil_image = Image.open('../resource/blended/hello_kitty.jpeg')
+
+        cifar10_train = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=None)
+
+        self.data = cifar10_train.data
+        self.targets = cifar10_train.targets
+
+        poison_indices = random.sample(range(len(self.data)), int(args.pratio * len(self.data)))
+        print(f"len(poison_indices): {len(poison_indices)}")
+
+        print(f"Image.blend(transform_image(cifar10_train[poison_index][0]), random.choice(l2_adv_saved_images), {args.exposure_blend_rate})")
+        for idx in poison_indices:
+            self.data[idx] = Image.blend(cifar10_train[idx][0], kitty_pil_image, args.exposure_blend_rate)  # Blend two images with ratio 0.5
+            self.targets[idx] = target_label
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        img = self.data[idx]
+        label = self.targets[idx]
+        if self.transform:
+            img = self.tranform(img)
+        return img, label
+
+class CIFAR10_TRAIN_BLENDED_L2_USE_OTHER_CLASSES_DATASET(Dataset):
     def __init__(self, args, transform=None, target_label=0):
         self.transform = transform
 
@@ -819,17 +802,10 @@ class CIFAR10_TRAIN_OTHER_CLASSES(Dataset):
         return img, label
 def create_training_dataset_for_exposure_test(args, dataset_name='cifar10'):
     if dataset_name == 'cifar10':
-        if args.use_other_classes_as_exposure_in_training:
-            if args.use_cheat_exposure:
-                train_dataset = CIFAR10_BLENDED_L2_USE_CHEAT_EXPOSURE_DATASET(args)
-            else:
-                train_dataset = CIFAR10_BLENDED_L2_USE_OTHER_CLASSES_DATASET(args)
-        else:
-            blended_dataset = BlendedDataset(args)
-            cifar10_train_target_class = CIFAR10_TRAIN_TARGET_CLASS()
-            cifar10_train_other_classes = CIFAR10_TRAIN_OTHER_CLASSES()
-            cifar10_train_other_classes = cifar10_train_other_classes + cifar10_train_other_classes
-            train_dataset = blended_dataset + cifar10_train_target_class + cifar10_train_other_classes
+        if args.use_just_kitty_like_blended:
+            train_dataset = CIFAR10_TRAIN_JUST_KITTY_LIKE_BLENDED(args)
+        elif args.use_l2_adv_images:
+            train_dataset = CIFAR10_TRAIN_BLENDED_L2_USE_OTHER_CLASSES_DATASET(args)
     return train_dataset
 
 def get_blended_images(args):
@@ -869,28 +845,6 @@ def get_blended_images_use_other_classes_as_exposure_in_training(args):
     print(f"Image.blend(cifar100_samples, cifar10_samples, {args.exposure_blend_rate})")
     for img1, img2 in zip(cifar10_train_other_classes_samples, cifar10_train_target_class):
         blended_img = Image.blend(img1, img2[0], args.exposure_blend_rate)
-        blended_images.append(blended_img)
-
-    print("Blended dataset size:", len(blended_images))
-
-    return blended_images
-
-def get_blended_images_top_k(args, file_path):
-    with open(file_path, 'rb') as file:
-        top_k_saved_images = pickle.load(file)
-
-    # Load CIFAR-100 dataset
-    cifar100_trainset = torchvision.datasets.CIFAR100(root='./data', train=True, download=True, transform=None)
-
-    # Select 5000 samples from CIFAR-100 dataset
-    cifar100_indices = random.sample(range(len(cifar100_trainset)), 5000)
-    cifar100_samples = [cifar100_trainset[i][0] for i in cifar100_indices]
-
-    # Blend images
-    blended_images = []
-    print(f"Image.blend(cifar100_samples, random.choice(top_k_saved_images), {args.exposure_blend_rate})")
-    for i, img in enumerate(cifar100_samples):
-        blended_img = Image.blend(img, random.choice(top_k_saved_images), args.exposure_blend_rate)
         blended_images.append(blended_img)
 
     print("Blended dataset size:", len(blended_images))

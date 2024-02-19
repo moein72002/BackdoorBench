@@ -46,7 +46,6 @@ from utils.aggregate_block.dataset_and_transform_generate import get_input_shape
 from utils.save_load_attack import load_attack_result, save_defense_result, load_new_attack_result
 from utils.bd_dataset_v2 import dataset_wrapper_with_transform
 from utils.visualize_dataset import visualize_random_samples_from_clean_dataset, visualize_random_samples_from_bd_dataset
-from utils.save_top_k_images_from_target_label_train import save_top_k_from_target_label_train
 from utils.ood_scores.msp import eval_step_msp_auc
 from utils.ood_scores.knn import eval_step_knn_auc
 from utils.ood_scores.odin import eval_step_odin_auc
@@ -243,9 +242,6 @@ class abl(defense):
 
         self.args = args
 
-        if args.top_k > 0 and not args.use_l2_adv_images:
-            save_top_k_from_target_label_train(self.args)
-
         if 'result_file' in args.__dict__ :
             if args.result_file is not None:
                 self.set_result(args.result_file)
@@ -302,7 +298,6 @@ class abl(defense):
         parser.add_argument('--interval', type=int, help='frequency of save model')
         parser.add_argument('--just_test_exposure_ood', type=bool, default=False)
         parser.add_argument('--test_blend_rate', type=float, default=0.1)
-        parser.add_argument('--top_k', type=int, default=0)
         parser.add_argument('--load_new_attack_result', type=bool, default=False)
         parser.add_argument('--use_other_classes_as_exposure_in_training', type=bool, default=False)
         parser.add_argument('--use_l2_adv_images', type=bool, default=False)
@@ -313,6 +308,7 @@ class abl(defense):
         parser.add_argument('--test_gmm20_auc', type=bool, default=False)
         parser.add_argument('--use_rotation_transform', type=bool, default=False)
         parser.add_argument('--use_cheat_exposure', type=bool, default=False)
+        parser.add_argument('--use_just_kitty_like_blended', type=bool, default=False)
 
     def set_result(self, result_file):
         attack_file = '../record/' + result_file
@@ -336,7 +332,6 @@ class abl(defense):
             self.result = load_attack_result(attack_file + '/attack_result.pt',
                                              just_test_exposure_ood=args.just_test_exposure_ood,
                                              test_blend_rate=args.test_blend_rate,
-                                             top_k=args.top_k,
                                              use_other_classes_as_exposure_in_training=args.use_other_classes_as_exposure_in_training,
                                              use_l2_adv_images=args.use_l2_adv_images
                                              )
@@ -447,7 +442,6 @@ class abl(defense):
         # Load models
         logging.info('----------- Network Initialization --------------')
         model_ascent = generate_cls_model(args.model,args.num_classes)
-        model_ascent.load_state_dict(self.result['model'])
         if "," in self.device:
             model_ascent = torch.nn.DataParallel(
                 model_ascent,

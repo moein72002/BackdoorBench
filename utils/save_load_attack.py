@@ -208,7 +208,6 @@ def load_attack_result(
     save_path : str,
     just_test_exposure_ood = False,
     test_blend_rate = 0.1,
-    top_k = 0,
     use_other_classes_as_exposure_in_training = False,
     use_l2_adv_images = False
 ):
@@ -254,7 +253,6 @@ def load_attack_result(
         if just_test_exposure_ood:
             exposure_blend_rate = test_blend_rate
         clean_setting.exposure_blend_rate = exposure_blend_rate
-        clean_setting.top_k = top_k
         clean_setting.use_other_classes_as_exposure_in_training = use_other_classes_as_exposure_in_training
         clean_setting.use_l2_adv_images = use_l2_adv_images
 
@@ -445,12 +443,12 @@ def load_new_attack_result(
         if args.just_test_exposure_ood:
             exposure_blend_rate = args.test_blend_rate
         clean_setting.exposure_blend_rate = exposure_blend_rate
-        clean_setting.top_k = args.top_k
         clean_setting.use_other_classes_as_exposure_in_training = args.use_other_classes_as_exposure_in_training
         clean_setting.use_l2_adv_images = args.use_l2_adv_images
         clean_setting.pratio = 0.1
         clean_setting.use_rotation_transform = args.use_rotation_transform
         clean_setting.use_cheat_exposure = args.use_cheat_exposure
+        clean_setting.use_just_kitty_like_blended = args.use_just_kitty_like_blended
 
         train_dataset_without_transform, \
         train_img_transform, \
