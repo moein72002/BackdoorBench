@@ -59,7 +59,9 @@ def eval_step_gmm_auc(
                                   max_iter=500,
                                   verbose=1,
                                   n_init=1)
+    print("fitting gmm model started")
     gmm.fit(train_feature_space)
+    print("fitting gmm model finished")
 
     gmm_clean_test_auc = get_score_gmm_auc(model, device, gmm, clean_test_dataloader_ood, bd_test_loader=False)
     gmm_bd_out_test_auc = get_score_gmm_auc(model, device, gmm, bd_out_test_dataloader_ood, bd_test_loader=True)
