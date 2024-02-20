@@ -818,7 +818,9 @@ class CIFAR10_TRAIN_BLENDED_L2_USE_OTHER_CLASSES_DATASET(Dataset):
             if args.use_jpeg_compress_in_training:
                 if random.random() < 0.5:
                     address = f"./data/jpeg_compress_CIFAR10_TRAIN/{idx}.jpg"
-                    self.data[idx].save(address, 'JPEG', quality=random.randint(25, 75))
+                    pil_image = Image.fromarray(self.data[idx].astype(np.uint8))
+                    pil_image.save(address, 'JPEG', quality=random.randint(25, 75))
+                    # Reload the image to ensure it's compressed and update the dataset
                     self.data[idx] = Image.open(address)
 
     def __len__(self):
