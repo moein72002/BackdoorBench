@@ -268,7 +268,7 @@ class CIFAR100_BLENDED_OOD(Dataset):
 
         if args.test_shrink_pad:
             for i in range(len(self.data)):
-                self.data = resize_and_pad(self.data)
+                self.data[i] = resize_and_pad(self.data[i])
 
         self.out_dist_label = out_dist_label
 
@@ -327,7 +327,7 @@ class CIFAR10_BLENDED_FOR_CLS(Dataset):
 
         if args.test_shrink_pad:
             for i in range(len(self.data)):
-                self.data = resize_and_pad(self.data)
+                self.data[i] = resize_and_pad(self.data[i])
 
         self.targets = cifar10_testset.targets
 
@@ -489,7 +489,7 @@ class CIFAR10_BLENDED_ID(Dataset):
 
         if args.test_shrink_pad:
             for i in range(len(self.data)):
-                self.data = resize_and_pad(self.data)
+                self.data[i] = resize_and_pad(self.data[i])
 
         self.in_dist_label = in_dist_label
 
