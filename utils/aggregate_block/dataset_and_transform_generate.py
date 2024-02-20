@@ -815,6 +815,12 @@ class CIFAR10_TRAIN_BLENDED_L2_USE_OTHER_CLASSES_DATASET(Dataset):
             self.data[idx] = Image.blend(transformed_image, random.choice(l2_adv_saved_images), args.exposure_blend_rate)  # Blend two images with ratio 0.5
             self.targets[idx] = target_label
 
+            if args.use_jpeg_compress_in_training:
+                if random.random() < 0.5:
+                    address = f"./data/jpeg_compress_CIFAR10_TRAIN/{idx}.jpg"
+                    self.data[idx].save(address, 'JPEG', quality=random.randint(25, 75))
+                    self.data[idx] = Image.open(address)
+
     def __len__(self):
         return len(self.data)
 
