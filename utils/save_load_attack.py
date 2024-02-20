@@ -446,7 +446,7 @@ def load_new_attack_result(
         clean_setting.use_just_kitty_like_blended = args.use_just_kitty_like_blended
         clean_setting.use_jpeg_compress_in_training = args.use_jpeg_compress_in_training
 
-        train_dataset_without_transform, \
+        clean_train_dataset_without_transform, \
         train_img_transform, \
         train_label_transform, \
         test_dataset_without_transform, \
@@ -510,7 +510,7 @@ def load_new_attack_result(
         _ = exposure_dataset_and_transform_generate_ood(clean_setting, poison_all_test_ood=True)
 
         clean_train_dataset_with_transform = dataset_wrapper_with_transform(
-            train_dataset_without_transform,
+            clean_train_dataset_without_transform,
             train_img_transform,
             train_label_transform,
         )
