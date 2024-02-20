@@ -19,7 +19,7 @@ from typing import Tuple
 import numpy as np
 import torch
 import torchvision.transforms as transforms
-from PIL import ImageFilter, Image
+from PIL import ImageFilter, Image, ImageOps
 import torchvision
 from torch.utils.data import Dataset
 from io import BytesIO
@@ -266,6 +266,10 @@ class CIFAR100_BLENDED_OOD(Dataset):
                 self.data[i].save(address, 'JPEG', quality=75)
                 self.data[i] = Image.open(address)
 
+        if args.test_shrink_pad:
+            for i in range(len(self.data)):
+                self.data = resize_and_pad(self.data)
+
         self.out_dist_label = out_dist_label
 
     def __len__(self):
@@ -321,6 +325,10 @@ class CIFAR10_BLENDED_FOR_CLS(Dataset):
                 self.data[i].save(address, 'JPEG', quality=75)
                 self.data[i] = Image.open(address)
 
+        if args.test_shrink_pad:
+            for i in range(len(self.data)):
+                self.data = resize_and_pad(self.data)
+
         self.targets = cifar10_testset.targets
 
     def __len__(self):
@@ -353,6 +361,30 @@ def get_cifar10_blended_id_images_for_test_l2_1000(args, file_path):
 
     return blended_images
 
+
+def resize_and_pad(img, pad=2):
+    """
+    Shrinks an image by 2 pixels on all sides and then pads it with zero-valued pixels.
+
+    :param img: PIL Image object to be processed.
+    :return: PIL Image object after shrinking and padding.
+    """
+    # Calculate new dimensions
+    new_width = img.width - 2 * pad
+    new_height = img.height - 2 * pad
+
+    # Check if new dimensions are valid
+    if new_width <= 0 or new_height <= 0:
+        raise ValueError("Image is too small to be shrunk by 4 pixels in width and height")
+
+    # Resize the image to make it smaller by 4 pixels on each dimension
+    resized_img = img.resize((new_width, new_height), Image.ANTIALIAS)
+
+    # Pad the resized image with a 2-pixel wide black border
+    padded_img = ImageOps.expand(resized_img, border=pad, fill=0)
+
+    return padded_img
+
 class CIFAR10_CLEAN_ID(Dataset):
     def __init__(self, args, transform=None, in_dist_label=1):
         self.transform = transform
@@ -362,7 +394,10 @@ class CIFAR10_CLEAN_ID(Dataset):
         cifar10_test = torchvision.datasets.CIFAR10(args.dataset_path, train=False, download=True, transform=None)
 
         for i in range(len(cifar10_test)):
-            self.data.append(cifar10_test[i][0])
+            image = cifar10_test[i][0]
+            if args.test_shrink_pad:
+                image = resize_and_pad(image)
+            self.data.append(image)
 
         if args.test_jpeg_compression_defense:
             print("test_jpeg_compression_defense in CIFAR10_CLEAN_ID")
@@ -396,7 +431,10 @@ class CIFAR100_CLEAN_OOD(Dataset):
         cifar100_test = torchvision.datasets.CIFAR100(args.dataset_path, train=False, download=True, transform=None)
 
         for i in range(len(cifar100_test)):
-            self.data.append(cifar100_test[i][0])
+            image = cifar100_test[i][0]
+            if args.test_shrink_pad:
+                image = resize_and_pad(image)
+            self.data.append(image)
 
         if args.test_jpeg_compression_defense:
             print("test_jpeg_compression_defense in CIFAR10_CLEAN_ID")
@@ -448,6 +486,10 @@ class CIFAR10_BLENDED_ID(Dataset):
                 address = f"./data/jpeg_compress_CIFAR10_ID/{i}.jpg"
                 self.data[i].save(address, 'JPEG', quality=75)
                 self.data[i] = Image.open(address)
+
+        if args.test_shrink_pad:
+            for i in range(len(self.data)):
+                self.data = resize_and_pad(self.data)
 
         self.in_dist_label = in_dist_label
 
