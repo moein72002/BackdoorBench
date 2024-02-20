@@ -15,6 +15,7 @@ import os,sys
 import numpy as np
 import torch
 import torch.nn as nn
+from utils.ood_scores.msp import eval_step_msp_auc
 
 sys.path.append('../')
 sys.path.append(os.getcwd())
@@ -185,46 +186,16 @@ class ft(defense):
         data_set_o = self.result['clean_train']
         data_set_o.wrapped_dataset = data_set_without_tran
         data_set_o.wrap_img_transform = train_tran
-        # data_set_o = prepro_cls_DatasetBD_v2(
-        #     full_dataset_without_transform=data_set,
-        #     poison_idx=np.zeros(len(data_set)),  # one-hot to determine which image may take bd_transform
-        #     bd_image_pre_transform=None,
-        #     bd_label_pre_transform=None,
-        #     ori_image_transform_in_loading=train_tran,
-        #     ori_label_transform_in_loading=None,
-        #     add_details_in_preprocess=False,
-        # )
         data_loader = torch.utils.data.DataLoader(data_set_o, batch_size=self.args.batch_size, num_workers=self.args.num_workers, shuffle=True, pin_memory=args.pin_memory)
         trainloader = data_loader
         
         test_tran = get_transform(self.args.dataset, *([self.args.input_height,self.args.input_width]) , train = False)
-        data_bd_testset = self.result['bd_test']
-        data_bd_testset.wrap_img_transform = test_tran
-        data_bd_loader = torch.utils.data.DataLoader(data_bd_testset, batch_size=self.args.batch_size, num_workers=self.args.num_workers,drop_last=False, shuffle=True,pin_memory=args.pin_memory)
 
-        data_clean_testset = self.result['clean_test']
-        data_clean_testset.wrap_img_transform = test_tran
-        data_clean_loader = torch.utils.data.DataLoader(data_clean_testset, batch_size=self.args.batch_size, num_workers=self.args.num_workers,drop_last=False, shuffle=True,pin_memory=args.pin_memory)
-
-        # self.trainer.train_with_test_each_epoch(
-        #     train_data = trainloader,
-        #     test_data = data_clean_loader,
-        #     adv_test_data = data_bd_loader,
-        #     end_epoch_num = self.args.epochs,
-        #     criterion = criterion,
-        #     optimizer = optimizer,
-        #     scheduler = scheduler,
-        #     device = self.args.device,
-        #     frequency_save = self.args.frequency_save,
-        #     save_folder_path = self.args.checkpoint_save,
-        #     save_prefix = 'defense',
-        #     continue_training_path = None,
-        # )
+        test_dataloader_dict = self.get_test_data_loaders_dict(args, test_tran)
 
         self.trainer.train_with_test_each_epoch_on_mix(
             trainloader,
-            data_clean_loader,
-            data_bd_loader,
+            test_dataloader_dict,
             args.epochs,
             criterion=criterion,
             optimizer=optimizer,

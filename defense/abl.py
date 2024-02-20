@@ -661,7 +661,7 @@ class abl(defense):
                 data_clean_loader_ood,
                 data_bd_out_loader_ood,
                 data_bd_all_loader_ood,
-                args,
+                args=args,
             )
 
             jpeg_compress_msp_auc_result_dict = eval_step_msp_auc(
@@ -669,7 +669,7 @@ class abl(defense):
                 jpeg_compress_data_clean_loader_ood,
                 jpeg_compress_data_bd_out_loader_ood,
                 jpeg_compress_data_bd_all_loader_ood,
-                args,
+                args=args,
                 result_name_prefix="jpeg_compress_"
             )
 
@@ -678,7 +678,7 @@ class abl(defense):
                 shrink_pad_data_clean_loader_ood,
                 shrink_pad_data_bd_out_loader_ood,
                 shrink_pad_data_bd_all_loader_ood,
-                args,
+                args=args,
                 result_name_prefix="shrink_pad_"
             )
 
@@ -797,7 +797,7 @@ class abl(defense):
                 data_clean_loader_ood,
                 data_bd_out_loader_ood,
                 data_bd_all_loader_ood,
-                args,
+                args=args,
             )
 
             jpeg_compress_msp_auc_result_dict = eval_step_msp_auc(
@@ -805,7 +805,7 @@ class abl(defense):
                 data_clean_loader_ood,
                 jpeg_compress_data_bd_out_loader_ood,
                 jpeg_compress_data_bd_all_loader_ood,
-                args,
+                args=args,
                 result_name_prefix="jpeg_compress_"
             )
 
@@ -1039,7 +1039,7 @@ class abl(defense):
                     data_clean_loader_ood,
                     data_bd_out_loader_ood,
                     data_bd_all_loader_ood,
-                    args,
+                    args=args,
                 )
 
                 jpeg_compress_msp_auc_result_dict = eval_step_msp_auc(
@@ -1047,7 +1047,7 @@ class abl(defense):
                     data_clean_loader_ood,
                     jpeg_compress_data_bd_out_loader_ood,
                     jpeg_compress_data_bd_all_loader_ood,
-                    args,
+                    args=args,
                     result_name_prefix="jpeg_compress_"
                 )
 
@@ -1154,7 +1154,7 @@ class abl(defense):
                 data_clean_loader_ood,
                 data_bd_out_loader_ood,
                 data_bd_all_loader_ood,
-                args,
+                args=args,
             )
 
             jpeg_compress_msp_auc_result_dict = eval_step_msp_auc(
@@ -1162,7 +1162,7 @@ class abl(defense):
                 data_clean_loader_ood,
                 jpeg_compress_data_bd_out_loader_ood,
                 jpeg_compress_data_bd_all_loader_ood,
-                args,
+                args=args,
                 result_name_prefix="jpeg_compress_"
             )
 

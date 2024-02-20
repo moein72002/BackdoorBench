@@ -468,7 +468,7 @@ class anp(defense):
                 test_dataloader_dict["clean_test_dataloader_ood"],
                 test_dataloader_dict["bd_out_test_dataloader_ood"],
                 test_dataloader_dict["bd_all_test_dataloader_ood"],
-                args,
+                args=args,
             )
             clean_test_loss_avg_over_batch, \
                     bd_test_loss_avg_over_batch, \
@@ -587,7 +587,7 @@ class anp(defense):
                 test_dataloader_dict["clean_test_dataloader_ood"],
                 test_dataloader_dict["bd_out_test_dataloader_ood"],
                 test_dataloader_dict["bd_all_test_dataloader_ood"],
-                args,
+                args=args,
             )
 
             clean_test_loss_avg_over_batch, \
@@ -691,56 +691,9 @@ class anp(defense):
                                     shuffle=False, sampler=random_sampler, num_workers=0)
         
         test_tran = get_transform(self.args.dataset, *([self.args.input_height,self.args.input_width]) , train = False)
-        data_bd_testset = self.result['bd_test']
-        visualize_random_samples_from_bd_dataset(data_bd_testset.wrapped_dataset, "data_bd_testset.wrapped_dataset")
-        data_bd_testset.wrap_img_transform = test_tran
-        # data_bd_testset.wrapped_dataset.getitem_all = False
-        poison_test_loader = DataLoader(data_bd_testset, batch_size=args.batch_size, num_workers=args.num_workers,drop_last=False, shuffle=True,pin_memory=True)
-
-        test_tran = get_transform(self.args.dataset, *([self.args.input_height,self.args.input_width]) , train = False)
-        data_clean_testset = self.result['clean_test']
-        visualize_random_samples_from_clean_dataset(data_clean_testset.wrapped_dataset, "data_clean_testset.wrapped_dataset")
-        data_clean_testset.wrap_img_transform = test_tran
-        clean_test_loader = DataLoader(data_clean_testset, batch_size=args.batch_size, num_workers=args.num_workers,drop_last=False, shuffle=True,pin_memory=True)
-
-        data_bd_testset_for_cls = self.result['bd_test_for_cls']
-        visualize_random_samples_from_bd_dataset(data_bd_testset_for_cls.wrapped_dataset, "data_bd_testset_for_cls.wrapped_dataset")
-        data_bd_testset_for_cls.wrap_img_transform = test_tran
-        bd_test_loader_for_cls = torch.utils.data.DataLoader(data_bd_testset_for_cls, batch_size=self.args.batch_size,
-                                                             num_workers=self.args.num_workers, drop_last=False,
-                                                             shuffle=True,
-                                                             pin_memory=args.pin_memory)
-
-        data_bd_out_testset_ood = self.result['bd_out_test_ood']
-        visualize_random_samples_from_bd_dataset(data_bd_out_testset_ood.wrapped_dataset, "data_bd_out_testset_ood.wrapped_dataset")
-        data_bd_out_testset_ood.wrap_img_transform = test_tran
-        bd_out_test_loader_ood = torch.utils.data.DataLoader(data_bd_out_testset_ood, batch_size=self.args.batch_size,
-                                                         num_workers=self.args.num_workers, drop_last=False,
-                                                         shuffle=True,
-                                                         pin_memory=args.pin_memory)
-
-        data_bd_all_testset_ood = self.result['bd_all_test_ood']
-        visualize_random_samples_from_bd_dataset(data_bd_all_testset_ood.wrapped_dataset, "data_bd_all_testset_ood.wrapped_dataset")
-        data_bd_all_testset_ood.wrap_img_transform = test_tran
-        bd_all_test_loader_ood = torch.utils.data.DataLoader(data_bd_all_testset_ood, batch_size=self.args.batch_size,
-                                                             num_workers=self.args.num_workers, drop_last=False,
-                                                             shuffle=True,
-                                                             pin_memory=args.pin_memory)
-
-        data_clean_testset_ood = self.result['clean_test_ood']
-        visualize_random_samples_from_clean_dataset(data_clean_testset_ood.wrapped_dataset, "data_clean_testset_ood.wrapped_dataset")
-        data_clean_testset_ood.wrap_img_transform = test_tran
-        clean_test_loader_ood = torch.utils.data.DataLoader(data_clean_testset_ood, batch_size=self.args.batch_size,
-                                                            num_workers=self.args.num_workers, drop_last=False,
-                                                            shuffle=True, pin_memory=args.pin_memory)
-
-        test_dataloader_dict = {}
-        test_dataloader_dict["clean_test_dataloader"] = clean_test_loader
-        test_dataloader_dict["bd_test_dataloader"] = poison_test_loader
-        test_dataloader_dict["clean_test_dataloader_ood"] = clean_test_loader_ood
-        test_dataloader_dict["bd_test_dataloader_for_cls"] = bd_test_loader_for_cls
-        test_dataloader_dict["bd_out_test_dataloader_ood"] = bd_out_test_loader_ood
-        test_dataloader_dict["bd_all_test_dataloader_ood"] = bd_all_test_loader_ood
+        test_dataloader_dict = self.get_test_data_loaders_dict(args, test_tran)
+        clean_test_loader = test_dataloader_dict["clean_test_dataloader"]
+        poison_test_loader = test_dataloader_dict["bd_test_dataloader"]
         state_dict = self.result['model']
         net = get_anp_network(args.model, num_classes=args.num_classes, norm_layer=anp_model.NoisyBatchNorm2d)
         load_state_dict(net, orig_state_dict=state_dict)
@@ -836,7 +789,7 @@ class anp(defense):
                 test_dataloader_dict["clean_test_dataloader_ood"],
                 test_dataloader_dict["bd_out_test_dataloader_ood"],
                 test_dataloader_dict["bd_all_test_dataloader_ood"],
-                args,
+                args=args,
             )
 
             clean_test_loss_avg_over_batch, \
@@ -897,7 +850,7 @@ class anp(defense):
             test_dataloader_dict["clean_test_dataloader_ood"],
             test_dataloader_dict["bd_out_test_dataloader_ood"],
             test_dataloader_dict["bd_all_test_dataloader_ood"],
-            args,
+            args=args,
         )
 
         clean_test_loss_avg_over_batch, \

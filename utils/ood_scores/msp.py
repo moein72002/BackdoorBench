@@ -57,17 +57,24 @@ def eval_step_msp_auc(
         clean_test_dataloader_ood,
         bd_out_test_dataloader_ood,
         bd_all_test_dataloader_ood,
-        args,
+        args=None,
         result_name_prefix=""
 ):
-    msp_clean_test_auc = test_ood_given_dataloader(netC, clean_test_dataloader_ood, non_blocking=args.non_blocking,
-                                               device=args.device,
+    if args:
+        non_blocking = args.non_blocking
+        device = args.device
+    else:
+        non_blocking = True
+        device = "cuda:0"
+
+    msp_clean_test_auc = test_ood_given_dataloader(netC, clean_test_dataloader_ood, non_blocking=non_blocking,
+                                               device=device,
                                                verbose=1, clean_dataset=True)
-    msp_bd_out_test_auc = test_ood_given_dataloader(netC, bd_out_test_dataloader_ood, non_blocking=args.non_blocking,
-                                                device=args.device, verbose=1,
+    msp_bd_out_test_auc = test_ood_given_dataloader(netC, bd_out_test_dataloader_ood, non_blocking=non_blocking,
+                                                device=device, verbose=1,
                                                 clean_dataset=False)
-    msp_bd_all_test_auc = test_ood_given_dataloader(netC, bd_all_test_dataloader_ood, non_blocking=args.non_blocking,
-                                                device=args.device, verbose=1,
+    msp_bd_all_test_auc = test_ood_given_dataloader(netC, bd_all_test_dataloader_ood, non_blocking=non_blocking,
+                                                device=device, verbose=1,
                                                 clean_dataset=False)
 
     msp_auc_result_dict = {
