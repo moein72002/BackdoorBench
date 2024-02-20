@@ -822,7 +822,7 @@ class CIFAR10_TRAIN_BLENDED_L2_USE_OTHER_CLASSES_DATASET(Dataset):
             self.targets[idx] = target_label
 
             if args.use_jpeg_compress_in_training:
-                if random.random() < 0.5:
+                if random.random() < 0.1:
                     address = f"./data/jpeg_compress_CIFAR10_TRAIN/{idx}.jpg"
                     pil_image = Image.fromarray(self.data[idx].astype(np.uint8))
                     pil_image.save(address, 'JPEG', quality=random.randint(25, 75))
