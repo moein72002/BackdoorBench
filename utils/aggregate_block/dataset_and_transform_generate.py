@@ -807,6 +807,12 @@ class CIFAR10_TRAIN_BLENDED_L2_USE_OTHER_CLASSES_DATASET(Dataset):
         print(f"len(poison_indices): {len(poison_indices)}")
 
         print(f"Image.blend(cifar10_train, random.choice(l2_adv_saved_images), {args.exposure_blend_rate})")
+
+        # Define the path of the new directory
+        new_directory_path = "./data/jpeg_compress_CIFAR10_TRAIN"
+        # Create the directory
+        os.makedirs(new_directory_path, exist_ok=True)
+
         for idx in poison_indices:
             rotation_angle = random.choice([90, 180, 270])
             transformed_image = cifar10_train[idx][0]
