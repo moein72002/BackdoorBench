@@ -387,6 +387,40 @@ class CIFAR10_CLEAN_ID(Dataset):
             img = self.tranform(img)
         return img, label
 
+class CIFAR100_CLEAN_OOD(Dataset):
+    def __init__(self, args, transform=None, ood_dist_label=0):
+        self.transform = transform
+
+        self.data = []
+
+        cifar100_test = torchvision.datasets.CIFAR100(args.dataset_path, train=False, download=True, transform=None)
+
+        for i in range(len(cifar100_test)):
+            self.data.append(cifar100_test[i][0])
+
+        if args.test_jpeg_compression_defense:
+            print("test_jpeg_compression_defense in CIFAR10_CLEAN_ID")
+            # Define the path of the new directory
+            new_directory_path = "./data/jpeg_compress_CIFAR10_CLEAN_ID"
+            # Create the directory
+            os.makedirs(new_directory_path, exist_ok=True)
+            for i in range(len(self.data)):
+                address = f"./data/jpeg_compress_CIFAR10_CLEAN_ID/{i}.jpg"
+                self.data[i].save(address, 'JPEG', quality=75)
+                self.data[i] = Image.open(address)
+
+        self.ood_dist_label = ood_dist_label
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        img = self.data[idx]
+        label = self.ood_dist_label
+        if self.transform:
+            img = self.tranform(img)
+        return img, label
+
 class CIFAR10_BLENDED_ID(Dataset):
     def __init__(self, args, transform=None, in_dist_label=1):
         self.transform = transform
@@ -465,51 +499,11 @@ def clean_dataset_and_transform_generate_ood(args):
             #     download=True,
             # )
 
-            testset_clean_10 = CIFAR10(
-                args.dataset_path,
-                train=False,
-                download=True,
-                transform=None
-            )
-            for i in range(len(testset_clean_10.targets)):
-                testset_clean_10.targets[i] = 1
-            testset_clean_100 = CIFAR100(
-                args.dataset_path,
-                train=False,
-                download=True,
-                transform=None
-            )
-            for i in range(len(testset_clean_100.targets)):
-                testset_clean_100.targets[i] = 0
+            testset_clean_10 = CIFAR10_CLEAN_ID(args)
+
+            testset_clean_100 = CIFAR100_CLEAN_OOD(args)
 
             test_dataset_without_transform = torch.utils.data.ConcatDataset([testset_clean_10, testset_clean_100])
-
-        elif args.dataset == 'cifar100':
-            from torchvision.datasets import CIFAR100
-            # test_dataset_without_transform = CIFAR100(
-            #     root=args.dataset_path,
-            #     train=False,
-            #     download=True,
-            # )
-
-            testset_clean_100 = CIFAR100(
-                args.dataset_path,
-                train=False,
-                download=True,
-                transform=None
-            )
-            for i in range(len(testset_clean_100.targets)):
-                testset_clean_100.targets[i] = 1
-            testset_clean_10 = CIFAR10(
-                args.dataset_path,
-                train=False,
-                download=True,
-                transform=None
-            )
-            for i in range(len(testset_clean_10.targets)):
-                testset_clean_10.targets[i] = 0
-
-            test_dataset_without_transform = torch.utils.data.ConcatDataset([testset_clean_100, testset_clean_10])
 
     return test_dataset_without_transform, \
            test_img_transform, \

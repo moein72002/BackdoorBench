@@ -454,11 +454,11 @@ def load_new_attack_result(
 
         train_dataset_without_transform = exposure_dataset_and_transform_generate(clean_setting)
 
+        clean_setting.test_jpeg_compression_defense = False
         clean_test_dataset_without_transform_ood, \
         test_img_transform_ood, \
-        test_label_transform_ood = clean_dataset_and_transform_generate_ood(clean_setting) # TODO: check this line
+        test_label_transform_ood = clean_dataset_and_transform_generate_ood(clean_setting)
 
-        clean_setting.test_jpeg_compression_defense = False
         exposure_test_dataset_without_transform_for_cls, \
         _, \
         _ = exposure_dataset_and_transform_generate_for_cls(clean_setting)
@@ -472,6 +472,10 @@ def load_new_attack_result(
         _ = exposure_dataset_and_transform_generate_ood(clean_setting, poison_all_test_ood=True)
 
         clean_setting.test_jpeg_compression_defense = True
+        jpeg_compress_clean_test_dataset_without_transform_ood, \
+        _, \
+        _ = clean_dataset_and_transform_generate_ood(clean_setting)
+
         jpeg_compress_exposure_test_dataset_without_transform_for_cls, \
         _, \
         _ = exposure_dataset_and_transform_generate_for_cls(clean_setting)
@@ -498,6 +502,12 @@ def load_new_attack_result(
 
         clean_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
             clean_test_dataset_without_transform_ood,
+            test_img_transform_ood,
+            test_label_transform_ood,
+        )
+
+        jpeg_compress_clean_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
+            jpeg_compress_clean_test_dataset_without_transform_ood,
             test_img_transform_ood,
             test_label_transform_ood,
         )
@@ -598,6 +608,7 @@ def load_new_attack_result(
                 'bd_train': bd_train_dataset_with_transform,
                 'bd_test': bd_test_dataset_with_transform,
                 'clean_test_ood': clean_test_dataset_with_transform_ood,
+                'jpeg_compress_clean_test_ood': jpeg_compress_clean_test_dataset_with_transform_ood,
                 'bd_test_for_cls': bd_test_dataset_with_transform_for_cls,
                 'bd_out_test_ood': bd_out_test_dataset_with_transform_ood,
                 'bd_all_test_ood': bd_all_test_dataset_with_transform_ood,

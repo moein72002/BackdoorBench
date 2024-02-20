@@ -577,14 +577,27 @@ class abl(defense):
         data_clean_testset_ood = self.result['clean_test_ood']
         visualize_random_samples_from_clean_dataset(data_clean_testset_ood.wrapped_dataset, "data_clean_testset_ood.wrapped_dataset")
 
-        zip_all_visualization_results()
         data_clean_testset_ood.wrap_img_transform = test_tran
         data_clean_loader_ood = torch.utils.data.DataLoader(data_clean_testset_ood, batch_size=self.args.batch_size,
                                                         num_workers=self.args.num_workers, drop_last=False,
                                                         shuffle=True, pin_memory=args.pin_memory)
+
+        jpeg_compress_data_clean_testset_ood = self.result['jpeg_compress_clean_test_ood']
+        visualize_random_samples_from_clean_dataset(jpeg_compress_data_clean_testset_ood.wrapped_dataset,
+                                                    "jpeg_compress_data_clean_testset_ood.wrapped_dataset")
+
+        jpeg_compress_data_clean_testset_ood.wrap_img_transform = test_tran
+        jpeg_compress_data_clean_loader_ood = torch.utils.data.DataLoader(jpeg_compress_data_clean_testset_ood, batch_size=self.args.batch_size,
+                                                            num_workers=self.args.num_workers, drop_last=False,
+                                                            shuffle=True, pin_memory=args.pin_memory)
+
         data_clean_loader_ood_odin = torch.utils.data.DataLoader(data_clean_testset_ood, batch_size=1,
                                                                  num_workers=self.args.num_workers, drop_last=False,
                                                                  shuffle=True, pin_memory=args.pin_memory)
+
+
+        # Zip all visualization results
+        zip_all_visualization_results()
 
         # self.count_unique_labels_of_dataset(data_clean_testset_ood, "data_clean_testset_ood")
         # self.count_unique_labels_of_preprocessed_dataset(data_bd_testset_ood, "data_bd_testset_ood")
@@ -615,7 +628,7 @@ class abl(defense):
 
             jpeg_compress_msp_auc_result_dict = eval_step_msp_auc(
                 model_ascent,
-                data_clean_loader_ood,
+                jpeg_compress_data_clean_loader_ood,
                 jpeg_compress_data_bd_out_loader_ood,
                 jpeg_compress_data_bd_all_loader_ood,
                 args,
