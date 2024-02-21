@@ -324,8 +324,6 @@ class Attack(NormalCase):
                        pin_memory=args.pin_memory, num_workers=args.num_workers, ),
             DataLoader(clean_test_dataset_with_transform_ood, batch_size=args.batch_size, shuffle=False, drop_last=False,
                        pin_memory=args.pin_memory, num_workers=args.num_workers, ),
-            DataLoader(bd_test_dataset_with_transform_for_cls, batch_size=args.batch_size, shuffle=False, drop_last=False,
-                       pin_memory=args.pin_memory, num_workers=args.num_workers, ),
             DataLoader(bd_out_test_dataset_with_transform_ood, batch_size=args.batch_size, shuffle=False, drop_last=False,
                        pin_memory=args.pin_memory, num_workers=args.num_workers, ),
             DataLoader(bd_all_test_dataset_with_transform_ood, batch_size=args.batch_size, shuffle=False,
@@ -343,7 +341,10 @@ class Attack(NormalCase):
             prefetch=args.prefetch,
             prefetch_transform_attr_name="ori_image_transform_in_loading",  # since we use the preprocess_bd_dataset
             non_blocking=args.non_blocking,
-            test_every_epoch=args.test_every_epoch
+            test_every_epoch=args.test_every_epoch,
+            bd_test_dataloader_for_cls=DataLoader(bd_test_dataset_with_transform_for_cls, batch_size=args.batch_size, shuffle=False,
+                       drop_last=False,
+                       pin_memory=args.pin_memory, num_workers=args.num_workers, ),
         )
 
         save_attack_result(
@@ -356,7 +357,6 @@ class Attack(NormalCase):
             bd_train=bd_train_dataset_with_transform,
             bd_test=bd_test_dataset_with_transform,
             save_path=args.save_path,
-            bd_test_for_cls=bd_test_dataset_with_transform_for_cls,
             bd_out_test_ood=bd_out_test_dataset_with_transform_ood,
             bd_all_test_ood=bd_all_test_dataset_with_transform_ood,
             exposure_blend_rate=args.exposure_blend_rate,

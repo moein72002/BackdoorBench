@@ -1945,7 +1945,6 @@ class BackdoorModelTrainer(ModelTrainerCLS_v2):
                                    clean_test_dataloader,
                                    bd_test_dataloader,
                                    clean_test_dataloader_ood,
-                                   bd_test_dataloader_for_cls,
                                    bd_out_test_dataloader_ood,
                                    bd_all_test_dataloader_ood,
                                    total_epoch_num,
@@ -1960,7 +1959,8 @@ class BackdoorModelTrainer(ModelTrainerCLS_v2):
                                    prefetch,
                                    prefetch_transform_attr_name,
                                    non_blocking,
-                                   test_every_epoch,
+                                   test_every_epoch=False,
+                                   bd_test_dataloader_for_cls=None,
                                    ):
 
         test_dataloader_dict = {
@@ -2042,16 +2042,22 @@ class BackdoorModelTrainer(ModelTrainerCLS_v2):
                 bd_test_epoch_poison_indicator_list, \
                 bd_test_epoch_original_targets_list = self.test_given_dataloader_on_mix(self.test_dataloader_dict["bd_test_dataloader"], verbose=1)
 
-                bd_metrics_for_cls, \
-                _, \
-                _, \
-                    = self.test_given_dataloader(self.test_dataloader_dict["bd_test_dataloader_for_cls"], verbose=1)
+                bd_test_acc_for_cls = None
+                if bd_test_dataloader_for_cls:
+                    bd_metrics_for_cls, \
+                    _, \
+                    _, \
+                        = self.test_given_dataloader(self.test_dataloader_dict["bd_test_dataloader_for_cls"], verbose=1)
 
-                bd_test_acc_for_cls = bd_metrics_for_cls["test_acc"]
+                    bd_test_acc_for_cls = bd_metrics_for_cls["test_acc"]
 
-                clean_test_auc = self.test_ood_given_dataloader(self.test_dataloader_dict["clean_test_dataloader_ood"], verbose=1, clean_dataset = True) #TODO
-                bd_out_test_auc = self.test_ood_given_dataloader(self.test_dataloader_dict["bd_out_test_dataloader_ood"], verbose=1, clean_dataset = False) #TODO
-                bd_all_test_auc = self.test_ood_given_dataloader(self.test_dataloader_dict["bd_all_test_dataloader_ood"], verbose=1, clean_dataset = False) #TODO
+
+                msp_auc_result_dict = eval_step_msp_auc(
+                    self.model,
+                    clean_test_dataloader_ood,
+                    bd_out_test_dataloader_ood,
+                    bd_all_test_dataloader_ood
+                )
 
                 bd_test_loss_avg_over_batch = bd_metrics["test_loss_avg_over_batch"]
                 test_asr = all_acc(bd_test_epoch_predict_list, bd_test_epoch_label_list)
@@ -2070,10 +2076,8 @@ class BackdoorModelTrainer(ModelTrainerCLS_v2):
                         "test_acc" : test_acc,
                         "test_asr" : test_asr,
                         "test_ra" : test_ra,
-                        "clean_test_auc": clean_test_auc,
                         "bd_test_acc_for_cls": bd_test_acc_for_cls,
-                        "bd_out_test_auc": bd_out_test_auc,
-                        "bd_all_test_auc": bd_all_test_auc
+                        **msp_auc_result_dict
                     }
                 )
 

@@ -291,11 +291,21 @@ class TrojanNN(BadNet):
             save_folder_path=f"{args.save_path}/bd_test_dataset",
         )
 
-        test_poison_index_ood = np.concatenate((np.zeros(10000), np.ones(10000)))
+        bd_out_test_poison_index_ood = np.concatenate((np.zeros(10000), np.ones(10000)))
 
-        bd_test_dataset_ood = prepro_cls_DatasetBD_v2(
+        bd_out_test_dataset_ood = prepro_cls_DatasetBD_v2(
             deepcopy(test_dataset_without_transform_ood),
-            poison_indicator=test_poison_index_ood,
+            poison_indicator=bd_out_test_poison_index_ood,
+            bd_image_pre_transform=test_bd_img_transform,  # TODO: check here
+            bd_label_pre_transform=bd_label_transform_ood,
+            save_folder_path=f"{args.save_path}/bd_test_dataset",
+        )
+
+        bd_all_test_poison_index_ood = np.concatenate(np.ones(20000))
+
+        bd_all_test_dataset_ood = prepro_cls_DatasetBD_v2(
+            deepcopy(test_dataset_without_transform_ood),
+            poison_indicator=bd_all_test_poison_index_ood,
             bd_image_pre_transform=test_bd_img_transform,  # TODO: check here
             bd_label_pre_transform=bd_label_transform_ood,
             save_folder_path=f"{args.save_path}/bd_test_dataset",
@@ -313,20 +323,29 @@ class TrojanNN(BadNet):
 
         visualize_random_samples_from_bd_dataset(bd_test_dataset, "bd_test_dataset")
 
-        bd_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
-            bd_test_dataset_ood,
+        bd_out_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
+            bd_out_test_dataset_ood,
             test_img_transform_ood,
             test_label_transform_ood,
         )
 
-        visualize_random_samples_from_bd_dataset(bd_test_dataset_ood, "bd_test_dataset_ood")
+        visualize_random_samples_from_bd_dataset(bd_out_test_dataset_ood, "bd_out_test_dataset_ood")
+
+        bd_all_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
+            bd_all_test_dataset_ood,
+            test_img_transform_ood,
+            test_label_transform_ood,
+        )
+
+        visualize_random_samples_from_bd_dataset(bd_all_test_dataset_ood, "bd_all_test_dataset_ood")
 
         self.stage1_results = clean_train_dataset_with_transform, \
                               clean_test_dataset_with_transform, \
                               bd_train_dataset_with_transform, \
                               bd_test_dataset_with_transform, \
                               clean_test_dataset_with_transform_ood, \
-                              bd_test_dataset_with_transform_ood
+                              bd_out_test_dataset_with_transform_ood, \
+                              bd_all_test_dataset_with_transform_ood
 
     def stage2_training(self):
         logging.info(f"stage2 start")
@@ -338,7 +357,9 @@ class TrojanNN(BadNet):
         bd_train_dataset_with_transform, \
         bd_test_dataset_with_transform, \
         clean_test_dataset_with_transform_ood, \
-        bd_test_dataset_with_transform_ood = self.stage1_results
+        bd_out_test_dataset_with_transform_ood, \
+        bd_all_test_dataset_with_transform_ood, \
+            = self.stage1_results
 
         if "," in args.device:
             self.net = torch.nn.DataParallel(
@@ -365,7 +386,10 @@ class TrojanNN(BadNet):
             DataLoader(clean_test_dataset_with_transform_ood, batch_size=args.batch_size, shuffle=False,
                        drop_last=False,
                        pin_memory=args.pin_memory, num_workers=args.num_workers, ),
-            DataLoader(bd_test_dataset_with_transform_ood, batch_size=args.batch_size, shuffle=False, drop_last=False,
+            DataLoader(bd_out_test_dataset_with_transform_ood, batch_size=args.batch_size, shuffle=False, drop_last=False,
+                       pin_memory=args.pin_memory, num_workers=args.num_workers, ),
+            DataLoader(bd_all_test_dataset_with_transform_ood, batch_size=args.batch_size, shuffle=False,
+                       drop_last=False,
                        pin_memory=args.pin_memory, num_workers=args.num_workers, ),
             args.epochs,
             criterion=criterion,
@@ -391,7 +415,8 @@ class TrojanNN(BadNet):
             bd_train=bd_train_dataset_with_transform,
             bd_test=bd_test_dataset_with_transform,
             save_path=args.save_path,
-            bd_test_ood=bd_test_dataset_with_transform_ood
+            bd_out_test_ood=bd_out_test_dataset_with_transform_ood,
+            bd_all_test_ood=bd_all_test_dataset_with_transform_ood
         )
 
 
