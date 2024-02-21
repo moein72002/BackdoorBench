@@ -44,6 +44,8 @@ import sys
 import time
 import torch
 
+from utils.ood_scores.msp import eval_step_msp_auc
+
 os.chdir(sys.path[0])
 sys.path.append('../')
 os.getcwd()
@@ -515,8 +517,8 @@ class InputAware(BadNet):
             test_asr, \
             test_ra, \
             test_cross_acc, \
-            clean_test_auc, \
-            bd_test_auc = self.eval_step(
+            msp_auc_result_dict, \
+                = self.eval_step(
                 netC,
                 netG,
                 netM,
@@ -548,8 +550,7 @@ class InputAware(BadNet):
                 "test_asr": test_asr,
                 "test_ra": test_ra,
                 "test_cross_acc": test_cross_acc,
-                "clean_test_auc": clean_test_auc,
-                "bd_test_auc": bd_test_auc
+                **msp_auc_result_dict
             })
 
             if args.frequency_save != 0 and epoch % args.frequency_save == args.frequency_save - 1:
@@ -702,7 +703,8 @@ class InputAware(BadNet):
             clean_data=args.dataset,
             bd_train=bd_train_dataset,
             bd_test=self.bd_test_dataset,
-            bd_test_ood=self.bd_test_dataset_ood,
+            bd_out_test_ood=self.bd_out_test_dataset_ood,
+            bd_all_test_ood=self.bd_all_test_dataset_ood,
             save_path=args.save_path,
         )
 
@@ -820,7 +822,7 @@ class InputAware(BadNet):
             bd_inputs = inputs + (patterns - inputs) * masks_output
             return bd_inputs, bd_targets, patterns, masks_output, position_changed, targets
 
-    def create_bd_ood(self, inputs, targets, netG, netM, args, train_or_test):
+    def create_bd_out_ood(self, inputs, targets, netG, netM, args, train_or_test):
         if train_or_test == 'train':
             bd_targets = self.create_targets_bd(targets, args)
             if inputs.__len__() == 0:  # for case that no sample should be poisoned
@@ -836,6 +838,34 @@ class InputAware(BadNet):
 
             # In below line 1 is in dist label, and we want to put trigger on out data
             position_changed = (targets != 1)  # no matter all2all or all2one, we want location changed to tell whether the bd is effective
+
+            inputs, bd_targets = inputs[position_changed], bd_targets[position_changed]
+
+            if inputs.__len__() == 0:  # for case that no sample should be poisoned
+                return torch.tensor([]), torch.tensor([]), None, None, position_changed, targets
+            patterns = netG(inputs)
+            patterns = self.normalizer(patterns)
+
+            masks_output = self.threshold(netM(inputs))
+            bd_inputs = inputs + (patterns - inputs) * masks_output
+            return bd_inputs, bd_targets, patterns, masks_output, position_changed, targets
+
+    def create_bd_all_ood(self, inputs, targets, netG, netM, args, train_or_test):
+        if train_or_test == 'train':
+            bd_targets = self.create_targets_bd(targets, args)
+            if inputs.__len__() == 0:  # for case that no sample should be poisoned
+                return inputs, bd_targets, inputs.detach().clone(), inputs.detach().clone()
+            patterns = netG(inputs)
+            patterns = self.normalizer(patterns)
+
+            masks_output = self.threshold(netM(inputs))
+            bd_inputs = inputs + (patterns - inputs) * masks_output
+            return bd_inputs, bd_targets, patterns, masks_output
+        if train_or_test == 'test':
+            bd_targets = self.create_targets_bd(targets, args)
+
+            # In below line 1 is in dist label, and we want to put trigger on out data
+            position_changed = (targets != -1)  # This is set to -1 to set all to 1 for bd_all
 
             inputs, bd_targets = inputs[position_changed], bd_targets[position_changed]
 
@@ -1049,8 +1079,11 @@ class InputAware(BadNet):
         self.bd_test_dataset = prepro_cls_DatasetBD_v2(
             clean_test_dataset_with_transform.wrapped_dataset, save_folder_path=f"{args.save_path}/bd_test_dataset"
         )
-        self.bd_test_dataset_ood = prepro_cls_DatasetBD_v2(
-            clean_test_dataset_with_transform_ood.wrapped_dataset, save_folder_path=f"{args.save_path}/bd_test_dataset_ood"
+        self.bd_out_test_dataset_ood = prepro_cls_DatasetBD_v2(
+            clean_test_dataset_with_transform_ood.wrapped_dataset, save_folder_path=f"{args.save_path}/bd_out_test_dataset_ood"
+        )
+        self.bd_all_test_dataset_ood = prepro_cls_DatasetBD_v2(
+            clean_test_dataset_with_transform_ood.wrapped_dataset, save_folder_path=f"{args.save_path}/bd_all_test_dataset_ood"
         )
         self.cross_test_dataset = prepro_cls_DatasetBD_v2(
             clean_test_dataset_with_transform.wrapped_dataset, save_folder_path=f"{args.save_path}/cross_test_dataset"
@@ -1098,14 +1131,37 @@ class InputAware(BadNet):
                 inputs1, targets1 = inputs1.to(self.device, non_blocking=args.non_blocking), targets1.to(self.device,
                                                                                                          non_blocking=args.non_blocking)
 
-                inputs_bd, targets_bd, _, _, position_changed, targets = self.create_bd_ood(inputs1, targets1, netG, netM,
-                                                                                        args,
+                inputs_bd, targets_bd, _, _, position_changed, targets = self.create_bd_out_ood(inputs1, targets1, netG, netM,
+                                                                                                args,
                                                                                         'test')
 
                 targets1 = targets1.detach().clone().cpu()
                 y_poison_batch = targets_bd.detach().clone().cpu().tolist()
                 for idx_in_batch, t_img in enumerate(inputs_bd.detach().clone().cpu()):
-                    self.bd_test_dataset_ood.set_one_bd_sample(
+                    self.bd_out_test_dataset_ood.set_one_bd_sample(
+                        selected_index=int(
+                            batch_idx * int(args.batch_size) + torch.where(position_changed.detach().clone().cpu())[0][
+                                idx_in_batch]),
+                        # manually calculate the original index, since we do not shuffle the dataloader
+                        img=denormalizer_ood(t_img),
+                        bd_label=int(y_poison_batch[idx_in_batch]),
+                        label=int(targets1[torch.where(position_changed.detach().clone().cpu())[0][idx_in_batch]]),
+                    )
+
+        for batch_idx, (inputs1, targets1) in zip(range(len(reversible_test_dataloader1_ood)),
+                                                                       reversible_test_dataloader1_ood):
+            with torch.no_grad():
+                inputs1, targets1 = inputs1.to(self.device, non_blocking=args.non_blocking), targets1.to(self.device,
+                                                                                                         non_blocking=args.non_blocking)
+
+                inputs_bd, targets_bd, _, _, position_changed, targets = self.create_bd_all_ood(inputs1, targets1, netG, netM,
+                                                                                                args,
+                                                                                        'test')
+
+                targets1 = targets1.detach().clone().cpu()
+                y_poison_batch = targets_bd.detach().clone().cpu().tolist()
+                for idx_in_batch, t_img in enumerate(inputs_bd.detach().clone().cpu()):
+                    self.bd_all_test_dataset_ood.set_one_bd_sample(
                         selected_index=int(
                             batch_idx * int(args.batch_size) + torch.where(position_changed.detach().clone().cpu())[0][
                                 idx_in_batch]),
@@ -1130,24 +1186,37 @@ class InputAware(BadNet):
         # self.count_unique_labels_of_preprocessed_dataset(self.bd_test_dataset, "self.bd_test_dataset")
         visualize_random_samples_from_bd_dataset(self.bd_test_dataset, "self.bd_test_dataset")
 
-        bd_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
-            self.bd_test_dataset_ood,
+        bd_out_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
+            self.bd_out_test_dataset_ood,
             clean_test_dataset_with_transform_ood.wrap_img_transform,
         )
 
-        # self.count_unique_labels_of_preprocessed_dataset(self.bd_test_dataset_ood, "self.bd_test_dataset_ood")
-        visualize_random_samples_from_bd_dataset(self.bd_test_dataset_ood, "self.bd_test_dataset_ood")
+        # self.count_unique_labels_of_preprocessed_dataset(self.bd_out_test_dataset_ood, "self.bd_out_test_dataset_ood")
+        visualize_random_samples_from_bd_dataset(self.bd_out_test_dataset_ood, "self.bd_out_test_dataset_ood")
+
+        bd_all_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
+            self.bd_all_test_dataset_ood,
+            clean_test_dataset_with_transform_ood.wrap_img_transform,
+        )
+
+        # self.count_unique_labels_of_preprocessed_dataset(self.bd_all_test_dataset_ood, "self.bd_all_test_dataset_ood")
+        visualize_random_samples_from_bd_dataset(self.bd_all_test_dataset_ood, "self.bd_all_test_dataset_ood")
 
         bd_test_dataloader = DataLoader(bd_test_dataset_with_transform,
                                         pin_memory=args.pin_memory,
                                         batch_size=args.batch_size,
                                         num_workers=args.num_workers,
                                         shuffle=False)
-        bd_test_dataloader_ood = DataLoader(bd_test_dataset_with_transform_ood,
+        bd_out_test_dataloader_ood = DataLoader(bd_out_test_dataset_with_transform_ood,
                                         pin_memory=args.pin_memory,
                                         batch_size=args.batch_size,
                                         num_workers=args.num_workers,
                                         shuffle=False)
+        bd_all_test_dataloader_ood = DataLoader(bd_all_test_dataset_with_transform_ood,
+                                                pin_memory=args.pin_memory,
+                                                batch_size=args.batch_size,
+                                                num_workers=args.num_workers,
+                                                shuffle=False)
 
         cross_test_dataset_with_transform = dataset_wrapper_with_transform(
             self.cross_test_dataset,
@@ -1195,12 +1264,13 @@ class InputAware(BadNet):
             verbose=0,
         )
 
-        clean_test_auc = test_ood_given_dataloader(netC, clean_test_dataloader_ood, non_blocking=args.non_blocking,
-                                                   device=self.args.device,
-                                                   verbose=1, clean_dataset=True)  # TODO
-        bd_test_auc = test_ood_given_dataloader(netC, bd_test_dataloader_ood, non_blocking=args.non_blocking,
-                                                device=self.args.device, verbose=1,
-                                                clean_dataset=False)  # TODO
+        msp_auc_result_dict = eval_step_msp_auc(
+            netC,
+            clean_test_dataloader_ood,
+            bd_out_test_dataloader_ood,
+            bd_all_test_dataloader_ood,
+            args=args,
+        )
         bd_test_loss_avg_over_batch = bd_metrics['test_loss_avg_over_batch']
         test_asr = bd_metrics['test_acc']
 
@@ -1245,8 +1315,7 @@ class InputAware(BadNet):
                test_asr, \
                test_ra, \
                test_cross_acc, \
-               clean_test_auc, \
-               bd_test_auc
+               msp_auc_result_dict
 
 
 if __name__ == '__main__':
