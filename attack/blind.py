@@ -1622,6 +1622,7 @@ if __name__ == '__main__':
     parser = attack.set_args(parser)
     parser = attack.set_bd_args(parser)
     args = parser.parse_args()
+    args.is_our_attack = False
     attack.add_bd_yaml_to_args(args)
     attack.add_yaml_to_args(args)
     args = attack.process_args(args)

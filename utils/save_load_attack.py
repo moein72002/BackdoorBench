@@ -466,13 +466,17 @@ def load_new_attack_result(
         _, \
         _ = exposure_dataset_and_transform_generate_for_cls(clean_setting)
 
-        exposure_out_test_dataset_without_transform_ood, \
-        _, \
-        _ = exposure_dataset_and_transform_generate_ood(clean_setting, poison_all_test_ood=False)
+        if args.is_our_attack:
+            exposure_out_test_dataset_without_transform_ood, \
+            _, \
+            _ = exposure_dataset_and_transform_generate_ood(clean_setting, poison_all_test_ood=False)
 
-        exposure_all_test_dataset_without_transform_ood, \
-        _, \
-        _ = exposure_dataset_and_transform_generate_ood(clean_setting, poison_all_test_ood=True)
+            exposure_all_test_dataset_without_transform_ood, \
+            _, \
+            _ = exposure_dataset_and_transform_generate_ood(clean_setting, poison_all_test_ood=True)
+        else:
+            exposure_out_test_dataset_without_transform_ood = clean_test_dataset_without_transform_ood
+            exposure_all_test_dataset_without_transform_ood = clean_test_dataset_without_transform_ood
 
         clean_setting.test_jpeg_compression_defense = True
         jpeg_compress_clean_test_dataset_without_transform_ood, \
@@ -483,13 +487,17 @@ def load_new_attack_result(
         _, \
         _ = exposure_dataset_and_transform_generate_for_cls(clean_setting)
 
-        jpeg_compress_exposure_out_test_dataset_without_transform_ood, \
-        _, \
-        _ = exposure_dataset_and_transform_generate_ood(clean_setting, poison_all_test_ood=False)
+        if args.is_our_attack:
+            jpeg_compress_exposure_out_test_dataset_without_transform_ood, \
+            _, \
+            _ = exposure_dataset_and_transform_generate_ood(clean_setting, poison_all_test_ood=False)
 
-        jpeg_compress_exposure_all_test_dataset_without_transform_ood, \
-        _, \
-        _ = exposure_dataset_and_transform_generate_ood(clean_setting, poison_all_test_ood=True)
+            jpeg_compress_exposure_all_test_dataset_without_transform_ood, \
+            _, \
+            _ = exposure_dataset_and_transform_generate_ood(clean_setting, poison_all_test_ood=True)
+        else:
+            jpeg_compress_exposure_out_test_dataset_without_transform_ood = jpeg_compress_clean_test_dataset_without_transform_ood
+            jpeg_compress_exposure_all_test_dataset_without_transform_ood = jpeg_compress_clean_test_dataset_without_transform_ood
 
         clean_setting.test_jpeg_compression_defense = False
         clean_setting.test_shrink_pad = True
@@ -502,13 +510,17 @@ def load_new_attack_result(
         _, \
         _ = exposure_dataset_and_transform_generate_for_cls(clean_setting)
 
-        shrink_pad_exposure_out_test_dataset_without_transform_ood, \
-        _, \
-        _ = exposure_dataset_and_transform_generate_ood(clean_setting, poison_all_test_ood=False)
+        if args.is_our_attack:
+            shrink_pad_exposure_out_test_dataset_without_transform_ood, \
+            _, \
+            _ = exposure_dataset_and_transform_generate_ood(clean_setting, poison_all_test_ood=False)
 
-        shrink_pad_exposure_all_test_dataset_without_transform_ood, \
-        _, \
-        _ = exposure_dataset_and_transform_generate_ood(clean_setting, poison_all_test_ood=True)
+            shrink_pad_exposure_all_test_dataset_without_transform_ood, \
+            _, \
+            _ = exposure_dataset_and_transform_generate_ood(clean_setting, poison_all_test_ood=True)
+        else:
+            shrink_pad_exposure_out_test_dataset_without_transform_ood = shrink_pad_clean_test_dataset_without_transform_ood
+            shrink_pad_exposure_all_test_dataset_without_transform_ood = shrink_pad_clean_test_dataset_without_transform_ood
 
         clean_train_dataset_with_transform = dataset_wrapper_with_transform(
             clean_train_dataset_without_transform,
@@ -541,11 +553,14 @@ def load_new_attack_result(
         )
 
         if load_file['bd_train'] is not None:
-            bd_train_dataset = prepro_cls_DatasetBD_v2(train_dataset_without_transform)
-            if not args.just_test_exposure_ood:
-                bd_train_dataset.set_state(
-                    load_file['bd_train']
-                )
+            if args.is_our_attack:
+                bd_train_dataset = prepro_cls_DatasetBD_v2(train_dataset_without_transform)
+            else:
+                bd_train_dataset = prepro_cls_DatasetBD_v2(clean_train_dataset_without_transform)
+            # if not args.just_test_exposure_ood:
+            #     bd_train_dataset.set_state(
+            #         load_file['bd_train']
+            #     )
             bd_train_dataset_with_transform = dataset_wrapper_with_transform(
                 bd_train_dataset,
                 train_img_transform,

@@ -365,6 +365,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=sys.argv[0])
     parser = normal_train_process.set_args(parser)
     args = parser.parse_args()
+    args.is_our_attack = False
     normal_train_process.add_yaml_to_args(args)
     args = normal_train_process.process_args(args)
     normal_train_process.prepare(args)

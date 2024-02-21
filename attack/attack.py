@@ -56,10 +56,10 @@ def add_common_attack_args(parser):
     return parser
 
 
-class BadNet(NormalCase):
+class Attack(NormalCase):
 
     def __init__(self):
-        super(BadNet).__init__()
+        super(Attack).__init__()
 
     def set_bd_args(cls, parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
         parser = add_common_attack_args(parser)
@@ -365,12 +365,12 @@ class BadNet(NormalCase):
 
 
 if __name__ == '__main__':
-    attack = BadNet()
+    attack = Attack()
     parser = argparse.ArgumentParser(description=sys.argv[0])
     parser = attack.set_args(parser)
     parser = attack.set_bd_args(parser)
     args = parser.parse_args()
-    args.is_our_attack = False
+    args.is_our_attack = True
     logging.debug("Be careful that we need to give the bd yaml higher priority. So, we put the add bd yaml first.")
     attack.add_bd_yaml_to_args(args)
     attack.add_yaml_to_args(args)
