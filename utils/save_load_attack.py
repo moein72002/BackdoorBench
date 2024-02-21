@@ -88,12 +88,11 @@ def save_attack_result(
     clean_data : str,
     bd_test : prepro_cls_DatasetBD_v2, # MUST be dataset without transform
     save_path : str,
-    exposure_blend_rate : int,
-    use_l2_adv_images : bool,
-    bd_test_for_cls : prepro_cls_DatasetBD_v2,
     bd_out_test_ood : prepro_cls_DatasetBD_v2,
     bd_all_test_ood : prepro_cls_DatasetBD_v2,
     bd_train : Optional[prepro_cls_DatasetBD_v2] = None, # MUST be dataset without transform
+    use_l2_adv_images = False,
+    exposure_blend_rate = 0.25,
 ):
     '''
 

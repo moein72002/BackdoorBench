@@ -45,6 +45,8 @@ import logging
 import os
 import sys
 
+from utils.ood_scores.msp import eval_step_msp_auc
+
 os.chdir(sys.path[0])
 sys.path.append('../')
 os.getcwd()
@@ -64,7 +66,7 @@ from torch.utils.data import DataLoader
 
 from utils.aggregate_block.dataset_and_transform_generate import get_dataset_normalization, get_dataset_denormalization
 from utils.aggregate_block.model_trainer_generate import generate_cls_model
-from utils.trainer_cls import Metric_Aggregator, test_ood_given_dataloader
+from utils.trainer_cls import Metric_Aggregator
 from utils.save_load_attack import save_attack_result
 from utils.aggregate_block.train_settings_generate import argparser_opt_scheduler
 from attack.badnet import add_common_attack_args, BadNet
@@ -307,8 +309,11 @@ class Wanet(BadNet):
         self.bd_test_dataset = prepro_cls_DatasetBD_v2(
             clean_test_dataset_with_transform.wrapped_dataset, save_folder_path=f"{args.save_path}/bd_test_dataset"
         )
-        self.bd_test_dataset_ood = prepro_cls_DatasetBD_v2(
-            clean_test_dataset_with_transform_ood.wrapped_dataset, save_folder_path=f"{args.save_path}/bd_test_dataset_ood"
+        self.bd_out_test_dataset_ood = prepro_cls_DatasetBD_v2(
+            clean_test_dataset_with_transform_ood.wrapped_dataset, save_folder_path=f"{args.save_path}/bd_out_test_dataset_ood"
+        )
+        self.bd_all_test_dataset_ood = prepro_cls_DatasetBD_v2(
+            clean_test_dataset_with_transform_ood.wrapped_dataset, save_folder_path=f"{args.save_path}/bd_all_test_dataset_ood"
         )
         self.cross_test_dataset = prepro_cls_DatasetBD_v2(
             clean_test_dataset_with_transform.wrapped_dataset, save_folder_path=f"{args.save_path}/cross_test_dataset"
@@ -390,7 +395,42 @@ class Wanet(BadNet):
                 targets = targets.detach().clone().cpu()
                 y_poison_batch = targets_bd.detach().clone().cpu().tolist()
                 for idx_in_batch, t_img in enumerate(inputs_bd.detach().clone().cpu()):
-                    self.bd_test_dataset_ood.set_one_bd_sample(
+                    self.bd_out_test_dataset_ood.set_one_bd_sample(
+                        selected_index=int(
+                            batch_idx * int(args.batch_size) + torch.where(position_changed.detach().clone().cpu())[0][
+                                idx_in_batch]),
+                        # manually calculate the original index, since we do not shuffle the dataloader
+                        img=(t_img),
+                        bd_label=int(y_poison_batch[idx_in_batch]),
+                        label=int(targets[torch.where(position_changed.detach().clone().cpu())[0][idx_in_batch]]),
+                    )
+
+        for batch_idx, (inputs, targets) in enumerate(reversible_test_dataloader_ood):
+            with torch.no_grad():
+                inputs, targets = inputs.to(self.device, non_blocking=args.non_blocking), targets.to(self.device,
+                                                                                                     non_blocking=args.non_blocking)
+                bs = inputs.shape[0]
+
+                # Evaluate Backdoor
+                grid_temps = (identity_grid + args.s * noise_grid / args.input_height) * args.grid_rescale
+                grid_temps = torch.clamp(grid_temps, -1, 1)
+
+                inputs_bd = denormalizer_ood(F.grid_sample(inputs, grid_temps.repeat(bs, 1, 1, 1), align_corners=True))
+
+                if args.attack_label_trans == "all2one":
+                    position_changed = (
+                            targets != -1)  # This is set to -1 to set all to 1 for bd_all
+                    targets_bd = (torch.ones_like(targets) * args.attack_target)[position_changed]
+                    inputs_bd = inputs_bd[position_changed]
+                if args.attack_label_trans == "all2all":
+                    position_changed = torch.ones_like(targets) # here assume all2all is the bd label = (true label + 1) % num_classes
+                    targets_bd = torch.remainder(targets + 1, args.num_classes)
+                    inputs_bd = inputs_bd
+
+                targets = targets.detach().clone().cpu()
+                y_poison_batch = targets_bd.detach().clone().cpu().tolist()
+                for idx_in_batch, t_img in enumerate(inputs_bd.detach().clone().cpu()):
+                    self.bd_all_test_dataset_ood.set_one_bd_sample(
                         selected_index=int(
                             batch_idx * int(args.batch_size) + torch.where(position_changed.detach().clone().cpu())[0][
                                 idx_in_batch]),
@@ -407,12 +447,17 @@ class Wanet(BadNet):
 
         visualize_random_samples_from_bd_dataset(self.bd_test_dataset, "self.bd_test_dataset")
 
-        bd_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
-            self.bd_test_dataset_ood,
+        bd_out_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
+            self.bd_out_test_dataset_ood,
             clean_test_dataset_with_transform_ood.wrap_img_transform,
         )
+        visualize_random_samples_from_bd_dataset(self.bd_out_test_dataset_ood, "self.bd_out_test_dataset_ood")
 
-        visualize_random_samples_from_bd_dataset(self.bd_test_dataset_ood, "self.bd_test_dataset_ood")
+        bd_all_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
+            self.bd_all_test_dataset_ood,
+            clean_test_dataset_with_transform_ood.wrap_img_transform,
+        )
+        visualize_random_samples_from_bd_dataset(self.bd_all_test_dataset_ood, "self.bd_all_test_dataset_ood")
 
         self.bd_test_dataset.subset(
             np.where(self.bd_test_dataset.poison_indicator == 1)[0].tolist()
@@ -422,11 +467,16 @@ class Wanet(BadNet):
                                         batch_size=args.batch_size,
                                         num_workers=args.num_workers,
                                         shuffle=False)
-        bd_test_dataloader_ood = DataLoader(bd_test_dataset_with_transform_ood,
+        bd_out_test_dataloader_ood = DataLoader(bd_out_test_dataset_with_transform_ood,
                                         pin_memory=args.pin_memory,
                                         batch_size=args.batch_size,
                                         num_workers=args.num_workers,
                                         shuffle=False)
+        bd_all_test_dataloader_ood = DataLoader(bd_all_test_dataset_with_transform_ood,
+                                            pin_memory=args.pin_memory,
+                                            batch_size=args.batch_size,
+                                            num_workers=args.num_workers,
+                                            shuffle=False)
         if args.cross_ratio:
             cross_test_dataset_with_transform = dataset_wrapper_with_transform(
                 self.cross_test_dataset,
@@ -440,7 +490,7 @@ class Wanet(BadNet):
         else:
             cross_test_dataloader = None
 
-        test_dataloaders = (clean_test_dataloader, bd_test_dataloader, bd_test_dataloader_ood, cross_test_dataloader)
+        test_dataloaders = (clean_test_dataloader, bd_test_dataloader, bd_out_test_dataloader_ood, bd_all_test_dataloader_ood, cross_test_dataloader)
 
         train_loss_list = []
         train_mix_acc_list = []
@@ -469,6 +519,14 @@ class Wanet(BadNet):
             train_cross_acc = self.train_step(netC, optimizerC, schedulerC, clean_train_dataloader, noise_grid,
                                               identity_grid, epoch, args)
 
+            msp_auc_result_dict = eval_step_msp_auc(
+                netC,
+                clean_test_dataloader_ood,
+                bd_out_test_dataloader_ood,
+                bd_all_test_dataloader_ood,
+                args=args,
+            )
+
             clean_test_loss_avg_over_batch, \
             bd_test_loss_avg_over_batch, \
             cross_test_loss_avg_over_batch, \
@@ -477,15 +535,11 @@ class Wanet(BadNet):
             test_asr, \
             test_ra, \
             test_cross_acc, \
-            clean_test_auc, \
-            bd_test_auc = self.eval_step(
+                 = self.eval_step(
                 netC,
                 clean_test_dataset_with_transform,
-                clean_test_dataset_with_transform_ood,
                 clean_test_dataloader,
-                clean_test_dataloader_ood,
                 bd_test_dataloader,
-                bd_test_dataloader_ood,
                 cross_test_dataloader,
                 args,
             )
@@ -508,8 +562,7 @@ class Wanet(BadNet):
                 "test_asr": test_asr,
                 "test_ra": test_ra,
                 "test_cross_acc": test_cross_acc,
-                "clean_test_auc": clean_test_auc,
-                "bd_test_auc": bd_test_auc
+                **msp_auc_result_dict
             })
 
             train_loss_list.append(train_epoch_loss_avg_over_batch)
@@ -640,7 +693,8 @@ class Wanet(BadNet):
             clean_data=args.dataset,
             bd_train=bd_train_dataset,
             bd_test=self.bd_test_dataset,
-            bd_test_ood=self.bd_test_dataset_ood,
+            bd_out_test_ood=self.bd_out_test_dataset_ood,
+            bd_all_test_ood=self.bd_all_test_dataset_ood,
             save_path=args.save_path,
         )
 
@@ -755,15 +809,11 @@ class Wanet(BadNet):
                train_ra, \
                train_cross_acc
 
-    def eval_step(
-            self,
+    def eval_step(self,
             netC,
             clean_test_dataset_with_transform,
-            clean_test_dataset_with_transform_ood,
             clean_test_dataloader,
-            clean_test_dataloader_ood,
             bd_test_dataloader,
-            bd_test_dataloader_ood,
             cross_test_dataloader,
             args,
     ):
@@ -775,12 +825,7 @@ class Wanet(BadNet):
             device=self.device,
             verbose=0,
         )
-        clean_test_auc = test_ood_given_dataloader(netC, clean_test_dataloader_ood, non_blocking=args.non_blocking,
-                                                   device=self.args.device,
-                                                   verbose=1, clean_dataset=True)  # TODO
-        bd_test_auc = test_ood_given_dataloader(netC, bd_test_dataloader_ood, non_blocking=args.non_blocking,
-                                                device=self.args.device, verbose=1,
-                                                clean_dataset=False)  # TODO
+
         clean_test_loss_avg_over_batch = clean_metrics['test_loss_avg_over_batch']
         test_acc = clean_metrics['test_acc']
         bd_metrics, bd_epoch_predict_list, bd_epoch_label_list = given_dataloader_test(
@@ -834,9 +879,7 @@ class Wanet(BadNet):
                test_acc, \
                test_asr, \
                test_ra, \
-               test_cross_acc, \
-               clean_test_auc, \
-               bd_test_auc
+               test_cross_acc
 
 
 if __name__ == '__main__':
