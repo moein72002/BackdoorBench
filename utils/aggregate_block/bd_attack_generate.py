@@ -48,7 +48,33 @@ def bd_attack_img_trans_generate(args):
     :return: transform on img for backdoor attack in both train and test phase
     '''
 
-    if args.attack in ['badnet',]:
+    if args.attack in ['attack_l2',]:
+
+
+        trans = transforms.Compose([
+            transforms.Resize(args.img_size[:2]),  # (32, 32)
+            np.array,
+        ])
+
+        bd_transform = AddMaskPatchTrigger(
+            trans(Image.open(args.patch_mask_path)),
+        )
+
+        train_bd_transform = general_compose([
+            (transforms.Resize(args.img_size[:2]), False),
+            (np.array, False),
+            (bd_transform, True),
+            (npClipAndToUint8,False),
+        ])
+
+        test_bd_transform = general_compose([
+            (transforms.Resize(args.img_size[:2]), False),
+            (np.array, False),
+            (bd_transform, True),
+            (npClipAndToUint8,False),
+        ])
+
+    elif args.attack in ['badnet',]:
 
 
         trans = transforms.Compose([
