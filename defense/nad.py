@@ -616,6 +616,7 @@ class nad(defense):
         parser.add_argument('--teacher_model_loc', type=str, help='the location of teacher model')
 
         parser.add_argument('--index', type=str, help='index of clean data')
+        parser.add_argument('--is_our_attack', type=bool, default=False)
 
     
 

@@ -805,6 +805,7 @@ class nc(defense):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=sys.argv[0])
     nc.add_arguments(parser)
+    parser.add_argument('--is_our_attack', type=bool, default=False)
     args = parser.parse_args()
     nc_method = nc(args)
     if "result_file" not in args.__dict__:

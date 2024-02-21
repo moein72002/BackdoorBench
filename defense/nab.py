@@ -161,6 +161,7 @@ def get_args():
     parser.add_argument('--epoch_lga',  default= 20,type=int )
     parser.add_argument('--gamma',  default= 0.5,type=float )
     parser.add_argument('--batch_size_lgd',  default= 64,type=int )
+    parser.add_argument('--is_our_attack', type=bool, default=False)
     
 
     arg = parser.parse_args()

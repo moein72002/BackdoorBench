@@ -76,6 +76,7 @@ class NormalCase:
         parser.add_argument("--exposure_blend_rate", type=float, default=0.5)
         parser.add_argument("--test_every_epoch", type=str, default="false")
         parser.add_argument("--clean_train_model", type=bool, default=False)
+        parser.add_argument("--is_our_attack", type=bool, default=False)
         return parser
 
     def add_yaml_to_args(self, args):
@@ -188,7 +189,7 @@ class NormalCase:
         test_img_transform, \
         test_label_transform = dataset_and_transform_generate(args)
 
-        if not args.clean_train_model:
+        if args.is_our_attack:
             train_dataset_without_transform = exposure_dataset_and_transform_generate(args)
 
         clean_test_dataset_without_transform_ood, \
@@ -199,13 +200,17 @@ class NormalCase:
         _, \
         _ = exposure_dataset_and_transform_generate_for_cls(args)
 
-        exposure_out_test_dataset_without_transform_ood, \
-        _, \
-        _ = exposure_dataset_and_transform_generate_ood(args, poison_all_test_ood=False)
+        if args.is_our_attack:
+            exposure_out_test_dataset_without_transform_ood, \
+            _, \
+            _ = exposure_dataset_and_transform_generate_ood(args, poison_all_test_ood=False)
 
-        exposure_all_test_dataset_without_transform_ood, \
-        _, \
-        _ = exposure_dataset_and_transform_generate_ood(args, poison_all_test_ood=True)
+            exposure_all_test_dataset_without_transform_ood, \
+            _, \
+            _ = exposure_dataset_and_transform_generate_ood(args, poison_all_test_ood=True)
+        else:
+            exposure_out_test_dataset_without_transform_ood = clean_test_dataset_without_transform_ood
+            exposure_all_test_dataset_without_transform_ood = clean_test_dataset_without_transform_ood
 
         # self.count_unique_labels_of_dataset(test_dataset_without_transform_ood, "test_dataset_without_transform_ood")
 

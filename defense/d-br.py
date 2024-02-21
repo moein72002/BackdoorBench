@@ -257,6 +257,7 @@ class d_br(defense):
         parser.add_argument('--debug', action='store_true',default=False, help='debug or not')
         parser.add_argument('--print_freq', type=int, default=10, help='print frequency')
         parser.add_argument('--save_all_process', action='store_true', help='save model in each process')
+        parser.add_argument('--is_our_attack', type=bool, default=False)
 
     def set_result(self, result_file):
         attack_file = 'record/' + result_file

@@ -147,7 +147,8 @@ class NPD(defense):
         parser.add_argument("--lmd4",type=float, help="hyperparameters of loss4")
         parser.add_argument("--max_init", action='store_true', default=False, help="the norm of the bound")
         parser.add_argument("--use_residual", default="no", type=str,choices=["yes","no"], help="use residual for the polarizer layer or not")   
-        parser.add_argument("--target_class", default=0, type=int, help="target class of attacks, for evaluation only") 
+        parser.add_argument("--target_class", default=0, type=int, help="target class of attacks, for evaluation only")
+        parser.add_argument('--is_our_attack', type=bool, default=False)
          
 
     def set_result(self, result_file):

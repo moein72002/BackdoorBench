@@ -178,6 +178,7 @@ class dsam(defense):
         parser.add_argument("--rho_min", default=2.0, type=float, help="Rho parameter for SAM.")
         parser.add_argument("--alpha", default=0.0, type=float, help="Rho parameter for SAM.")
         parser.add_argument("--checkpoint_path", default=None, type=str, help="specify the checkpoint")
+        parser.add_argument('--is_our_attack', type=bool, default=False)
 
     def set_result(self, result_file):
         attack_file = 'record/' + result_file

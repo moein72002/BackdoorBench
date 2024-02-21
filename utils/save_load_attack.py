@@ -421,6 +421,7 @@ def load_new_attack_result(
 
         logging.info('key match for attack_result, processing...')
 
+        print(f"args.is_our_attack: {args.is_our_attack}")
         # model = generate_cls_model(load_file['model_name'], load_file['num_classes'])
         # model.load_state_dict(load_file['model'])
 

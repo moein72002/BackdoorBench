@@ -95,6 +95,7 @@ class ft(defense):
         #set the parameter for the ft defense
         parser.add_argument('--ratio', type=float, help='the ratio of clean data loader')
         parser.add_argument('--index', type=str, help='index of clean data')
+        parser.add_argument('--is_our_attack', type=bool, default=False)
 
     def set_result(self, result_file):
         attack_file = 'record/' + result_file

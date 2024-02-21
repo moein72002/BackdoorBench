@@ -212,6 +212,7 @@ class bnp(defense):
 		parser.add_argument('--u_num', type=float, help='the default number of u')
 		parser.add_argument('--ratio', type=float, help='the ratio of clean data loader')
 		parser.add_argument('--index', type=str, help='index of clean data')
+		parser.add_argument('--is_our_attack', type=bool, default=False)
 
 
 	def set_result(self, result_file):

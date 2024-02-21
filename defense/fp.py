@@ -74,6 +74,7 @@ class FinePrune(defense):
         parser.add_argument('--ratio', type=float, help='the ratio of clean data loader')
         parser.add_argument('--acc_ratio', type=float, help='the tolerance ration of the clean accuracy')
         parser.add_argument("--once_prune_ratio", type = float, help ="how many percent once prune. in 0 to 1")
+        parser.add_argument('--is_our_attack', type=bool, default=False)
         return parser
 
     def add_yaml_to_args(self, args):

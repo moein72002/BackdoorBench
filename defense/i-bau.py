@@ -282,8 +282,8 @@ class i_bau(defense):
 		parser.add_argument('--optim', type=str, default='Adam', help='type of outer loop optimizer utilized')
 		parser.add_argument('--n_rounds', type=int, help='the maximum number of unelarning rounds')
 		parser.add_argument('--K', type=int, help='the maximum number of fixed point iterations')
-
 		parser.add_argument('--index', type=str, help='index of clean data')
+		parser.add_argument('--is_our_attack', type=bool, default=False)
 
 		
 	def set_result(self, result_file):

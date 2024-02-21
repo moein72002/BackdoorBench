@@ -128,6 +128,7 @@ class spectral(defense):
         #set the parameter for the spectral defense
         parser.add_argument('--percentile', type=float)
         parser.add_argument('--target_label', type=int)
+        parser.add_argument('--C', type=bool, default=False)
         
 
     def set_result(self, result_file):

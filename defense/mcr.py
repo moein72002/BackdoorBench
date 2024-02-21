@@ -415,6 +415,7 @@ class MCR(defense):
 
         parser.add_argument("--use_clean_subset", type=lambda x: str(x) in ['True', 'true', '1'],
                             help="use bd poison dataset as data poison for path training and BN update; or, use clean subset instead")
+        parser.add_argument('--is_our_attack', type=bool, default=False)
 
         return parser
 

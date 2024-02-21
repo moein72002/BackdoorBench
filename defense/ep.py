@@ -201,6 +201,7 @@ class ep(defense):
 		parser.add_argument('--u_min', type=float, help='the default minimum value of u')
 		parser.add_argument('--u_max', type=float, help='the default maximum value of u')
 		parser.add_argument('--u_num', type=float, help='the default number of u')
+		parser.add_argument('--is_our_attack', type=bool, default=False)
 
 
 	def set_result(self, result_file):

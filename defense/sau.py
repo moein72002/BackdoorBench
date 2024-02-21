@@ -285,6 +285,7 @@ class sau(defense):
         ## optimization setting
         parser.add_argument('--train_mode', action='store_true',
                             default=False, help='Fix BN parameters or not. Fixing BN leads to higher ACC but also higher ASR.')
+        parser.add_argument('--is_our_attack', type=bool, default=False)
 
 
     def set_result(self, result_file):
