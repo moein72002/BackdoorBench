@@ -277,11 +277,13 @@ class NormalCase:
         clean_train_dataset_targets, \
         clean_test_dataset_with_transform, \
         clean_test_dataset_targets, \
-        test_dataset_without_transform_ood, \
+        exposure_test_dataset_without_transform_for_cls, \
+        exposure_out_test_dataset_without_transform_ood, \
+        exposure_all_test_dataset_without_transform_ood, \
         test_img_transform_ood, \
         test_label_transform_ood, \
         clean_test_dataset_with_transform_ood, \
-        clean_test_dataset_targets_ood, \
+        clean_test_dataset_targets_ood \
             = self.benign_prepare()
 
         self.stage1_results = clean_train_dataset_with_transform, \
