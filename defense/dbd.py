@@ -31,6 +31,7 @@ import shutil
 import sys
 import os
 
+from utils.ood_scores.msp import eval_step_msp_auc
 
 sys.path.append('../')
 sys.path.append(os.getcwd())
@@ -498,6 +499,21 @@ if __name__ == '__main__':
     data_clean_testset = result['clean_test']
     data_clean_loader = torch.utils.data.DataLoader(data_clean_testset, batch_size=args.batch_size, num_workers=args.num_workers,drop_last=False, shuffle=True,pin_memory=True)
 
+    data_clean_testset_ood = result['clean_test_ood']
+    data_clean_loader_ood = torch.utils.data.DataLoader(data_clean_testset_ood, batch_size=args.batch_size,
+                                                    num_workers=args.num_workers, drop_last=False, shuffle=True,
+                                                    pin_memory=True)
+
+    data_bd_out_testset_ood = result['bd_out_test_ood']
+    data_bd_out_loader_ood = torch.utils.data.DataLoader(data_bd_out_testset_ood, batch_size=args.batch_size,
+                                                        num_workers=args.num_workers, drop_last=False, shuffle=True,
+                                                        pin_memory=True)
+
+    data_bd_all_testset_ood = result['bd_all_test_ood']
+    data_bd_all_loader_ood = torch.utils.data.DataLoader(data_bd_all_testset_ood, batch_size=args.batch_size,
+                                                         num_workers=args.num_workers, drop_last=False, shuffle=True,
+                                                         pin_memory=True)
+
     clean_acc = 0
     for i, (inputs,labels, *other_info) in enumerate(data_clean_loader):  # type: ignore
         inputs, labels = inputs.to(args.device), labels.to(args.device)
@@ -521,18 +537,27 @@ if __name__ == '__main__':
 
     if not (os.path.exists(os.getcwd() + f'{save_path}/dbd/')):
         os.makedirs(os.getcwd() + f'{save_path}/dbd/')
+
+    msp_auc_result_dict = eval_step_msp_auc(
+        result_defense['model'],
+        data_clean_loader_ood,
+        data_bd_out_loader_ood,
+        data_bd_all_loader_ood
+    )
+
     torch.save(
     {
         'model_name':args.model,
         'model': result_defense['model'].cpu().state_dict(),
         'asr': asr_acc,
         'acc': clean_acc,
-        'ra': robust_acc
+        'ra': robust_acc,
+        **msp_auc_result_dict
     },
     f'./{save_path}/dbd/defense_result.pt'
     )
     # test_acc,test_asr,test_ra
-    final_result = {'model_name':args.model, 'test_acc':clean_acc.item(), 'test_asr':asr_acc.item(), 'test_ra':robust_acc.item()}
+    final_result = {'model_name':args.model, 'test_acc':clean_acc.item(), 'test_asr':asr_acc.item(), 'test_ra':robust_acc.item(), **msp_auc_result_dict}
     # to csv 
     import pandas as pd
     df = pd.DataFrame(final_result, index=[0])
