@@ -248,13 +248,6 @@ class CIFAR100_BLENDED_OOD(Dataset):
         if args.use_l2_adv_images:
             file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl"
             self.data = get_cifar100_blended_images_for_test_exposure_l2_1000(args, file_path)
-        elif args.use_just_kitty_like_blended:
-            print("use_just_kitty_like_blended in CIFAR100_BLENDED_ID")
-            cifar100_testset = torchvision.datasets.CIFAR100(root='./data', train=False, download=True, transform=None)
-            kitty_pil_image = Image.open('../resource/blended/hello_kitty.jpeg')
-            kitty_pil_image = kitty_pil_image.resize(cifar100_testset[0][0].size)
-            for i in range(len(cifar100_testset)):
-                self.data.append(Image.blend(cifar100_testset[i][0], kitty_pil_image, args.exposure_blend_rate))
 
         if args.test_jpeg_compression_defense:
             print("test_jpeg_compression_defense in CIFAR100_BLENDED_OOD")
@@ -307,13 +300,6 @@ class CIFAR10_BLENDED_FOR_CLS(Dataset):
         if args.use_l2_adv_images:
             file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl"
             self.data = get_cifar10_blended_images_for_cls_l2_1000(cifar10_testset, args, file_path)
-        elif args.use_just_kitty_like_blended:
-            print("use_just_kitty_like_blended in CIFAR10_BLENDED_ID")
-            cifar10_testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=None)
-            kitty_pil_image = Image.open('../resource/blended/hello_kitty.jpeg')
-            kitty_pil_image = kitty_pil_image.resize(cifar10_testset[0][0].size)
-            for i in range(len(cifar10_testset)):
-                self.data.append(Image.blend(cifar10_testset[i][0], kitty_pil_image, args.exposure_blend_rate))
 
         if args.test_jpeg_compression_defense:
             print("test_jpeg_compression_defense in CIFAR10_BLENDED_FOR_CLS")
@@ -468,13 +454,6 @@ class CIFAR10_BLENDED_ID(Dataset):
         if args.use_l2_adv_images:
             file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl"
             self.data = get_cifar10_blended_id_images_for_test_l2_1000(args, file_path)
-        elif args.use_just_kitty_like_blended:
-            print("use_just_kitty_like_blended in CIFAR10_BLENDED_ID")
-            cifar10_testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=None)
-            kitty_pil_image = Image.open('../resource/blended/hello_kitty.jpeg')
-            kitty_pil_image = kitty_pil_image.resize(cifar10_testset[0][0].size)
-            for i in range(len(cifar10_testset)):
-                self.data.append(Image.blend(cifar10_testset[i][0], kitty_pil_image, args.exposure_blend_rate))
 
         if args.test_jpeg_compression_defense:
             print("test_jpeg_compression_defense in CIFAR10_BLENDED_ID")
@@ -874,9 +853,7 @@ class CIFAR10_TRAIN_TARGET_CLASS(Dataset):
 
 def create_training_dataset_for_exposure_test(args, dataset_name='cifar10'):
     if dataset_name == 'cifar10':
-        if args.use_just_kitty_like_blended:
-            train_dataset = CIFAR10_TRAIN_JUST_KITTY_LIKE_BLENDED(args)
-        elif args.use_l2_adv_images:
+        if args.use_l2_adv_images:
             train_dataset = CIFAR10_TRAIN_BLENDED_L2_USE_OTHER_CLASSES_DATASET(args)
     return train_dataset
 

@@ -307,7 +307,6 @@ class abl(defense):
         parser.add_argument('--test_gmm5_auc', type=bool, default=False)
         parser.add_argument('--test_gmm20_auc', type=bool, default=False)
         parser.add_argument('--use_rotation_transform', type=bool, default=False)
-        parser.add_argument('--use_just_kitty_like_blended', type=bool, default=False)
         parser.add_argument('--test_jpeg_compression_defense', type=bool, default=False)
         parser.add_argument('--use_jpeg_compress_in_training', type=bool, default=False)
         parser.add_argument('--test_shrink_pad', type=bool, default=False)

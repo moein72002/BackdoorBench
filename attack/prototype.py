@@ -177,7 +177,6 @@ class NormalCase:
 
         assert 'args' in self.__dict__
 
-        self.args.use_just_kitty_like_blended = False
         self.args.test_jpeg_compression_defense = False
 
         args = self.args
