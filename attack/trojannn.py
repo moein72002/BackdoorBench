@@ -160,7 +160,7 @@ class TrojanNN(BadNet):
         clean_train_dataset_targets, \
         clean_test_dataset_with_transform, \
         clean_test_dataset_targets, \
-        test_dataset_without_transform_ood, \
+        clean_test_dataset_without_transform_ood, \
         test_img_transform_ood, \
         test_label_transform_ood, \
         clean_test_dataset_with_transform_ood, \
@@ -294,17 +294,17 @@ class TrojanNN(BadNet):
         bd_out_test_poison_index_ood = np.concatenate((np.zeros(10000), np.ones(10000)))
 
         bd_out_test_dataset_ood = prepro_cls_DatasetBD_v2(
-            deepcopy(test_dataset_without_transform_ood),
+            deepcopy(clean_test_dataset_without_transform_ood),
             poison_indicator=bd_out_test_poison_index_ood,
             bd_image_pre_transform=test_bd_img_transform,  # TODO: check here
             bd_label_pre_transform=bd_label_transform_ood,
             save_folder_path=f"{args.save_path}/bd_test_dataset",
         )
 
-        bd_all_test_poison_index_ood = np.concatenate(np.ones(20000))
+        bd_all_test_poison_index_ood = np.ones(20000)
 
         bd_all_test_dataset_ood = prepro_cls_DatasetBD_v2(
-            deepcopy(test_dataset_without_transform_ood),
+            deepcopy(clean_test_dataset_without_transform_ood),
             poison_indicator=bd_all_test_poison_index_ood,
             bd_image_pre_transform=test_bd_img_transform,  # TODO: check here
             bd_label_pre_transform=bd_label_transform_ood,

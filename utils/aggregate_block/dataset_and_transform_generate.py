@@ -772,38 +772,6 @@ class SIMPLE_DATASET_FOR_VISUALIZATION(Dataset):
             img = self.tranform(img)
         return img, label
 
-class CIFAR10_BLENDED_L2_USE_CHEAT_EXPOSURE_DATASET(Dataset):
-    def __init__(self, args, transform=None, target_label=0):
-        self.transform = transform
-
-        cifar10_train = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=None)
-        with open("../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl", 'rb') as file:
-            l2_adv_saved_images = pickle.load(file)
-
-        self.data = cifar10_train.data
-        self.targets = cifar10_train.targets
-
-        poison_indices = random.sample(range(len(self.data)), int(args.pratio * len(self.data)))
-        print(f"len(poison_indices): {len(poison_indices)}")
-
-        cifar100_train = torchvision.datasets.CIFAR100(root='./data', train=True, download=True, transform=None)
-        random_cheat_exposure_indices = random.sample(range(len(cifar100_train)), int(args.pratio * len(self.data)))
-
-        print(f"Image.blend(cifar10_train, random.choice(l2_adv_saved_images), {args.exposure_blend_rate})")
-        for idx, random_cheat_exposure_index in zip(poison_indices, random_cheat_exposure_indices):
-            self.data[idx] = Image.blend(cifar100_train[random_cheat_exposure_index][0], random.choice(l2_adv_saved_images), args.exposure_blend_rate)  # Blend two images with ratio 0.5
-            self.targets[idx] = target_label
-
-    def __len__(self):
-        return len(self.data)
-
-    def __getitem__(self, idx):
-        img = self.data[idx]
-        label = self.targets[idx]
-        if self.transform:
-            img = self.tranform(img)
-        return img, label
-
 class CIFAR10_TRAIN_JUST_KITTY_LIKE_BLENDED(Dataset):
     def __init__(self, args, transform=None, target_label=0):
         self.transform = transform

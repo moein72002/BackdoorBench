@@ -69,7 +69,6 @@ class BadNet(NormalCase):
                             help='path for yaml file provide additional default attributes')
         parser.add_argument('--use_l2_adv_images', type=bool, default=False)
         parser.add_argument('--use_rotation_transform', type=bool, default=False)
-        parser.add_argument('--use_cheat_exposure', type=bool, default=False)
         parser.add_argument('--cos_t_max', type=int, default=100)
         parser.add_argument('--use_jpeg_compress_in_training', type=bool, default=False)
         return parser
@@ -110,9 +109,7 @@ class BadNet(NormalCase):
         clean_train_dataset_targets, \
         clean_test_dataset_with_transform, \
         clean_test_dataset_targets, \
-        exposure_test_dataset_without_transform_for_cls, \
-        exposure_out_test_dataset_without_transform_ood, \
-        exposure_all_test_dataset_without_transform_ood, \
+        clean_test_dataset_without_transform_ood, \
         test_img_transform_ood, \
         test_label_transform_ood, \
         clean_test_dataset_with_transform_ood, \
@@ -138,9 +135,6 @@ class BadNet(NormalCase):
         torch.save(train_poison_index,
                    args.save_path + '/train_poison_index_list.pickle',
                    )
-
-        # bd_train_dataset will be clean for exposure_test
-        train_poison_index = np.zeros(len(train_dataset_without_transform))
 
         ### generate train dataset for backdoor attack
         bd_train_dataset = prepro_cls_DatasetBD_v2(
@@ -183,68 +177,40 @@ class BadNet(NormalCase):
             np.where(test_poison_index == 1)[0]
         )
 
-        test_poison_index_for_cls = np.zeros(len(exposure_test_dataset_without_transform_for_cls))
-
-        self.count_unique_labels_of_dataset(exposure_test_dataset_without_transform_for_cls,
-                                            "exposure_test_dataset_without_transform_for_cls")
-        visualize_random_samples_from_clean_dataset(exposure_test_dataset_without_transform_for_cls,
-                                                         "exposure_test_dataset_without_transform_for_cls")
-
-        bd_test_dataset_for_cls = prepro_cls_DatasetBD_v2(
-            deepcopy(exposure_test_dataset_without_transform_for_cls),
-            poison_indicator=test_poison_index_for_cls,
-            bd_image_pre_transform=test_bd_img_transform,  # TODO: check here
-            bd_label_pre_transform=bd_label_transform_for_cls,
-            save_folder_path=f"{args.save_path}/bd_test_dataset_ood",
-        )
-
-        self.count_unique_labels_of_preprocessed_dataset(bd_test_dataset_for_cls, "bd_test_dataset_for_cls")
-
-        test_poison_index_ood = np.zeros(len(exposure_out_test_dataset_without_transform_ood))
+        bd_out_test_poison_index_ood = np.concatenate((np.zeros(10000), np.ones(10000)))
 
         self.count_unique_labels_of_dataset(clean_test_dataset_with_transform_ood.wrapped_dataset,
                                             "clean_test_dataset_with_transform_ood.wrapped_dataset")
         visualize_random_samples_from_clean_dataset(clean_test_dataset_with_transform_ood.wrapped_dataset,
                                                          "clean_test_dataset_with_transform_ood.wrapped_dataset")
-        self.count_unique_labels_of_dataset(exposure_out_test_dataset_without_transform_ood, "exposure_out_test_dataset_without_transform_ood")
-        visualize_random_samples_from_clean_dataset(exposure_out_test_dataset_without_transform_ood, "exposure_out_test_dataset_without_transform_ood")
-
-        self.count_unique_labels_of_dataset(exposure_all_test_dataset_without_transform_ood, "exposure_all_test_dataset_without_transform_ood")
-        visualize_random_samples_from_clean_dataset(exposure_all_test_dataset_without_transform_ood, "exposure_all_test_dataset_without_transform_ood")
 
         bd_out_test_dataset_ood = prepro_cls_DatasetBD_v2(
-            deepcopy(exposure_out_test_dataset_without_transform_ood),
-            poison_indicator=test_poison_index_ood,
+            deepcopy(clean_test_dataset_without_transform_ood),
+            poison_indicator=bd_out_test_poison_index_ood,
             bd_image_pre_transform=test_bd_img_transform, # TODO: check here
             bd_label_pre_transform=bd_label_transform_ood,
             save_folder_path=f"{args.save_path}/bd_test_dataset_ood",
         )
 
+        visualize_random_samples_from_bd_dataset(bd_out_test_dataset_ood, "bd_out_test_dataset_ood")
         self.count_unique_labels_of_preprocessed_dataset(bd_out_test_dataset_ood, "bd_out_test_dataset_ood")
 
+        bd_all_test_poison_index_ood = np.ones(20000)
+
         bd_all_test_dataset_ood = prepro_cls_DatasetBD_v2(
-            deepcopy(exposure_all_test_dataset_without_transform_ood),
-            poison_indicator=test_poison_index_ood,
+            deepcopy(clean_test_dataset_without_transform_ood),
+            poison_indicator=bd_all_test_poison_index_ood,
             bd_image_pre_transform=test_bd_img_transform,  # TODO: check here
             bd_label_pre_transform=bd_label_transform_ood,
             save_folder_path=f"{args.save_path}/bd_test_dataset_ood",
         )
 
+        visualize_random_samples_from_bd_dataset(bd_all_test_dataset_ood, "bd_all_test_dataset_ood")
         self.count_unique_labels_of_preprocessed_dataset(bd_all_test_dataset_ood, "bd_all_test_dataset_ood")
 
-        # TODO: check here
-        # bd_test_dataset_ood.subset(
-        #     np.where(test_poison_index_ood == 1)[0]
-        # )
 
         bd_test_dataset_with_transform = dataset_wrapper_with_transform(
             bd_test_dataset,
-            test_img_transform,
-            test_label_transform,
-        )
-
-        bd_test_dataset_with_transform_for_cls = dataset_wrapper_with_transform(
-            bd_test_dataset_for_cls,
             test_img_transform,
             test_label_transform,
         )
@@ -266,7 +232,6 @@ class BadNet(NormalCase):
                               bd_train_dataset_with_transform, \
                               bd_test_dataset_with_transform, \
                               clean_test_dataset_with_transform_ood, \
-                              bd_test_dataset_with_transform_for_cls, \
                               bd_out_test_dataset_with_transform_ood, \
                               bd_all_test_dataset_with_transform_ood
 
@@ -280,7 +245,6 @@ class BadNet(NormalCase):
         bd_train_dataset_with_transform, \
         bd_test_dataset_with_transform, \
         clean_test_dataset_with_transform_ood, \
-        bd_test_dataset_with_transform_for_cls, \
         bd_out_test_dataset_with_transform_ood, \
         bd_all_test_dataset_with_transform_ood, \
             = self.stage1_results
@@ -355,9 +319,7 @@ class BadNet(NormalCase):
             bd_test=bd_test_dataset_with_transform,
             save_path=args.save_path,
             bd_out_test_ood=bd_out_test_dataset_with_transform_ood,
-            bd_all_test_ood=bd_all_test_dataset_with_transform_ood,
-            exposure_blend_rate=args.exposure_blend_rate,
-            use_l2_adv_images=args.use_l2_adv_images
+            bd_all_test_ood=bd_all_test_dataset_with_transform_ood
         )
 
 

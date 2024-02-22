@@ -240,23 +240,40 @@ class NormalCase:
 
         clean_test_dataset_targets_ood = get_labels(clean_test_dataset_without_transform_ood)
 
-        return train_dataset_without_transform, \
-               train_img_transform, \
-               train_label_transform, \
-               test_dataset_without_transform, \
-               test_img_transform, \
-               test_label_transform, \
-               clean_train_dataset_with_transform, \
-               clean_train_dataset_targets, \
-               clean_test_dataset_with_transform, \
-               clean_test_dataset_targets, \
-               exposure_test_dataset_without_transform_for_cls, \
-               exposure_out_test_dataset_without_transform_ood, \
-               exposure_all_test_dataset_without_transform_ood, \
-               test_img_transform_ood, \
-               test_label_transform_ood, \
-               clean_test_dataset_with_transform_ood, \
-               clean_test_dataset_targets_ood
+        if args.is_our_attack:
+            return train_dataset_without_transform, \
+                   train_img_transform, \
+                   train_label_transform, \
+                   test_dataset_without_transform, \
+                   test_img_transform, \
+                   test_label_transform, \
+                   clean_train_dataset_with_transform, \
+                   clean_train_dataset_targets, \
+                   clean_test_dataset_with_transform, \
+                   clean_test_dataset_targets, \
+                   exposure_test_dataset_without_transform_for_cls, \
+                   exposure_out_test_dataset_without_transform_ood, \
+                   exposure_all_test_dataset_without_transform_ood, \
+                   test_img_transform_ood, \
+                   test_label_transform_ood, \
+                   clean_test_dataset_with_transform_ood, \
+                   clean_test_dataset_targets_ood
+        else:
+            return train_dataset_without_transform, \
+                   train_img_transform, \
+                   train_label_transform, \
+                   test_dataset_without_transform, \
+                   test_img_transform, \
+                   test_label_transform, \
+                   clean_train_dataset_with_transform, \
+                   clean_train_dataset_targets, \
+                   clean_test_dataset_with_transform, \
+                   clean_test_dataset_targets, \
+                   clean_test_dataset_without_transform_ood, \
+                   test_img_transform_ood, \
+                   test_label_transform_ood, \
+                   clean_test_dataset_with_transform_ood, \
+                   clean_test_dataset_targets_ood
 
     def stage1_non_training_data_prepare(self):
 
@@ -278,6 +295,7 @@ class NormalCase:
         clean_test_dataset_with_transform, \
         clean_test_dataset_targets, \
         exposure_test_dataset_without_transform_for_cls, \
+        clean_test_dataset_without_transform_ood, \
         exposure_out_test_dataset_without_transform_ood, \
         exposure_all_test_dataset_without_transform_ood, \
         test_img_transform_ood, \
