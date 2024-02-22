@@ -359,7 +359,8 @@ class Attack(NormalCase):
             bd_out_test_ood=bd_out_test_dataset_with_transform_ood,
             bd_all_test_ood=bd_all_test_dataset_with_transform_ood,
             exposure_blend_rate=args.exposure_blend_rate,
-            use_l2_adv_images=args.use_l2_adv_images
+            use_l2_adv_images=args.use_l2_adv_images,
+            is_our_attack=args.is_our_attack
         )
 
 

@@ -90,7 +90,9 @@ def save_attack_result(
     save_path : str,
     bd_out_test_ood : prepro_cls_DatasetBD_v2,
     bd_all_test_ood : prepro_cls_DatasetBD_v2,
+    bd_test_for_cls : prepro_cls_DatasetBD_v2 = None,
     bd_train : Optional[prepro_cls_DatasetBD_v2] = None, # MUST be dataset without transform
+    is_our_attack = False,
     use_l2_adv_images = False,
     exposure_blend_rate = 0.25,
 ):
@@ -114,6 +116,12 @@ def save_attack_result(
 
     # count_unique_labels_of_preprocessed_dataset(bd_test_ood, "bd_test_ood")
 
+    our_attack_special_save_arguments = {
+        'bd_test_for_cls': bd_test_for_cls.retrieve_state(),
+        'exposure_blend_rate': exposure_blend_rate,
+        'use_l2_adv_images': use_l2_adv_images
+    }
+
     save_dict = {
             'model_name': model_name,
             'num_classes' : num_classes,
@@ -123,12 +131,13 @@ def save_attack_result(
             'clean_data': clean_data,
             'bd_train': bd_train.retrieve_state() if bd_train is not None else None,
             'bd_test': bd_test.retrieve_state(),
-            'bd_test_for_cls': bd_test_for_cls.retrieve_state(),
             'bd_out_test_ood': bd_out_test_ood.retrieve_state(),
             'bd_all_test_ood': bd_all_test_ood.retrieve_state(),
-            'exposure_blend_rate': exposure_blend_rate,
-            'use_l2_adv_images': use_l2_adv_images
+            'is_our_attack': is_our_attack
         }
+
+    if is_our_attack:
+        save_dict.update(our_attack_special_save_arguments)
 
     logging.info(f"saving...")
     # logging.debug(f"location : {save_path}/attack_result.pt") #, content summary :{pformat(summary_dict(save_dict))}")
@@ -420,6 +429,9 @@ def load_new_attack_result(
 
         logging.info('key match for attack_result, processing...')
 
+        if 'is_our_attack' in load_file.__dict__:
+            args.is_our_attack = load_file.is_our_attack
+
         print(f"args.is_our_attack: {args.is_our_attack}")
         # model = generate_cls_model(load_file['model_name'], load_file['num_classes'])
         # model.load_state_dict(load_file['model'])
@@ -476,49 +488,124 @@ def load_new_attack_result(
             exposure_out_test_dataset_without_transform_ood = clean_test_dataset_without_transform_ood
             exposure_all_test_dataset_without_transform_ood = clean_test_dataset_without_transform_ood
 
-        clean_setting.test_jpeg_compression_defense = True
-        jpeg_compress_clean_test_dataset_without_transform_ood, \
-        _, \
-        _ = clean_dataset_and_transform_generate_ood(clean_setting)
-
-        jpeg_compress_exposure_test_dataset_without_transform_for_cls, \
-        _, \
-        _ = exposure_dataset_and_transform_generate_for_cls(clean_setting)
-
-        if args.is_our_attack:
-            jpeg_compress_exposure_out_test_dataset_without_transform_ood, \
+        jpeg_compress_results_dict = {}
+        if 'test_jpeg_compression_defense' in args.__dict__ and args.test_jpeg_compression_defense:
+            clean_setting.test_jpeg_compression_defense = True
+            clean_setting.test_shrink_pad = False
+            jpeg_compress_clean_test_dataset_without_transform_ood, \
             _, \
-            _ = exposure_dataset_and_transform_generate_ood(clean_setting, poison_all_test_ood=False)
+            _ = clean_dataset_and_transform_generate_ood(clean_setting)
 
-            jpeg_compress_exposure_all_test_dataset_without_transform_ood, \
+            jpeg_compress_exposure_test_dataset_without_transform_for_cls, \
             _, \
-            _ = exposure_dataset_and_transform_generate_ood(clean_setting, poison_all_test_ood=True)
-        else:
-            jpeg_compress_exposure_out_test_dataset_without_transform_ood = jpeg_compress_clean_test_dataset_without_transform_ood
-            jpeg_compress_exposure_all_test_dataset_without_transform_ood = jpeg_compress_clean_test_dataset_without_transform_ood
+            _ = exposure_dataset_and_transform_generate_for_cls(clean_setting)
 
-        clean_setting.test_jpeg_compression_defense = False
-        clean_setting.test_shrink_pad = True
+            if args.is_our_attack:
+                jpeg_compress_exposure_out_test_dataset_without_transform_ood, \
+                _, \
+                _ = exposure_dataset_and_transform_generate_ood(clean_setting, poison_all_test_ood=False)
 
-        shrink_pad_clean_test_dataset_without_transform_ood, \
-        _, \
-        _ = clean_dataset_and_transform_generate_ood(clean_setting)
+                jpeg_compress_exposure_all_test_dataset_without_transform_ood, \
+                _, \
+                _ = exposure_dataset_and_transform_generate_ood(clean_setting, poison_all_test_ood=True)
+            else:
+                jpeg_compress_exposure_out_test_dataset_without_transform_ood = jpeg_compress_clean_test_dataset_without_transform_ood
+                jpeg_compress_exposure_all_test_dataset_without_transform_ood = jpeg_compress_clean_test_dataset_without_transform_ood
 
-        shrink_pad_exposure_test_dataset_without_transform_for_cls, \
-        _, \
-        _ = exposure_dataset_and_transform_generate_for_cls(clean_setting)
+            jpeg_compress_clean_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
+                jpeg_compress_clean_test_dataset_without_transform_ood,
+                test_img_transform_ood,
+                test_label_transform_ood,
+            )
 
-        if args.is_our_attack:
-            shrink_pad_exposure_out_test_dataset_without_transform_ood, \
+            jpeg_compress_bd_test_dataset_for_cls = prepro_cls_DatasetBD_v2(jpeg_compress_exposure_test_dataset_without_transform_for_cls)
+            jpeg_compress_bd_out_test_dataset_ood = prepro_cls_DatasetBD_v2(jpeg_compress_exposure_out_test_dataset_without_transform_ood)
+            jpeg_compress_bd_all_test_dataset_ood = prepro_cls_DatasetBD_v2(jpeg_compress_exposure_all_test_dataset_without_transform_ood)
+
+            jpeg_compress_bd_test_dataset_with_transform_for_cls = dataset_wrapper_with_transform(
+                jpeg_compress_bd_test_dataset_for_cls,
+                test_img_transform,
+                test_label_transform,
+            )
+
+            jpeg_compress_bd_out_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
+                jpeg_compress_bd_out_test_dataset_ood,
+                test_img_transform_ood,
+                test_label_transform_ood,
+            )
+
+            jpeg_compress_bd_all_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
+                jpeg_compress_bd_all_test_dataset_ood,
+                test_img_transform_ood,
+                test_label_transform_ood,
+            )
+
+            jpeg_compress_results_dict = {
+                'jpeg_compress_clean_test_ood': jpeg_compress_clean_test_dataset_with_transform_ood,
+                'jpeg_compress_bd_test_for_cls': jpeg_compress_bd_test_dataset_with_transform_for_cls,
+                'jpeg_compress_bd_out_test_ood': jpeg_compress_bd_out_test_dataset_with_transform_ood,
+                'jpeg_compress_bd_all_test_ood': jpeg_compress_bd_all_test_dataset_with_transform_ood,
+            }
+
+        shrink_pad_results_dict = {}
+        if 'test_shrink_pad' in args.__dict__ and args.test_shrink_pad:
+            clean_setting.test_jpeg_compression_defense = False
+            clean_setting.test_shrink_pad = True
+
+            shrink_pad_clean_test_dataset_without_transform_ood, \
             _, \
-            _ = exposure_dataset_and_transform_generate_ood(clean_setting, poison_all_test_ood=False)
+            _ = clean_dataset_and_transform_generate_ood(clean_setting)
 
-            shrink_pad_exposure_all_test_dataset_without_transform_ood, \
+            shrink_pad_exposure_test_dataset_without_transform_for_cls, \
             _, \
-            _ = exposure_dataset_and_transform_generate_ood(clean_setting, poison_all_test_ood=True)
-        else:
-            shrink_pad_exposure_out_test_dataset_without_transform_ood = shrink_pad_clean_test_dataset_without_transform_ood
-            shrink_pad_exposure_all_test_dataset_without_transform_ood = shrink_pad_clean_test_dataset_without_transform_ood
+            _ = exposure_dataset_and_transform_generate_for_cls(clean_setting)
+
+            if args.is_our_attack:
+                shrink_pad_exposure_out_test_dataset_without_transform_ood, \
+                _, \
+                _ = exposure_dataset_and_transform_generate_ood(clean_setting, poison_all_test_ood=False)
+
+                shrink_pad_exposure_all_test_dataset_without_transform_ood, \
+                _, \
+                _ = exposure_dataset_and_transform_generate_ood(clean_setting, poison_all_test_ood=True)
+            else:
+                shrink_pad_exposure_out_test_dataset_without_transform_ood = shrink_pad_clean_test_dataset_without_transform_ood
+                shrink_pad_exposure_all_test_dataset_without_transform_ood = shrink_pad_clean_test_dataset_without_transform_ood
+
+            shrink_pad_clean_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
+                shrink_pad_clean_test_dataset_without_transform_ood,
+                test_img_transform_ood,
+                test_label_transform_ood,
+            )
+
+            shrink_pad_bd_test_dataset_for_cls = prepro_cls_DatasetBD_v2(shrink_pad_exposure_test_dataset_without_transform_for_cls)
+            shrink_pad_bd_out_test_dataset_ood = prepro_cls_DatasetBD_v2(shrink_pad_exposure_out_test_dataset_without_transform_ood)
+            shrink_pad_bd_all_test_dataset_ood = prepro_cls_DatasetBD_v2(shrink_pad_exposure_all_test_dataset_without_transform_ood)
+
+            shrink_pad_bd_test_dataset_with_transform_for_cls = dataset_wrapper_with_transform(
+                shrink_pad_bd_test_dataset_for_cls,
+                test_img_transform,
+                test_label_transform,
+            )
+
+            shrink_pad_bd_out_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
+                shrink_pad_bd_out_test_dataset_ood,
+                test_img_transform_ood,
+                test_label_transform_ood,
+            )
+
+            shrink_pad_bd_all_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
+                shrink_pad_bd_all_test_dataset_ood,
+                test_img_transform_ood,
+                test_label_transform_ood,
+            )
+
+            shrink_pad_results_dict = {
+                'shrink_pad_clean_test_ood': shrink_pad_clean_test_dataset_with_transform_ood,
+                'shrink_pad_bd_test_for_cls': shrink_pad_bd_test_dataset_with_transform_for_cls,
+                'shrink_pad_bd_out_test_ood': shrink_pad_bd_out_test_dataset_with_transform_ood,
+                'shrink_pad_bd_all_test_ood': shrink_pad_bd_all_test_dataset_with_transform_ood,
+            }
 
         clean_train_dataset_with_transform = dataset_wrapper_with_transform(
             clean_train_dataset_without_transform,
@@ -538,17 +625,6 @@ def load_new_attack_result(
             test_label_transform_ood,
         )
 
-        jpeg_compress_clean_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
-            jpeg_compress_clean_test_dataset_without_transform_ood,
-            test_img_transform_ood,
-            test_label_transform_ood,
-        )
-
-        shrink_pad_clean_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
-            shrink_pad_clean_test_dataset_without_transform_ood,
-            test_img_transform_ood,
-            test_label_transform_ood,
-        )
 
         if load_file['bd_train'] is not None:
             if args.is_our_attack:
@@ -583,14 +659,6 @@ def load_new_attack_result(
         bd_out_test_dataset_ood = prepro_cls_DatasetBD_v2(exposure_out_test_dataset_without_transform_ood)
         bd_all_test_dataset_ood = prepro_cls_DatasetBD_v2(exposure_all_test_dataset_without_transform_ood)
 
-        jpeg_compress_bd_test_dataset_for_cls = prepro_cls_DatasetBD_v2(jpeg_compress_exposure_test_dataset_without_transform_for_cls)
-        jpeg_compress_bd_out_test_dataset_ood = prepro_cls_DatasetBD_v2(jpeg_compress_exposure_out_test_dataset_without_transform_ood)
-        jpeg_compress_bd_all_test_dataset_ood = prepro_cls_DatasetBD_v2(jpeg_compress_exposure_all_test_dataset_without_transform_ood)
-
-        shrink_pad_bd_test_dataset_for_cls = prepro_cls_DatasetBD_v2(shrink_pad_exposure_test_dataset_without_transform_for_cls)
-        shrink_pad_bd_out_test_dataset_ood = prepro_cls_DatasetBD_v2(shrink_pad_exposure_out_test_dataset_without_transform_ood)
-        shrink_pad_bd_all_test_dataset_ood = prepro_cls_DatasetBD_v2(shrink_pad_exposure_all_test_dataset_without_transform_ood)
-
         if not args.just_test_exposure_ood:
             bd_test_dataset_for_cls.set_state(
                 load_file['bd_test_for_cls']
@@ -620,42 +688,6 @@ def load_new_attack_result(
             test_label_transform_ood,
         )
 
-        jpeg_compress_bd_test_dataset_with_transform_for_cls = dataset_wrapper_with_transform(
-            jpeg_compress_bd_test_dataset_for_cls,
-            test_img_transform,
-            test_label_transform,
-        )
-
-        jpeg_compress_bd_out_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
-            jpeg_compress_bd_out_test_dataset_ood,
-            test_img_transform_ood,
-            test_label_transform_ood,
-        )
-
-        jpeg_compress_bd_all_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
-            jpeg_compress_bd_all_test_dataset_ood,
-            test_img_transform_ood,
-            test_label_transform_ood,
-        )
-
-        shrink_pad_bd_test_dataset_with_transform_for_cls = dataset_wrapper_with_transform(
-            shrink_pad_bd_test_dataset_for_cls,
-            test_img_transform,
-            test_label_transform,
-        )
-
-        shrink_pad_bd_out_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
-            shrink_pad_bd_out_test_dataset_ood,
-            test_img_transform_ood,
-            test_label_transform_ood,
-        )
-
-        shrink_pad_bd_all_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
-            shrink_pad_bd_all_test_dataset_ood,
-            test_img_transform_ood,
-            test_label_transform_ood,
-        )
-
         new_dict = copy.deepcopy(load_file['model'])
         for k, v in load_file['model'].items():
             if k.startswith('module.'):
@@ -671,18 +703,12 @@ def load_new_attack_result(
                 'bd_train': bd_train_dataset_with_transform,
                 'bd_test': bd_test_dataset_with_transform,
                 'clean_test_ood': clean_test_dataset_with_transform_ood,
-                'jpeg_compress_clean_test_ood': jpeg_compress_clean_test_dataset_with_transform_ood,
-                'shrink_pad_clean_test_ood': shrink_pad_clean_test_dataset_with_transform_ood,
                 'bd_test_for_cls': bd_test_dataset_with_transform_for_cls,
                 'bd_out_test_ood': bd_out_test_dataset_with_transform_ood,
                 'bd_all_test_ood': bd_all_test_dataset_with_transform_ood,
-                'jpeg_compress_bd_test_for_cls': jpeg_compress_bd_test_dataset_with_transform_for_cls,
-                'jpeg_compress_bd_out_test_ood': jpeg_compress_bd_out_test_dataset_with_transform_ood,
-                'jpeg_compress_bd_all_test_ood': jpeg_compress_bd_all_test_dataset_with_transform_ood,
-                'shrink_pad_bd_test_for_cls': shrink_pad_bd_test_dataset_with_transform_for_cls,
-                'shrink_pad_bd_out_test_ood': shrink_pad_bd_out_test_dataset_with_transform_ood,
-                'shrink_pad_bd_all_test_ood': shrink_pad_bd_all_test_dataset_with_transform_ood,
-                'exposure_blend_rate': exposure_blend_rate
+                'exposure_blend_rate': exposure_blend_rate,
+                **jpeg_compress_results_dict,
+                **shrink_pad_results_dict
             }
 
         if 'clean_train' in load_dict:

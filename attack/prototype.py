@@ -73,7 +73,7 @@ class NormalCase:
         parser.add_argument('--git_hash', type=str,
                             help='git hash number, in order to find which version of code is used')
         parser.add_argument("--yaml_path", type=str, default="../config/attack/prototype/cifar10.yaml")
-        parser.add_argument("--exposure_blend_rate", type=float, default=0.5)
+        parser.add_argument("--exposure_blend_rate", type=float, default=0.25)
         parser.add_argument("--test_every_epoch", type=str, default="false")
         parser.add_argument("--clean_train_model", type=bool, default=False)
         parser.add_argument("--is_our_attack", type=bool, default=False)
