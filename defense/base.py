@@ -62,14 +62,6 @@ class defense(object):
         data_clean_testset.wrap_img_transform = test_tran
         clean_test_loader = DataLoader(data_clean_testset, batch_size=args.batch_size, num_workers=args.num_workers,
                                        drop_last=False, shuffle=True, pin_memory=True)
-        data_bd_testset_for_cls = self.result['bd_test_for_cls']
-        visualize_random_samples_from_bd_dataset(data_bd_testset_for_cls.wrapped_dataset,
-                                                 "data_bd_testset_for_cls.wrapped_dataset")
-        data_bd_testset_for_cls.wrap_img_transform = test_tran
-        bd_test_loader_for_cls = torch.utils.data.DataLoader(data_bd_testset_for_cls, batch_size=self.args.batch_size,
-                                                             num_workers=self.args.num_workers, drop_last=False,
-                                                             shuffle=True,
-                                                             pin_memory=args.pin_memory)
         data_bd_out_testset_ood = self.result['bd_out_test_ood']
         visualize_random_samples_from_bd_dataset(data_bd_out_testset_ood.wrapped_dataset,
                                                  "data_bd_out_testset_ood.wrapped_dataset")
@@ -97,9 +89,19 @@ class defense(object):
         test_dataloader_dict["clean_test_dataloader"] = clean_test_loader
         test_dataloader_dict["bd_test_dataloader"] = poison_test_loader
         test_dataloader_dict["clean_test_dataloader_ood"] = clean_test_loader_ood
-        test_dataloader_dict["bd_test_dataloader_for_cls"] = bd_test_loader_for_cls
         test_dataloader_dict["bd_out_test_dataloader_ood"] = bd_out_test_loader_ood
         test_dataloader_dict["bd_all_test_dataloader_ood"] = bd_all_test_loader_ood
+        if 'bd_test_for_cls' in self.result.__dict__:
+            data_bd_testset_for_cls = self.result['bd_test_for_cls']
+            visualize_random_samples_from_bd_dataset(data_bd_testset_for_cls.wrapped_dataset,
+                                                     "data_bd_testset_for_cls.wrapped_dataset")
+            data_bd_testset_for_cls.wrap_img_transform = test_tran
+            bd_test_loader_for_cls = torch.utils.data.DataLoader(data_bd_testset_for_cls,
+                                                                 batch_size=self.args.batch_size,
+                                                                 num_workers=self.args.num_workers, drop_last=False,
+                                                                 shuffle=True,
+                                                                 pin_memory=args.pin_memory)
+            test_dataloader_dict["bd_test_dataloader_for_cls"] = bd_test_loader_for_cls
         return test_dataloader_dict
 
 

@@ -744,17 +744,7 @@ class nad(defense):
         trainloader = data_loader
         
         test_tran = get_transform(self.args.dataset, *([self.args.input_height,self.args.input_width]) , train = False)
-        data_bd_testset = self.result['bd_test']
-        data_bd_testset.wrap_img_transform = test_tran
-        data_bd_loader = torch.utils.data.DataLoader(data_bd_testset, batch_size=self.args.batch_size, num_workers=self.args.num_workers,drop_last=False, shuffle=True,pin_memory=args.pin_memory)
-
-        data_clean_testset = self.result['clean_test']
-        data_clean_testset.wrap_img_transform = test_tran
-        data_clean_loader = torch.utils.data.DataLoader(data_clean_testset, batch_size=self.args.batch_size, num_workers=self.args.num_workers,drop_last=False, shuffle=True,pin_memory=args.pin_memory)
-        
-        test_dataloader_dict = {}
-        test_dataloader_dict["clean_test_dataloader"] = data_clean_loader
-        test_dataloader_dict["bd_test_dataloader"] = data_bd_loader
+        test_dataloader_dict = self.get_test_data_loaders_dict(args, test_tran)
 
         ### train the teacher model
         if args.teacher_model_loc is not None: 
@@ -766,8 +756,11 @@ class nad(defense):
             optimizer_ft, scheduler_ft = argparser_opt_scheduler(teacher, self.args)
             self.trainer.train_with_test_each_epoch_on_mix(
                 trainloader,
-                data_clean_loader,
-                data_bd_loader,
+                test_dataloader_dict["clean_test_dataloader"],
+                test_dataloader_dict["bd_test_dataloader"],
+                test_dataloader_dict["clean_test_dataloader_ood"],
+                test_dataloader_dict["bd_out_test_dataloader_ood"],
+                test_dataloader_dict["bd_all_test_dataloader_ood"],
                 args.te_epochs,
                 criterion = criterionCls,
                 optimizer = optimizer_ft,

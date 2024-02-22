@@ -1621,15 +1621,6 @@ class PureCleanModelTrainer(ModelTrainerCLS_v2):
             bd_test_epoch_poison_indicator_list, \
             bd_test_epoch_original_targets_list = self.test_given_dataloader_on_mix(test_dataloader_dict["bd_test_dataloader"], verbose=1)
 
-            bd_metrics_for_cls, \
-            _, \
-            _, \
-            _, \
-            _, \
-            _ = self.test_given_dataloader_on_mix(
-                test_dataloader_dict["bd_test_dataloader_for_cls"], verbose=1)
-
-            bd_test_acc_for_cls = bd_metrics_for_cls["test_acc"]
 
             data_clean_loader_ood = test_dataloader_dict["clean_test_dataloader_ood"]
             data_bd_out_loader_ood = test_dataloader_dict["bd_out_test_dataloader_ood"]
@@ -1657,7 +1648,6 @@ class PureCleanModelTrainer(ModelTrainerCLS_v2):
                     "test_acc" : test_acc,
                     "test_asr" : test_asr,
                     "test_ra" : test_ra,
-                    "bd_test_acc_for_cls": bd_test_acc_for_cls,
                     **msp_auc_result_dict
                 }
             )
