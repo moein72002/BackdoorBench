@@ -5,6 +5,9 @@ import torch
 import torch.nn as nn
 import math
 import shutil
+
+from utils.ood_scores.msp import eval_step_msp_auc
+
 sys.path.append('../')
 sys.path.append(os.getcwd())
 
@@ -202,6 +205,27 @@ class FinePrune(defense):
                                                      num_workers=args.num_workers, drop_last=False, shuffle=True,
                                                      pin_memory=args.pin_memory)
 
+        clean_test_dataset_with_transform_ood = attack_result['clean_test_ood']
+        data_clean_testset_ood = clean_test_dataset_with_transform_ood
+        clean_test_dataloader_ood = torch.utils.data.DataLoader(data_clean_testset_ood, batch_size=args.batch_size,
+                                                            num_workers=args.num_workers, drop_last=False, shuffle=True,
+                                                            pin_memory=args.pin_memory)
+
+
+        bd_out_test_dataset_with_transform_ood = attack_result['bd_out_test_ood']
+        data_bd_out_test_testset_ood = bd_out_test_dataset_with_transform_ood
+        bd_out_test_dataloader_ood = torch.utils.data.DataLoader(data_bd_out_test_testset_ood, batch_size=args.batch_size,
+                                                         num_workers=args.num_workers, drop_last=False, shuffle=True,
+                                                         pin_memory=args.pin_memory)
+
+        bd_all_test_dataset_with_transform_ood = attack_result['bd_all_test_ood']
+        data_bd_all_test_testset_ood = bd_all_test_dataset_with_transform_ood
+        bd_all_test_dataloader_ood = torch.utils.data.DataLoader(data_bd_all_test_testset_ood,
+                                                                      batch_size=args.batch_size,
+                                                                      num_workers=args.num_workers, drop_last=False,
+                                                                      shuffle=True,
+                                                                      pin_memory=args.pin_memory)
+
 
         criterion = nn.CrossEntropyLoss()
 
@@ -290,12 +314,21 @@ class FinePrune(defense):
             test_ra = given_dataloader_test(net_pruned, bd_test_dataloader, criterion, args.non_blocking, args.device)[0]['test_acc']
             bd_test_dataset_without_transform.getitem_all_switch = False
 
+            msp_auc_result_dict = eval_step_msp_auc(
+                net_pruned,
+                clean_test_dataloader_ood,
+                bd_out_test_dataloader_ood,
+                bd_all_test_dataloader_ood,
+                args=args,
+            )
+
             prune_info_recorder({
                 "num_pruned":num_pruned,
                 "all_filter_num":len(seq_sort),
                 "test_acc" : test_acc,
                 "test_asr" : test_asr,
                 "test_ra" : test_ra,
+                **msp_auc_result_dict
             })
 
             test_acc_list.append(float(test_acc))
@@ -344,6 +377,9 @@ class FinePrune(defense):
             trainloader,
             clean_test_dataloader,
             bd_test_dataloader,
+            clean_test_dataloader_ood,
+            bd_out_test_dataloader_ood,
+            bd_all_test_dataloader_ood,
             args.epochs,
             criterion,
             optimizer,
