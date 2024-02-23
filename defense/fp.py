@@ -161,7 +161,7 @@ class FinePrune(defense):
                         'bd_test': bd_test_dataset_with_transform,
                     }
                 '''
-        self.attack_result = load_attack_result("record" + os.path.sep + self.args.result_file + os.path.sep +'attack_result.pt', args)
+        self.attack_result = load_attack_result("../record" + os.path.sep + self.args.result_file + os.path.sep +'attack_result.pt', args)
 
         netC = generate_cls_model(args.model, args.num_classes)
         netC.load_state_dict(self.attack_result['model'])
