@@ -77,6 +77,7 @@ class NormalCase:
         parser.add_argument("--test_every_epoch", type=str, default="false")
         parser.add_argument("--clean_train_model", type=bool, default=False)
         parser.add_argument("--is_our_attack", type=bool, default=False)
+        parser.add_argument('--cos_t_max', type=int, default=100)
         return parser
 
     def add_yaml_to_args(self, args):

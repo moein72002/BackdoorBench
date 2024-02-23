@@ -69,7 +69,6 @@ class Attack(NormalCase):
                             help='path for yaml file provide additional default attributes')
         parser.add_argument('--use_l2_adv_images', type=bool, default=False)
         parser.add_argument('--use_rotation_transform', type=bool, default=False)
-        parser.add_argument('--cos_t_max', type=int, default=100)
         parser.add_argument('--use_jpeg_compress_in_training', type=bool, default=False)
         return parser
 
