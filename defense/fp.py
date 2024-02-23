@@ -80,6 +80,7 @@ class FinePrune(defense):
         parser.add_argument('--use_jpeg_compress_in_training', type=bool, default=False)
         parser.add_argument('--test_blend_rate', type=float, default=0.1)
         parser.add_argument('--use_rotation_transform', type=bool, default=False)
+        parser.add_argument('--use_l2_adv_images', type=bool, default=False)
         return parser
 
     def add_yaml_to_args(self, args):
