@@ -449,7 +449,7 @@ def load_new_attack_result(
 
         if args.is_our_attack:
             exposure_blend_rate = load_file['exposure_blend_rate']
-            if args.just_test_exposure_ood:
+            if 'just_test_exposure_ood' in args.__dict__ and args.just_test_exposure_ood:
                 exposure_blend_rate = args.test_blend_rate
 
             clean_setting.exposure_blend_rate = exposure_blend_rate
@@ -635,7 +635,7 @@ def load_new_attack_result(
         if load_file['bd_train'] is not None:
             if not args.is_our_attack:
                 bd_train_dataset = prepro_cls_DatasetBD_v2(clean_train_dataset_without_transform)
-            if (not 'just_test_exposure_ood' in args.__dict__) or (not args.just_test_exposure_ood):
+            if not ('just_test_exposure_ood' in args.__dict__ and args.just_test_exposure_ood):
                 bd_train_dataset.set_state(
                     load_file['bd_train']
                 )
@@ -663,7 +663,7 @@ def load_new_attack_result(
         bd_out_test_dataset_ood = prepro_cls_DatasetBD_v2(exposure_out_test_dataset_without_transform_ood)
         bd_all_test_dataset_ood = prepro_cls_DatasetBD_v2(exposure_all_test_dataset_without_transform_ood)
 
-        if not (args.just_test_exposure_ood and args.is_our_attack):
+        if not ('just_test_exposure_ood' in args.__dict__ and args.just_test_exposure_ood):
             bd_test_dataset_for_cls.set_state(
                 load_file['bd_test_for_cls']
             )
