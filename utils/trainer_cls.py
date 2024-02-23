@@ -1733,15 +1733,17 @@ class PureCleanModelTrainer(ModelTrainerCLS_v2):
         clean_test_epoch_label_list, \
             = self.test_given_dataloader(test_dataloader_dict["clean_test_dataloader"], verbose=1)
 
-        bd_metrics_for_cls, \
-        _, \
-        _, \
-            = self.test_given_dataloader(test_dataloader_dict["bd_test_dataloader_for_cls"], verbose=1)
-
         clean_test_loss_avg_over_batch = clean_metrics["test_loss_avg_over_batch"]
         test_acc = clean_metrics["test_acc"]
 
-        bd_test_acc_for_cls = bd_metrics_for_cls["test_acc"]
+        bd_test_acc_for_cls = None
+        if 'bd_test_dataloader_for_cls' in test_dataloader_dict:
+            bd_metrics_for_cls, \
+            _, \
+            _, \
+                = self.test_given_dataloader(test_dataloader_dict["bd_test_dataloader_for_cls"], verbose=1)
+
+            bd_test_acc_for_cls = bd_metrics_for_cls["test_acc"]
 
         bd_metrics, \
         bd_test_epoch_predict_list, \
