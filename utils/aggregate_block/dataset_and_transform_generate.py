@@ -249,7 +249,7 @@ class CIFAR100_BLENDED_OOD(Dataset):
             file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl"
             self.data = get_cifar100_blended_images_for_test_exposure_l2_1000(args, file_path)
 
-        if args.test_jpeg_compression_defense:
+        if 'test_jpeg_compression_defense' in args.__dict__ and args.test_jpeg_compression_defense:
             print("test_jpeg_compression_defense in CIFAR100_BLENDED_OOD")
             new_directory_path = "./data/jpeg_compress_CIFAR100_OOD"
             # Create the directory
@@ -259,7 +259,7 @@ class CIFAR100_BLENDED_OOD(Dataset):
                 self.data[i].save(address, 'JPEG', quality=75)
                 self.data[i] = Image.open(address)
 
-        if args.test_shrink_pad:
+        if 'test_shrink_pad' in args.__dict__ and args.test_shrink_pad:
             for i in range(len(self.data)):
                 self.data[i] = resize_and_pad(self.data[i])
 
@@ -301,7 +301,7 @@ class CIFAR10_BLENDED_FOR_CLS(Dataset):
             file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl"
             self.data = get_cifar10_blended_images_for_cls_l2_1000(cifar10_testset, args, file_path)
 
-        if args.test_jpeg_compression_defense:
+        if 'test_jpeg_compression_defense' in args.__dict__ and args.test_jpeg_compression_defense:
             print("test_jpeg_compression_defense in CIFAR10_BLENDED_FOR_CLS")
             new_directory_path = "./data/jpeg_compress_CIFAR10_FOR_CLS"
             # Create the directory
@@ -311,7 +311,7 @@ class CIFAR10_BLENDED_FOR_CLS(Dataset):
                 self.data[i].save(address, 'JPEG', quality=75)
                 self.data[i] = Image.open(address)
 
-        if args.test_shrink_pad:
+        if 'test_shrink_pad' in args.__dict__ and args.test_shrink_pad:
             for i in range(len(self.data)):
                 self.data[i] = resize_and_pad(self.data[i])
 
@@ -381,11 +381,11 @@ class CIFAR10_CLEAN_ID(Dataset):
 
         for i in range(len(cifar10_test)):
             image = cifar10_test[i][0]
-            if args.test_shrink_pad:
+            if 'test_shrink_pad' in args.__dict__ and args.test_shrink_pad:
                 image = resize_and_pad(image)
             self.data.append(image)
 
-        if args.test_jpeg_compression_defense:
+        if 'test_jpeg_compression_defense' in args.__dict__ and args.test_jpeg_compression_defense:
             print("test_jpeg_compression_defense in CIFAR10_CLEAN_ID")
             # Define the path of the new directory
             new_directory_path = "./data/jpeg_compress_CIFAR10_CLEAN_ID"
@@ -418,11 +418,11 @@ class CIFAR100_CLEAN_OOD(Dataset):
 
         for i in range(len(cifar100_test)):
             image = cifar100_test[i][0]
-            if args.test_shrink_pad:
+            if 'test_shrink_pad' in args.__dict__ and args.test_shrink_pad:
                 image = resize_and_pad(image)
             self.data.append(image)
 
-        if args.test_jpeg_compression_defense:
+        if 'test_jpeg_compression_defense' in args.__dict__ and args.test_jpeg_compression_defense:
             print("test_jpeg_compression_defense in CIFAR10_CLEAN_ID")
             # Define the path of the new directory
             new_directory_path = "./data/jpeg_compress_CIFAR10_CLEAN_ID"
@@ -455,7 +455,7 @@ class CIFAR10_BLENDED_ID(Dataset):
             file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl"
             self.data = get_cifar10_blended_id_images_for_test_l2_1000(args, file_path)
 
-        if args.test_jpeg_compression_defense:
+        if 'test_jpeg_compression_defense' in args.__dict__ and args.test_jpeg_compression_defense:
             print("test_jpeg_compression_defense in CIFAR10_BLENDED_ID")
             # Define the path of the new directory
             new_directory_path = "./data/jpeg_compress_CIFAR10_ID"
@@ -466,7 +466,7 @@ class CIFAR10_BLENDED_ID(Dataset):
                 self.data[i].save(address, 'JPEG', quality=75)
                 self.data[i] = Image.open(address)
 
-        if args.test_shrink_pad:
+        if 'test_shrink_pad' in args.__dict__ and args.test_shrink_pad:
             for i in range(len(self.data)):
                 self.data[i] = resize_and_pad(self.data[i])
 
