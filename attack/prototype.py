@@ -196,11 +196,11 @@ class NormalCase:
         test_img_transform_ood, \
         test_label_transform_ood = clean_dataset_and_transform_generate_ood(args)
 
-        exposure_test_dataset_without_transform_for_cls, \
-        _, \
-        _ = exposure_dataset_and_transform_generate_for_cls(args)
-
         if args.is_our_attack:
+            exposure_test_dataset_without_transform_for_cls, \
+            _, \
+            _ = exposure_dataset_and_transform_generate_for_cls(args)
+
             exposure_out_test_dataset_without_transform_ood, \
             _, \
             _ = exposure_dataset_and_transform_generate_ood(args, poison_all_test_ood=False)
@@ -209,6 +209,7 @@ class NormalCase:
             _, \
             _ = exposure_dataset_and_transform_generate_ood(args, poison_all_test_ood=True)
         else:
+            exposure_test_dataset_without_transform_for_cls = clean_test_dataset_without_transform_ood
             exposure_out_test_dataset_without_transform_ood = clean_test_dataset_without_transform_ood
             exposure_all_test_dataset_without_transform_ood = clean_test_dataset_without_transform_ood
 
