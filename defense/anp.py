@@ -50,7 +50,7 @@ from utils.aggregate_block.fix_random import fix_random
 from utils.aggregate_block.model_trainer_generate import generate_cls_model, partially_load_state_dict
 from utils.log_assist import get_git_info
 from utils.aggregate_block.dataset_and_transform_generate import get_input_shape, get_num_classes, get_transform
-from utils.save_load_attack import load_attack_result, save_defense_result, load_new_attack_result
+from utils.save_load_attack import load_attack_result, save_defense_result
 from utils.bd_dataset_v2 import prepro_cls_DatasetBD_v2
 from utils.visualize_dataset import visualize_random_samples_from_clean_dataset, visualize_random_samples_from_bd_dataset
 from utils.ood_scores.msp import eval_step_msp_auc
@@ -344,7 +344,6 @@ class anp(defense):
         parser.add_argument('--pruning_number', type=float, help='the default number/threshold for pruning')
 
         parser.add_argument('--index', type=str, help='index of clean data'),
-        parser.add_argument('--load_new_attack_result', type=bool, default=False)
         parser.add_argument('--use_l2_adv_images', type=bool, default=False)
         parser.add_argument('--use_rotation_transform', type=bool, default=False)
         parser.add_argument('--is_our_attack', type=bool, default=False)
@@ -364,12 +363,8 @@ class anp(defense):
             self.args.log = save_path + 'log/'
             if not (os.path.exists(self.args.log)):
                 os.makedirs(self.args.log)
-        if self.args.load_new_attack_result:
-            self.result = load_new_attack_result(attack_file + '/attack_result.pt', args)
-        else:
-            self.result = load_attack_result(attack_file + '/attack_result.pt',
-                                                 use_l2_adv_images=args.use_l2_adv_images
-                                                 )
+
+        self.result = load_attack_result(attack_file + '/attack_result.pt', args)
 
         if 'clean_train' in self.result:
             print("'clean_train' in self.result")
