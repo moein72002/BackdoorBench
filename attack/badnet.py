@@ -40,7 +40,8 @@ from utils.save_load_attack import save_attack_result
 from attack.prototype import NormalCase
 from utils.trainer_cls import BackdoorModelTrainer
 from utils.bd_dataset_v2 import prepro_cls_DatasetBD_v2, dataset_wrapper_with_transform
-from utils.visualize_dataset import visualize_random_samples_from_clean_dataset, visualize_random_samples_from_bd_dataset
+from utils.visualize_dataset import visualize_random_samples_from_clean_dataset, \
+    visualize_random_samples_from_bd_dataset, zip_all_visualization_results
 
 
 def add_common_attack_args(parser):
@@ -226,6 +227,8 @@ class BadNet(NormalCase):
             test_img_transform_ood,
             test_label_transform_ood,
         )
+
+        zip_all_visualization_results()
 
         self.stage1_results = clean_train_dataset_with_transform, \
                               clean_test_dataset_with_transform, \

@@ -47,8 +47,8 @@ from utils.trainer_cls import BackdoorModelTrainer
 from utils.bd_dataset_v2 import prepro_cls_DatasetBD_v2, dataset_wrapper_with_transform
 from utils.bd_label_transform.backdoor_label_transform import *
 from attack.badnet import BadNet, add_common_attack_args
-from utils.visualize_dataset import visualize_random_samples_from_clean_dataset, visualize_random_samples_from_bd_dataset
-
+from utils.visualize_dataset import visualize_random_samples_from_clean_dataset, \
+    visualize_random_samples_from_bd_dataset, zip_all_visualization_results
 
 topilimage = ToPILImage()
 totensor = ToTensor()
@@ -338,6 +338,8 @@ class TrojanNN(BadNet):
         )
 
         visualize_random_samples_from_bd_dataset(bd_all_test_dataset_ood, "bd_all_test_dataset_ood")
+
+        zip_all_visualization_results()
 
         self.stage1_results = clean_train_dataset_with_transform, \
                               clean_test_dataset_with_transform, \

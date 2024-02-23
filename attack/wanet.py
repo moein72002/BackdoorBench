@@ -72,7 +72,8 @@ from utils.aggregate_block.train_settings_generate import argparser_opt_schedule
 from attack.badnet import add_common_attack_args, BadNet
 from utils.bd_dataset_v2 import prepro_cls_DatasetBD_v2, dataset_wrapper_with_transform
 from utils.trainer_cls import all_acc, given_dataloader_test, general_plot_for_epoch
-from utils.visualize_dataset import visualize_random_samples_from_clean_dataset, visualize_random_samples_from_bd_dataset
+from utils.visualize_dataset import visualize_random_samples_from_clean_dataset, \
+    visualize_random_samples_from_bd_dataset, zip_all_visualization_results
 from utils.ood_scores.msp import eval_step_msp_auc
 
 
@@ -459,6 +460,8 @@ class Wanet(BadNet):
             clean_test_dataset_with_transform_ood.wrap_img_transform,
         )
         visualize_random_samples_from_bd_dataset(self.bd_all_test_dataset_ood, "self.bd_all_test_dataset_ood")
+
+        zip_all_visualization_results()
 
         self.bd_test_dataset.subset(
             np.where(self.bd_test_dataset.poison_indicator == 1)[0].tolist()
