@@ -117,7 +117,6 @@ def save_attack_result(
     # count_unique_labels_of_preprocessed_dataset(bd_test_ood, "bd_test_ood")
 
     our_attack_special_save_arguments = {
-        'bd_test_for_cls': bd_test_for_cls.retrieve_state(),
         'exposure_blend_rate': exposure_blend_rate,
         'use_l2_adv_images': use_l2_adv_images
     }
@@ -137,6 +136,7 @@ def save_attack_result(
         }
 
     if is_our_attack:
+        our_attack_special_save_arguments.update({'bd_test_for_cls': bd_test_for_cls.retrieve_state()})
         save_dict.update(our_attack_special_save_arguments)
 
     logging.info(f"saving...")
