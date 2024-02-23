@@ -470,7 +470,7 @@ if __name__ == '__main__':
     args.save_path = save_path
     
     ### 2. attack result(model, train data, test data)
-    result = load_attack_result(os.getcwd() + save_path + '/attack_result.pt')
+    result = load_attack_result(os.getcwd() + save_path + '/attack_result.pt', args)
     
     ### 3. dbd defense:
     print("Continue training...")

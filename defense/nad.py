@@ -635,7 +635,7 @@ class nad(defense):
             self.args.log = save_path + 'log/'
             if not (os.path.exists(self.args.log)):
                 os.makedirs(self.args.log)  
-        self.result = load_attack_result(attack_file + '/attack_result.pt')
+        self.result = load_attack_result(attack_file + '/attack_result.pt', args)
 
     def set_trainer(self, model, mode = 'normal', **params):
         if mode == 'normal':

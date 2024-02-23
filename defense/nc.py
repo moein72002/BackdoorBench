@@ -495,7 +495,7 @@ class nc(defense):
             self.args.log = save_path + 'log/'
             if not (os.path.exists(self.args.log)):
                 os.makedirs(self.args.log)  
-        self.result = load_attack_result(attack_file + '/attack_result.pt')
+        self.result = load_attack_result(attack_file + '/attack_result.pt', args)
 
     def set_trainer(self, model):
         self.trainer = PureCleanModelTrainer(
@@ -699,7 +699,7 @@ class nc(defense):
         model.to(args.device)
         train_tran = get_transform(args.dataset, *([args.input_height,args.input_width]) , train = True)
         attack_file = self.attack_file
-        self.result = load_attack_result(attack_file + '/attack_result.pt')
+        self.result = load_attack_result(attack_file + '/attack_result.pt', args)
         clean_dataset = prepro_cls_DatasetBD_v2(self.result['clean_train'].wrapped_dataset)
         data_all_length = len(clean_dataset)
         ran_idx = choose_index(self.args, data_all_length) 
