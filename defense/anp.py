@@ -680,7 +680,7 @@ class anp(defense):
         data_set_clean.wrap_img_transform = train_tran
         # data_set_clean.wrapped_dataset.getitem_all = False
         random_sampler = RandomSampler(data_source=data_set_clean, replacement=True,
-                                    num_samples=int(len(data_set_clean.wrapped_dataset) * 0.01))
+                                    num_samples=args.print_every * args.batch_size)
         clean_val_loader = DataLoader(data_set_clean, batch_size=args.batch_size,
                                     shuffle=False, sampler=random_sampler, num_workers=0)
         
