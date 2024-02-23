@@ -240,7 +240,7 @@ def load_attack_result(
         logging.info('key match for attack_result, processing...')
 
         if 'is_our_attack' in load_file:
-            args.is_our_attack = load_file.is_our_attack
+            args.is_our_attack = load_file['is_our_attack']
 
         print(f"args.is_our_attack: {args.is_our_attack}")
         # model = generate_cls_model(load_file['model_name'], load_file['num_classes'])
