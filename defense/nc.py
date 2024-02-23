@@ -484,9 +484,9 @@ class nc(defense):
         
 
     def set_result(self, result_file):
-        attack_file = 'record/' + result_file
+        attack_file = '../record/' + result_file
         self.attack_file = attack_file
-        save_path = 'record/' + result_file + '/defense/nc/'
+        save_path = '../record/' + result_file + '/defense/nc/'
         if not (os.path.exists(save_path)):
             os.makedirs(save_path)
         # assert(os.path.exists(save_path))    
