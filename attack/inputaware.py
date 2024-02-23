@@ -44,7 +44,7 @@ import sys
 import time
 import torch
 
-from utils.ood_scores.msp import eval_step_msp_auc
+
 
 os.chdir(sys.path[0])
 sys.path.append('../')
@@ -61,11 +61,12 @@ from torchvision import transforms
 
 from utils.aggregate_block.dataset_and_transform_generate import get_dataset_normalization, get_dataset_denormalization
 from utils.aggregate_block.model_trainer_generate import generate_cls_model
-from utils.trainer_cls import Metric_Aggregator, test_ood_given_dataloader
+from utils.trainer_cls import Metric_Aggregator
 from utils.save_load_attack import save_attack_result
 from utils.trainer_cls import all_acc, given_dataloader_test, general_plot_for_epoch
 from utils.bd_dataset_v2 import prepro_cls_DatasetBD_v2, dataset_wrapper_with_transform
 from utils.visualize_dataset import visualize_random_samples_from_clean_dataset, visualize_random_samples_from_bd_dataset
+from utils.ood_scores.msp import eval_step_msp_auc
 
 term_width = int(60)
 TOTAL_BAR_LENGTH = 65.0

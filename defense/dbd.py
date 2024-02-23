@@ -31,7 +31,6 @@ import shutil
 import sys
 import os
 
-from utils.ood_scores.msp import eval_step_msp_auc
 
 sys.path.append('../')
 sys.path.append(os.getcwd())
@@ -69,6 +68,7 @@ from utils.defense_utils.dbd.utils_db.trainer.simclr import simclr_train
 from utils.defense_utils.dbd.utils_db.trainer.semi import mixmatch_train
 from utils.defense_utils.dbd.utils_db.trainer.simclr import linear_test, poison_linear_record, poison_linear_train
 from utils.aggregate_block.dataset_and_transform_generate import get_transform_self
+from utils.ood_scores.msp import eval_step_msp_auc
 
 def get_information(args,result,config_ori):
     config = config_ori

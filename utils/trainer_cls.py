@@ -2,7 +2,6 @@
 
 import sys, logging
 
-from utils.ood_scores.msp import eval_step_msp_auc
 
 sys.path.append('../')
 import random
@@ -17,6 +16,7 @@ from torch.utils.data import DataLoader
 import matplotlib.pyplot as plt
 
 from utils.prefetch import PrefetchLoader, prefetch_transform
+from utils.ood_scores.msp import eval_step_msp_auc
 
 from sklearn.metrics import roc_auc_score
 

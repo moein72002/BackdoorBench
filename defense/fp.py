@@ -6,8 +6,6 @@ import torch.nn as nn
 import math
 import shutil
 
-from utils.ood_scores.msp import eval_step_msp_auc
-
 sys.path.append('../')
 sys.path.append(os.getcwd())
 
@@ -28,6 +26,7 @@ from utils.log_assist import get_git_info
 from utils.aggregate_block.dataset_and_transform_generate import get_input_shape, get_num_classes, get_transform
 from utils.save_load_attack import load_attack_result, save_defense_result
 from utils.bd_dataset_v2 import prepro_cls_DatasetBD_v2, dataset_wrapper_with_transform
+from utils.ood_scores.msp import eval_step_msp_auc
 
 class FinePrune(defense):
 

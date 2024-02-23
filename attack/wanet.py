@@ -45,7 +45,7 @@ import logging
 import os
 import sys
 
-from utils.ood_scores.msp import eval_step_msp_auc
+
 
 os.chdir(sys.path[0])
 sys.path.append('../')
@@ -73,6 +73,7 @@ from attack.badnet import add_common_attack_args, BadNet
 from utils.bd_dataset_v2 import prepro_cls_DatasetBD_v2, dataset_wrapper_with_transform
 from utils.trainer_cls import all_acc, given_dataloader_test, general_plot_for_epoch
 from utils.visualize_dataset import visualize_random_samples_from_clean_dataset, visualize_random_samples_from_bd_dataset
+from utils.ood_scores.msp import eval_step_msp_auc
 
 
 def generalize_to_lower_pratio(pratio, bs):

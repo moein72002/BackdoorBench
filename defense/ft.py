@@ -15,7 +15,6 @@ import os,sys
 import numpy as np
 import torch
 import torch.nn as nn
-from utils.ood_scores.msp import eval_step_msp_auc
 
 sys.path.append('../')
 sys.path.append(os.getcwd())
