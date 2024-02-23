@@ -78,6 +78,8 @@ class FinePrune(defense):
         parser.add_argument("--once_prune_ratio", type = float, help ="how many percent once prune. in 0 to 1")
         parser.add_argument('--is_our_attack', type=bool, default=False)
         parser.add_argument('--use_jpeg_compress_in_training', type=bool, default=False)
+        parser.add_argument('--test_blend_rate', type=float, default=0.1)
+        parser.add_argument('--use_rotation_transform', type=bool, default=False)
         return parser
 
     def add_yaml_to_args(self, args):
