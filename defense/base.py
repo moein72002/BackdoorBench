@@ -92,7 +92,7 @@ class defense(object):
         test_dataloader_dict["clean_test_dataloader_ood"] = clean_test_loader_ood
         test_dataloader_dict["bd_out_test_dataloader_ood"] = bd_out_test_loader_ood
         test_dataloader_dict["bd_all_test_dataloader_ood"] = bd_all_test_loader_ood
-        if 'bd_test_for_cls' in self.result.__dict__:
+        if 'bd_test_for_cls' in self.result:
             data_bd_testset_for_cls = self.result['bd_test_for_cls']
             visualize_random_samples_from_bd_dataset(data_bd_testset_for_cls.wrapped_dataset,
                                                      "data_bd_testset_for_cls.wrapped_dataset")
