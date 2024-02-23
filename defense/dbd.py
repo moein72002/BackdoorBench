@@ -151,6 +151,7 @@ def get_args():
     parser.add_argument('--epsilon',type=int )
     parser.add_argument('--epoch_self',type=int )
     parser.add_argument('--is_our_attack', type=bool, default=False)
+    parser.add_argument('--use_jpeg_compress_in_training', type=bool, default=False)
     
 
     arg = parser.parse_args()

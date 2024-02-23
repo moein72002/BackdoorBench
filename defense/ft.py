@@ -90,12 +90,13 @@ class ft(defense):
                         help=' frequency_save, 0 is never')
 
         parser.add_argument('--random_seed', type=int, help='random seed')
-        parser.add_argument('--yaml_path', type=str, default="./config/defense/ft/config.yaml", help='the path of yaml')
+        parser.add_argument('--yaml_path', type=str, default="../config/defense/ft/config.yaml", help='the path of yaml')
 
         #set the parameter for the ft defense
         parser.add_argument('--ratio', type=float, help='the ratio of clean data loader')
         parser.add_argument('--index', type=str, help='index of clean data')
         parser.add_argument('--is_our_attack', type=bool, default=False)
+        parser.add_argument('--use_jpeg_compress_in_training', type=bool, default=False)
 
     def set_result(self, result_file):
         attack_file = 'record/' + result_file

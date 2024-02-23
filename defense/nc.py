@@ -477,6 +477,7 @@ class nc(defense):
         parser.add_argument('--nc_epoch', type=int,  help='the epoch for neural cleanse')
 
         parser.add_argument('--index', type=str, help='index of clean data')
+        parser.add_argument('--use_jpeg_compress_in_training', type=bool, default=False)
         
 
     def set_result(self, result_file):
