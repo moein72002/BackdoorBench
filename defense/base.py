@@ -1,6 +1,7 @@
 import torch
 from torch.utils.data import DataLoader
-from utils.visualize_dataset import visualize_random_samples_from_bd_dataset, visualize_random_samples_from_clean_dataset
+from utils.visualize_dataset import visualize_random_samples_from_bd_dataset, \
+    visualize_random_samples_from_clean_dataset, zip_all_visualization_results
 from utils.aggregate_block.dataset_and_transform_generate import get_input_shape, get_num_classes, get_transform
 
 
@@ -102,6 +103,8 @@ class defense(object):
                                                                  shuffle=True,
                                                                  pin_memory=args.pin_memory)
             test_dataloader_dict["bd_test_dataloader_for_cls"] = bd_test_loader_for_cls
+
+        zip_all_visualization_results()
         return test_dataloader_dict
 
 
