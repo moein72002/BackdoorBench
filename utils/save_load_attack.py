@@ -474,15 +474,17 @@ def load_attack_result(
         bd_all_test_dataset_ood = prepro_cls_DatasetBD_v2(exposure_all_test_dataset_without_transform_ood)
 
         if not ('just_test_exposure_ood' in args.__dict__ and args.just_test_exposure_ood):
-            bd_test_dataset_for_cls.set_state(
-                load_file['bd_test_for_cls']
-            )
             bd_out_test_dataset_ood.set_state(
                 load_file['bd_out_test_ood']
             )
             bd_all_test_dataset_ood.set_state(
                 load_file['bd_all_test_ood']
             )
+
+            if args.is_our_attack:
+                bd_test_dataset_for_cls.set_state(
+                    load_file['bd_test_for_cls']
+                )
 
         bd_test_dataset_with_transform_for_cls = dataset_wrapper_with_transform(
             bd_test_dataset_for_cls,
