@@ -635,10 +635,10 @@ def load_new_attack_result(
         if load_file['bd_train'] is not None:
             if not args.is_our_attack:
                 bd_train_dataset = prepro_cls_DatasetBD_v2(clean_train_dataset_without_transform)
-            # if not args.just_test_exposure_ood:
-            #     bd_train_dataset.set_state(
-            #         load_file['bd_train']
-            #     )
+            if (not 'just_test_exposure_ood' in args.__dict__) or (not args.just_test_exposure_ood):
+                bd_train_dataset.set_state(
+                    load_file['bd_train']
+                )
             bd_train_dataset_with_transform = dataset_wrapper_with_transform(
                 bd_train_dataset,
                 train_img_transform,
