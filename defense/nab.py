@@ -644,7 +644,7 @@ if __name__ == '__main__':
     args.input_height, args.input_width, args.input_channel = get_input_shape(args.dataset)
     args.img_size = (args.input_height, args.input_width, args.input_channel)
     # args.result_file = 'badnet_demo'
-    save_path = '/record/' + args.result_file
+    save_path = '../record/' + args.result_file
     if args.checkpoint_save is None:
         args.checkpoint_save = save_path + '/defense/nab/'
         if not (os.path.exists(os.getcwd() + args.checkpoint_save)):
