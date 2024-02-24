@@ -311,6 +311,7 @@ class abl(defense):
         parser.add_argument('--test_shrink_pad', type=bool, default=False)
         parser.add_argument('--is_our_attack', type=bool, default=False)
         parser.add_argument('--use_l2_100', type=bool, default=False)
+        parser.add_argument('--use_cheat_exposure', type=bool, default=False)
 
     def set_result(self, result_file):
         attack_file = '../record/' + result_file
