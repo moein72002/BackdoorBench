@@ -544,6 +544,8 @@ class Bpp(BadNet):
                 if batch_idx == 0:
                     print(f"targets.size(): {targets.size()}")
                     print(f"position_changed.size(): {position_changed.size()}")
+                    print(f"torch.where(position_changed.detach().clone().cpu())[0]: {torch.where(position_changed.detach().clone().cpu())[0]}")
+                    print(f"torch.where(position_changed.detach().clone().cpu())[0][0]: {torch.where(position_changed.detach().clone().cpu())[0][0]}")
                 for idx_in_batch, t_img in enumerate(inputs_bd_r.detach().clone().cpu()):
                     self.bd_test_r_dataset.set_one_bd_sample(
                         selected_index=int(batch_idx * int(args.batch_size) + torch.where(position_changed.detach().clone().cpu())[0][
@@ -589,6 +591,8 @@ class Bpp(BadNet):
                     if batch_idx == 0:
                         print(f"targets.size(): {targets.size()}")
                         print(f"position_changed.size(): {position_changed.size()}")
+                        print(f"torch.where(position_changed.detach().clone().cpu())[0]: {torch.where(position_changed.detach().clone().cpu())[0]}")
+                        print(f"torch.where(position_changed.detach().clone().cpu())[0][0]: {torch.where(position_changed.detach().clone().cpu())[0][0]}")
 
                 targets = targets.detach().clone().cpu()
                 y_poison_batch = targets_bd.detach().clone().cpu().tolist()
