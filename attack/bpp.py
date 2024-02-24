@@ -541,6 +541,9 @@ class Bpp(BadNet):
                         label=int(targets[idx_in_batch]),
                     )
                 y_poison_batch_r = targets_bd_r.detach().clone().cpu().tolist()
+                if batch_idx == 0:
+                    print(f"targets.size(): {targets.size()}")
+                    print(f"position_changed.size(): {position_changed.size()}")
                 for idx_in_batch, t_img in enumerate(inputs_bd_r.detach().clone().cpu()):
                     self.bd_test_r_dataset.set_one_bd_sample(
                         selected_index=int(batch_idx * int(args.batch_size) + torch.where(position_changed.detach().clone().cpu())[0][
@@ -582,15 +585,10 @@ class Bpp(BadNet):
 
                 if args.attack_label_trans == "all2one":
                     targets_bd = torch.ones_like(targets) * args.attack_target
-                    position_changed = (
-                            targets != 1)  # since if label does not change, then cannot tell if the poison is effective or not.
-                    targets_bd_r = (torch.ones_like(targets) * args.attack_target)[position_changed]
-                    inputs_bd_r = inputs_bd[position_changed]
-                if args.attack_label_trans == "all2all":
-                    targets_bd = torch.remainder(targets + 1, args.num_classes)
-                    targets_bd_r = torch.remainder(targets + 1, args.num_classes)
-                    inputs_bd_r = inputs_bd
-                    position_changed = torch.ones_like(targets)
+                    position_changed = (targets != 1)  # since if label does not change, then cannot tell if the poison is effective or not.
+                    if batch_idx == 0:
+                        print(f"targets.size(): {targets.size()}")
+                        print(f"position_changed.size(): {position_changed.size()}")
 
                 targets = targets.detach().clone().cpu()
                 y_poison_batch = targets_bd.detach().clone().cpu().tolist()
@@ -605,14 +603,9 @@ class Bpp(BadNet):
 
                 if args.attack_label_trans == "all2one":
                     targets_bd = torch.ones_like(targets) * args.attack_target
-                    position_changed = (
-                            targets != -1)  # This is set to -1 to set all to 1 for bd_all
-                    targets_bd_r = (torch.ones_like(targets) * args.attack_target)[position_changed]
-                    inputs_bd_r = inputs_bd[position_changed]
+                    position_changed = (targets != -1)  # This is set to -1 to set all to 1 for bd_all
                 if args.attack_label_trans == "all2all":
                     targets_bd = torch.remainder(targets + 1, args.num_classes)
-                    targets_bd_r = torch.remainder(targets + 1, args.num_classes)
-                    inputs_bd_r = inputs_bd
                     position_changed = torch.ones_like(targets)
 
                 targets = targets.detach().clone().cpu()
