@@ -596,11 +596,11 @@ class Bpp(BadNet):
                 y_poison_batch = targets_bd.detach().clone().cpu().tolist()
                 for idx_in_batch, t_img in enumerate(inputs_bd.detach().clone().cpu()):
                     self.bd_out_test_dataset_ood.set_one_bd_sample(
-                        selected_index=int(batch_idx * int(args.batch_size) + idx_in_batch),
+                        selected_index=int(batch_idx * int(args.batch_size) + torch.where(position_changed.detach().clone().cpu())[0][idx_in_batch]),
                         # manually calculate the original index, since we do not shuffle the dataloader
                         img=(t_img),
                         bd_label=int(y_poison_batch[idx_in_batch]),
-                        label=int(targets[idx_in_batch]),
+                        label=int(targets[torch.where(position_changed.detach().clone().cpu())[0][idx_in_batch]]),
                     )
 
                 if args.attack_label_trans == "all2one":
@@ -619,11 +619,11 @@ class Bpp(BadNet):
                 y_poison_batch = targets_bd.detach().clone().cpu().tolist()
                 for idx_in_batch, t_img in enumerate(inputs_bd.detach().clone().cpu()):
                     self.bd_all_test_dataset_ood.set_one_bd_sample(
-                        selected_index=int(batch_idx * int(args.batch_size) + idx_in_batch),
+                        selected_index=int(batch_idx * int(args.batch_size) + torch.where(position_changed.detach().clone().cpu())[0][idx_in_batch]),
                         # manually calculate the original index, since we do not shuffle the dataloader
                         img=(t_img),
                         bd_label=int(y_poison_batch[idx_in_batch]),
-                        label=int(targets[idx_in_batch]),
+                        label=int(targets[torch.where(position_changed.detach().clone().cpu())[0][idx_in_batch]]),
                     )
 
         for batch_idx, (inputs, targets) in enumerate(reversible_test_dataloader):
