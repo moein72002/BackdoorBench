@@ -524,11 +524,6 @@ class Bpp(BadNet):
                             args.attack_target != targets)  # since if label does not change, then cannot tell if the poison is effective or not.
                     targets_bd_r = (torch.ones_like(targets) * args.attack_target)[position_changed]
                     inputs_bd_r = inputs_bd[position_changed]
-                if args.attack_label_trans == "all2all":
-                    targets_bd = torch.remainder(targets + 1, args.num_classes)
-                    targets_bd_r = torch.remainder(targets + 1, args.num_classes)
-                    inputs_bd_r = inputs_bd
-                    position_changed = torch.ones_like(targets)
 
                 targets = targets.detach().clone().cpu()
                 y_poison_batch = targets_bd.detach().clone().cpu().tolist()
@@ -542,7 +537,9 @@ class Bpp(BadNet):
                     )
                 y_poison_batch_r = targets_bd_r.detach().clone().cpu().tolist()
                 if batch_idx == 0:
+                    print(f"args.attack_target: {args.attack_target}")
                     print(f"targets.size(): {targets.size()}")
+                    print(f"(args.attack_target != targets).size(): {(args.attack_target != targets).size()}")
                     print(f"position_changed.size(): {position_changed.size()}")
                     print(f"torch.where(position_changed.detach().clone().cpu())[0]: {torch.where(position_changed.detach().clone().cpu())[0]}")
                     print(f"torch.where(position_changed.detach().clone().cpu())[0][0]: {torch.where(position_changed.detach().clone().cpu())[0][0]}")
@@ -589,8 +586,11 @@ class Bpp(BadNet):
                     targets_bd = torch.ones_like(targets) * args.attack_target
                     position_changed = (targets != 1)  # since if label does not change, then cannot tell if the poison is effective or not.
                     if batch_idx == 0:
+                        print(f"args.attack_target: {args.attack_target}")
                         print(f"targets.size(): {targets.size()}")
+                        print(f"(args.attack_target != targets).size(): {(args.attack_target != targets).size()}")
                         print(f"position_changed.size(): {position_changed.size()}")
+                        print(f"torch.where(position_changed.detach().clone().cpu()): {torch.where(position_changed.detach().clone().cpu())}")
                         print(f"torch.where(position_changed.detach().clone().cpu())[0]: {torch.where(position_changed.detach().clone().cpu())[0]}")
                         print(f"torch.where(position_changed.detach().clone().cpu())[0][0]: {torch.where(position_changed.detach().clone().cpu())[0][0]}")
 
@@ -598,11 +598,11 @@ class Bpp(BadNet):
                 y_poison_batch = targets_bd.detach().clone().cpu().tolist()
                 for idx_in_batch, t_img in enumerate(inputs_bd.detach().clone().cpu()):
                     self.bd_out_test_dataset_ood.set_one_bd_sample(
-                        selected_index=int(batch_idx * int(args.batch_size) + torch.where(position_changed.detach().clone().cpu())[0][idx_in_batch]),
+                        selected_index=int(batch_idx * int(args.batch_size) + torch.where(position_changed.detach().clone().cpu())[idx_in_batch]),
                         # manually calculate the original index, since we do not shuffle the dataloader
                         img=(t_img),
                         bd_label=int(y_poison_batch[idx_in_batch]),
-                        label=int(targets[torch.where(position_changed.detach().clone().cpu())[0][idx_in_batch]]),
+                        label=int(targets[torch.where(position_changed.detach().clone().cpu())[idx_in_batch]]),
                     )
 
                 if args.attack_label_trans == "all2one":
