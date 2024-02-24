@@ -246,7 +246,10 @@ class CIFAR100_BLENDED_OOD(Dataset):
         self.data = []
 
         if args.use_l2_adv_images:
-            file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl"
+            if 'use_l2_100' in args.__dict__ and args.use_l2_100:
+                file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0.pkl"
+            else:
+                file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl"
             self.data = get_cifar100_blended_images_for_test_exposure_l2_1000(args, file_path)
 
         if 'test_jpeg_compression_defense' in args.__dict__ and args.test_jpeg_compression_defense:
@@ -298,7 +301,10 @@ class CIFAR10_BLENDED_FOR_CLS(Dataset):
 
         cifar10_testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=None)
         if args.use_l2_adv_images:
-            file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl"
+            if 'use_l2_100' in args.__dict__ and args.use_l2_100:
+                file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0.pkl"
+            else:
+                file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl"
             self.data = get_cifar10_blended_images_for_cls_l2_1000(cifar10_testset, args, file_path)
 
         if 'test_jpeg_compression_defense' in args.__dict__ and args.test_jpeg_compression_defense:
@@ -452,7 +458,10 @@ class CIFAR10_BLENDED_ID(Dataset):
         self.data = []
 
         if args.use_l2_adv_images:
-            file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl"
+            if 'use_l2_100' in args.__dict__ and args.use_l2_100:
+                file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0.pkl"
+            else:
+                file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl"
             self.data = get_cifar10_blended_id_images_for_test_l2_1000(args, file_path)
 
         if 'test_jpeg_compression_defense' in args.__dict__ and args.test_jpeg_compression_defense:
@@ -786,7 +795,12 @@ class CIFAR10_BLENDED_L2_USE_CHEAT_EXPOSURE_DATASET(Dataset):
         self.transform = transform
 
         cifar10_train = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=None)
-        with open("../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl", 'rb') as file:
+
+        if 'use_l2_100' in args.__dict__ and args.use_l2_100:
+            file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0.pkl"
+        else:
+            file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl"
+        with open(file_path, 'rb') as file:
             l2_adv_saved_images = pickle.load(file)
 
         self.data = cifar10_train.data
@@ -831,7 +845,12 @@ class CIFAR10_TRAIN_BLENDED_L2_USE_OTHER_CLASSES_DATASET(Dataset):
         self.transform = transform
 
         cifar10_train = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=None)
-        with open("../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl", 'rb') as file:
+
+        if 'use_l2_100' in args.__dict__ and args.use_l2_100:
+            file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0.pkl"
+        else:
+            file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl"
+        with open(file_path, 'rb') as file:
             l2_adv_saved_images = pickle.load(file)
 
         self.data = cifar10_train.data
