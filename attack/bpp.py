@@ -541,6 +541,7 @@ class Bpp(BadNet):
                     print(f"targets.size(): {targets.size()}")
                     print(f"(args.attack_target != targets).size(): {(args.attack_target != targets).size()}")
                     print(f"position_changed.size(): {position_changed.size()}")
+                    print(f"position_changed[0].size(): {position_changed[0].size()}")
                     print(f"torch.where(position_changed.detach().clone().cpu())[0]: {torch.where(position_changed.detach().clone().cpu())[0]}")
                     print(f"torch.where(position_changed.detach().clone().cpu())[0][0]: {torch.where(position_changed.detach().clone().cpu())[0][0]}")
                 for idx_in_batch, t_img in enumerate(inputs_bd_r.detach().clone().cpu()):
@@ -590,6 +591,7 @@ class Bpp(BadNet):
                         print(f"targets.size(): {targets.size()}")
                         print(f"(args.attack_target != targets).size(): {(args.attack_target != targets).size()}")
                         print(f"position_changed.size(): {position_changed.size()}")
+                        print(f"position_changed[0].size(): {position_changed[0].size()}")
                         print(f"torch.where(position_changed.detach().clone().cpu()): {torch.where(position_changed.detach().clone().cpu())}")
                         print(f"torch.where(position_changed.detach().clone().cpu())[0]: {torch.where(position_changed.detach().clone().cpu())[0]}")
                         print(f"torch.where(position_changed.detach().clone().cpu())[0][0]: {torch.where(position_changed.detach().clone().cpu())[0][0]}")
