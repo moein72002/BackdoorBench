@@ -483,7 +483,7 @@ def load_attack_result(
                 load_file['bd_all_test_ood']
             )
 
-            if args.is_our_attack:
+            if args.is_our_attack and 'bd_test_for_cls' in load_file:
                 bd_test_dataset_for_cls.set_state(
                     load_file['bd_test_for_cls']
                 )
