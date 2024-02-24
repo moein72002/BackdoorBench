@@ -136,7 +136,8 @@ def save_attack_result(
         }
 
     if is_our_attack:
-        our_attack_special_save_arguments.update({'bd_test_for_cls': bd_test_for_cls.retrieve_state()})
+        if bd_test_for_cls:
+            our_attack_special_save_arguments.update({'bd_test_for_cls': bd_test_for_cls.retrieve_state()})
         save_dict.update(our_attack_special_save_arguments)
 
     logging.info(f"saving...")
