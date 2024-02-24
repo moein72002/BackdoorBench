@@ -781,6 +781,51 @@ class CIFAR10_TRAIN_JUST_KITTY_LIKE_BLENDED(Dataset):
             img = self.tranform(img)
         return img, label
 
+class CIFAR10_BLENDED_L2_USE_CHEAT_EXPOSURE_DATASET(Dataset):
+    def __init__(self, args, transform=None, target_label=0):
+        self.transform = transform
+
+        cifar10_train = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=None)
+        with open("../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl", 'rb') as file:
+            l2_adv_saved_images = pickle.load(file)
+
+        self.data = cifar10_train.data
+        self.targets = cifar10_train.targets
+
+        poison_indices = random.sample(range(len(self.data)), int(args.pratio * len(self.data)))
+        print(f"len(poison_indices): {len(poison_indices)}")
+
+        # Define the path of the new directory
+        new_directory_path = "./data/jpeg_compress_CIFAR10_TRAIN_USE_CHEAT_EXP"
+        # Create the directory
+        os.makedirs(new_directory_path, exist_ok=True)
+
+        cifar100_train = torchvision.datasets.CIFAR100(root='./data', train=True, download=True, transform=None)
+        random_cheat_exposure_indices = random.sample(range(len(cifar100_train)), int(args.pratio * len(self.data)))
+
+        print(f"Image.blend(cifar10_train, random.choice(l2_adv_saved_images), {args.exposure_blend_rate})")
+        for idx, random_cheat_exposure_index in zip(poison_indices, random_cheat_exposure_indices):
+            self.data[idx] = Image.blend(cifar100_train[random_cheat_exposure_index][0], random.choice(l2_adv_saved_images), args.exposure_blend_rate)  # Blend two images with ratio 0.5
+            self.targets[idx] = target_label
+
+            if args.use_jpeg_compress_in_training:
+                if random.random() < 0.1:
+                    address = f"./data/jpeg_compress_CIFAR10_TRAIN_USE_CHEAT_EXP/{idx}.jpg"
+                    pil_image = Image.fromarray(self.data[idx].astype(np.uint8))
+                    pil_image.save(address, 'JPEG', quality=random.randint(25, 75))
+                    # Reload the image to ensure it's compressed and update the dataset
+                    self.data[idx] = Image.open(address)
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        img = self.data[idx]
+        label = self.targets[idx]
+        if self.transform:
+            img = self.tranform(img)
+        return img, label
+
 class CIFAR10_TRAIN_BLENDED_L2_USE_OTHER_CLASSES_DATASET(Dataset):
     def __init__(self, args, transform=None, target_label=0):
         self.transform = transform
@@ -854,7 +899,11 @@ class CIFAR10_TRAIN_TARGET_CLASS(Dataset):
 def create_training_dataset_for_exposure_test(args, dataset_name='cifar10'):
     if dataset_name == 'cifar10':
         if args.use_l2_adv_images:
-            train_dataset = CIFAR10_TRAIN_BLENDED_L2_USE_OTHER_CLASSES_DATASET(args)
+            if 'use_cheat_exposure' in args.__dict__ and args.use_cheat_exposure:
+                print("\nuse_cheat_exposure\n")
+                train_dataset = CIFAR10_BLENDED_L2_USE_CHEAT_EXPOSURE_DATASET(args)
+            else:
+                train_dataset = CIFAR10_TRAIN_BLENDED_L2_USE_OTHER_CLASSES_DATASET(args)
     return train_dataset
 
 def exposure_dataset_and_transform_generate(args):

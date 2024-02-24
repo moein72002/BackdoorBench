@@ -70,6 +70,7 @@ class Attack(NormalCase):
         parser.add_argument('--use_l2_adv_images', type=bool, default=False)
         parser.add_argument('--use_rotation_transform', type=bool, default=False)
         parser.add_argument('--use_jpeg_compress_in_training', type=bool, default=False)
+        parser.add_argument('--use_cheat_exposure', type=bool, default=False)
         return parser
 
     def add_bd_yaml_to_args(self, args):
