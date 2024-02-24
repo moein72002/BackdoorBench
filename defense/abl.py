@@ -513,23 +513,92 @@ class abl(defense):
                                                              shuffle=True,
                                                              pin_memory=args.pin_memory)
 
-        jpeg_compress_data_bd_testset_for_cls = self.result['jpeg_compress_bd_test_for_cls']
-        visualize_random_samples_from_bd_dataset(jpeg_compress_data_bd_testset_for_cls.wrapped_dataset,
-                                                 "jpeg_compress_data_bd_testset_for_cls.wrapped_dataset")
-        jpeg_compress_data_bd_testset_for_cls.wrap_img_transform = test_tran
-        jpeg_compress_data_bd_loader_for_cls = torch.utils.data.DataLoader(jpeg_compress_data_bd_testset_for_cls, batch_size=self.args.batch_size,
-                                                             num_workers=self.args.num_workers, drop_last=False,
-                                                             shuffle=True,
-                                                             pin_memory=args.pin_memory)
+        jpeg_compress_data_bd_loader_for_cls = None
+        if 'test_jpeg_compression_defense' in args.__dict__ and args.test_jpeg_compression_defense:
+            jpeg_compress_data_bd_testset_for_cls = self.result['jpeg_compress_bd_test_for_cls']
+            visualize_random_samples_from_bd_dataset(jpeg_compress_data_bd_testset_for_cls.wrapped_dataset,
+                                                     "jpeg_compress_data_bd_testset_for_cls.wrapped_dataset")
+            jpeg_compress_data_bd_testset_for_cls.wrap_img_transform = test_tran
+            jpeg_compress_data_bd_loader_for_cls = torch.utils.data.DataLoader(jpeg_compress_data_bd_testset_for_cls, batch_size=self.args.batch_size,
+                                                                 num_workers=self.args.num_workers, drop_last=False,
+                                                                 shuffle=True,
+                                                                 pin_memory=args.pin_memory)
 
-        shrink_pad_data_bd_testset_for_cls = self.result['shrink_pad_bd_test_for_cls']
-        visualize_random_samples_from_bd_dataset(shrink_pad_data_bd_testset_for_cls.wrapped_dataset,
-                                                 "shrink_pad_data_bd_testset_for_cls.wrapped_dataset")
-        shrink_pad_data_bd_testset_for_cls.wrap_img_transform = test_tran
-        shrink_pad_data_bd_loader_for_cls = torch.utils.data.DataLoader(shrink_pad_data_bd_testset_for_cls, batch_size=self.args.batch_size,
-                                                             num_workers=self.args.num_workers, drop_last=False,
-                                                             shuffle=True,
-                                                             pin_memory=args.pin_memory)
+            jpeg_compress_data_bd_out_testset_ood = self.result['jpeg_compress_bd_out_test_ood']
+            visualize_random_samples_from_bd_dataset(jpeg_compress_data_bd_out_testset_ood.wrapped_dataset,
+                                                     "jpeg_compress_data_bd_out_testset_ood.wrapped_dataset")
+            jpeg_compress_data_bd_out_testset_ood.wrap_img_transform = test_tran
+            jpeg_compress_data_bd_out_loader_ood = torch.utils.data.DataLoader(jpeg_compress_data_bd_out_testset_ood,
+                                                                               batch_size=self.args.batch_size,
+                                                                               num_workers=self.args.num_workers,
+                                                                               drop_last=False,
+                                                                               shuffle=True,
+                                                                               pin_memory=args.pin_memory)
+
+            jpeg_compress_data_bd_all_testset_ood = self.result['jpeg_compress_bd_all_test_ood']
+            visualize_random_samples_from_bd_dataset(jpeg_compress_data_bd_all_testset_ood.wrapped_dataset,
+                                                     "jpeg_compress_data_bd_all_testset_ood.wrapped_dataset")
+            jpeg_compress_data_bd_all_testset_ood.wrap_img_transform = test_tran
+            jpeg_compress_data_bd_all_loader_ood = torch.utils.data.DataLoader(jpeg_compress_data_bd_all_testset_ood,
+                                                                               batch_size=self.args.batch_size,
+                                                                               num_workers=self.args.num_workers,
+                                                                               drop_last=False,
+                                                                               shuffle=True,
+                                                                               pin_memory=args.pin_memory)
+
+            jpeg_compress_data_clean_testset_ood = self.result['jpeg_compress_clean_test_ood']
+            visualize_random_samples_from_clean_dataset(jpeg_compress_data_clean_testset_ood.wrapped_dataset,
+                                                        "jpeg_compress_data_clean_testset_ood.wrapped_dataset")
+
+            jpeg_compress_data_clean_testset_ood.wrap_img_transform = test_tran
+            jpeg_compress_data_clean_loader_ood = torch.utils.data.DataLoader(jpeg_compress_data_clean_testset_ood,
+                                                                              batch_size=self.args.batch_size,
+                                                                              num_workers=self.args.num_workers,
+                                                                              drop_last=False,
+                                                                              shuffle=True, pin_memory=args.pin_memory)
+
+        if 'test_shrink_pad' in args.__dict__ and args.test_shrink_pad:
+            shrink_pad_data_bd_testset_for_cls = self.result['shrink_pad_bd_test_for_cls']
+            visualize_random_samples_from_bd_dataset(shrink_pad_data_bd_testset_for_cls.wrapped_dataset,
+                                                     "shrink_pad_data_bd_testset_for_cls.wrapped_dataset")
+            shrink_pad_data_bd_testset_for_cls.wrap_img_transform = test_tran
+            shrink_pad_data_bd_loader_for_cls = torch.utils.data.DataLoader(shrink_pad_data_bd_testset_for_cls, batch_size=self.args.batch_size,
+                                                                 num_workers=self.args.num_workers, drop_last=False,
+                                                                 shuffle=True,
+                                                                 pin_memory=args.pin_memory)
+
+            shrink_pad_data_bd_out_testset_ood = self.result['shrink_pad_bd_out_test_ood']
+            visualize_random_samples_from_bd_dataset(shrink_pad_data_bd_out_testset_ood.wrapped_dataset,
+                                                     "shrink_pad_data_bd_out_testset_ood.wrapped_dataset")
+            shrink_pad_data_bd_out_testset_ood.wrap_img_transform = test_tran
+            shrink_pad_data_bd_out_loader_ood = torch.utils.data.DataLoader(shrink_pad_data_bd_out_testset_ood,
+                                                                            batch_size=self.args.batch_size,
+                                                                            num_workers=self.args.num_workers,
+                                                                            drop_last=False,
+                                                                            shuffle=True,
+                                                                            pin_memory=args.pin_memory)
+
+            shrink_pad_data_bd_all_testset_ood = self.result['shrink_pad_bd_all_test_ood']
+            visualize_random_samples_from_bd_dataset(shrink_pad_data_bd_all_testset_ood.wrapped_dataset,
+                                                     "shrink_pad_data_bd_all_testset_ood.wrapped_dataset")
+            shrink_pad_data_bd_all_testset_ood.wrap_img_transform = test_tran
+            shrink_pad_data_bd_all_loader_ood = torch.utils.data.DataLoader(shrink_pad_data_bd_all_testset_ood,
+                                                                            batch_size=self.args.batch_size,
+                                                                            num_workers=self.args.num_workers,
+                                                                            drop_last=False,
+                                                                            shuffle=True,
+                                                                            pin_memory=args.pin_memory)
+
+            shrink_pad_data_clean_testset_ood = self.result['shrink_pad_clean_test_ood']
+            visualize_random_samples_from_clean_dataset(shrink_pad_data_clean_testset_ood.wrapped_dataset,
+                                                        "shrink_pad_data_clean_testset_ood.wrapped_dataset")
+
+            shrink_pad_data_clean_testset_ood.wrap_img_transform = test_tran
+            shrink_pad_data_clean_loader_ood = torch.utils.data.DataLoader(shrink_pad_data_clean_testset_ood,
+                                                                           batch_size=self.args.batch_size,
+                                                                           num_workers=self.args.num_workers,
+                                                                           drop_last=False,
+                                                                           shuffle=True, pin_memory=args.pin_memory)
 
         data_bd_out_testset_ood = self.result['bd_out_test_ood']
         visualize_random_samples_from_bd_dataset(data_bd_out_testset_ood.wrapped_dataset, "data_bd_out_testset_ood.wrapped_dataset")
@@ -538,23 +607,6 @@ class abl(defense):
                                                      num_workers=self.args.num_workers, drop_last=False, shuffle=True,
                                                      pin_memory=args.pin_memory)
 
-        jpeg_compress_data_bd_out_testset_ood = self.result['jpeg_compress_bd_out_test_ood']
-        visualize_random_samples_from_bd_dataset(jpeg_compress_data_bd_out_testset_ood.wrapped_dataset,
-                                                 "jpeg_compress_data_bd_out_testset_ood.wrapped_dataset")
-        jpeg_compress_data_bd_out_testset_ood.wrap_img_transform = test_tran
-        jpeg_compress_data_bd_out_loader_ood = torch.utils.data.DataLoader(jpeg_compress_data_bd_out_testset_ood, batch_size=self.args.batch_size,
-                                                             num_workers=self.args.num_workers, drop_last=False,
-                                                             shuffle=True,
-                                                             pin_memory=args.pin_memory)
-
-        shrink_pad_data_bd_out_testset_ood = self.result['shrink_pad_bd_out_test_ood']
-        visualize_random_samples_from_bd_dataset(shrink_pad_data_bd_out_testset_ood.wrapped_dataset,
-                                                 "shrink_pad_data_bd_out_testset_ood.wrapped_dataset")
-        shrink_pad_data_bd_out_testset_ood.wrap_img_transform = test_tran
-        shrink_pad_data_bd_out_loader_ood = torch.utils.data.DataLoader(shrink_pad_data_bd_out_testset_ood, batch_size=self.args.batch_size,
-                                                             num_workers=self.args.num_workers, drop_last=False,
-                                                             shuffle=True,
-                                                             pin_memory=args.pin_memory)
 
         data_bd_out_loader_ood_odin = torch.utils.data.DataLoader(data_bd_out_testset_ood, batch_size=1,
                                                                   num_workers=self.args.num_workers, drop_last=False,
@@ -569,25 +621,6 @@ class abl(defense):
                                                              shuffle=True,
                                                              pin_memory=args.pin_memory)
 
-        jpeg_compress_data_bd_all_testset_ood = self.result['jpeg_compress_bd_all_test_ood']
-        visualize_random_samples_from_bd_dataset(jpeg_compress_data_bd_all_testset_ood.wrapped_dataset,
-                                                 "jpeg_compress_data_bd_all_testset_ood.wrapped_dataset")
-        jpeg_compress_data_bd_all_testset_ood.wrap_img_transform = test_tran
-        jpeg_compress_data_bd_all_loader_ood = torch.utils.data.DataLoader(jpeg_compress_data_bd_all_testset_ood,
-                                                                           batch_size=self.args.batch_size,
-                                                                           num_workers=self.args.num_workers,
-                                                                           drop_last=False,
-                                                                           shuffle=True,
-                                                                           pin_memory=args.pin_memory)
-
-        shrink_pad_data_bd_all_testset_ood = self.result['shrink_pad_bd_all_test_ood']
-        visualize_random_samples_from_bd_dataset(shrink_pad_data_bd_all_testset_ood.wrapped_dataset,
-                                                 "shrink_pad_data_bd_all_testset_ood.wrapped_dataset")
-        shrink_pad_data_bd_all_testset_ood.wrap_img_transform = test_tran
-        shrink_pad_data_bd_all_loader_ood = torch.utils.data.DataLoader(shrink_pad_data_bd_all_testset_ood, batch_size=self.args.batch_size,
-                                                             num_workers=self.args.num_workers, drop_last=False,
-                                                             shuffle=True,
-                                                             pin_memory=args.pin_memory)
 
         data_bd_all_loader_ood_odin = torch.utils.data.DataLoader(data_bd_all_testset_ood, batch_size=1,
                                                                   num_workers=self.args.num_workers, drop_last=False,
@@ -602,23 +635,6 @@ class abl(defense):
                                                         num_workers=self.args.num_workers, drop_last=False,
                                                         shuffle=True, pin_memory=args.pin_memory)
 
-        jpeg_compress_data_clean_testset_ood = self.result['jpeg_compress_clean_test_ood']
-        visualize_random_samples_from_clean_dataset(jpeg_compress_data_clean_testset_ood.wrapped_dataset,
-                                                    "jpeg_compress_data_clean_testset_ood.wrapped_dataset")
-
-        jpeg_compress_data_clean_testset_ood.wrap_img_transform = test_tran
-        jpeg_compress_data_clean_loader_ood = torch.utils.data.DataLoader(jpeg_compress_data_clean_testset_ood, batch_size=self.args.batch_size,
-                                                            num_workers=self.args.num_workers, drop_last=False,
-                                                            shuffle=True, pin_memory=args.pin_memory)
-
-        shrink_pad_data_clean_testset_ood = self.result['shrink_pad_clean_test_ood']
-        visualize_random_samples_from_clean_dataset(shrink_pad_data_clean_testset_ood.wrapped_dataset,
-                                                    "shrink_pad_data_clean_testset_ood.wrapped_dataset")
-
-        shrink_pad_data_clean_testset_ood.wrap_img_transform = test_tran
-        shrink_pad_data_clean_loader_ood = torch.utils.data.DataLoader(shrink_pad_data_clean_testset_ood, batch_size=self.args.batch_size,
-                                                            num_workers=self.args.num_workers, drop_last=False,
-                                                            shuffle=True, pin_memory=args.pin_memory)
 
         data_clean_loader_ood_odin = torch.utils.data.DataLoader(data_clean_testset_ood, batch_size=1,
                                                                  num_workers=self.args.num_workers, drop_last=False,
@@ -655,23 +671,27 @@ class abl(defense):
                 args=args,
             )
 
-            jpeg_compress_msp_auc_result_dict = eval_step_msp_auc(
-                model_ascent,
-                jpeg_compress_data_clean_loader_ood,
-                jpeg_compress_data_bd_out_loader_ood,
-                jpeg_compress_data_bd_all_loader_ood,
-                args=args,
-                result_name_prefix="jpeg_compress_"
-            )
+            jpeg_compress_msp_auc_result_dict = {}
+            if 'test_jpeg_compression_defense' in args.__dict__ and args.test_jpeg_compression_defense:
+                jpeg_compress_msp_auc_result_dict = eval_step_msp_auc(
+                    model_ascent,
+                    jpeg_compress_data_clean_loader_ood,
+                    jpeg_compress_data_bd_out_loader_ood,
+                    jpeg_compress_data_bd_all_loader_ood,
+                    args=args,
+                    result_name_prefix="jpeg_compress_"
+                )
 
-            shrink_pad_msp_auc_result_dict = eval_step_msp_auc(
-                model_ascent,
-                shrink_pad_data_clean_loader_ood,
-                shrink_pad_data_bd_out_loader_ood,
-                shrink_pad_data_bd_all_loader_ood,
-                args=args,
-                result_name_prefix="shrink_pad_"
-            )
+            shrink_pad_msp_auc_result_dict = {}
+            if 'test_shrink_pad' in args.__dict__ and args.test_shrink_pad:
+                shrink_pad_msp_auc_result_dict = eval_step_msp_auc(
+                    model_ascent,
+                    shrink_pad_data_clean_loader_ood,
+                    shrink_pad_data_bd_out_loader_ood,
+                    shrink_pad_data_bd_all_loader_ood,
+                    args=args,
+                    result_name_prefix="shrink_pad_"
+                )
 
             knn_auc_result_dict = {}
             if args.test_knn_auc:
@@ -791,15 +811,6 @@ class abl(defense):
                 args=args,
             )
 
-            jpeg_compress_msp_auc_result_dict = eval_step_msp_auc(
-                model_ascent,
-                data_clean_loader_ood,
-                jpeg_compress_data_bd_out_loader_ood,
-                jpeg_compress_data_bd_all_loader_ood,
-                args=args,
-                result_name_prefix="jpeg_compress_"
-            )
-
             clean_test_loss_avg_over_batch, \
             bd_test_loss_avg_over_batch, \
             ra_test_loss_avg_over_batch, \
@@ -833,9 +844,7 @@ class abl(defense):
                 "test_asr": test_asr,
                 "test_ra": test_ra,
                 "bd_test_for_cls": bd_test_for_cls,
-                "jpeg_compress_bd_test_for_cls": jpeg_compress_bd_test_for_cls,
                 **msp_auc_result_dict,
-                **jpeg_compress_msp_auc_result_dict,
             })
 
             train_loss_list.append(train_epoch_loss_avg_over_batch)
@@ -959,11 +968,6 @@ class abl(defense):
                                                              shuffle=True,
                                                              pin_memory=args.pin_memory)
 
-        jpeg_compress_data_bd_testset_for_cls = self.result['jpeg_compress_bd_test_for_cls']
-        jpeg_compress_data_bd_loader_for_cls = torch.utils.data.DataLoader(jpeg_compress_data_bd_testset_for_cls, batch_size=self.args.batch_size,
-                                                             num_workers=self.args.num_workers, drop_last=False,
-                                                             shuffle=True,
-                                                             pin_memory=args.pin_memory)
 
         data_bd_out_testset_ood = self.result['bd_out_test_ood']
         data_bd_out_testset_ood.wrap_img_transform = test_tran
@@ -972,23 +976,10 @@ class abl(defense):
                                                          shuffle=True,
                                                          pin_memory=args.pin_memory)
 
-        jpeg_compress_data_bd_out_testset_ood = self.result['jpeg_compress_bd_out_test_ood']
-        jpeg_compress_data_bd_out_testset_ood.wrap_img_transform = test_tran
-        jpeg_compress_data_bd_out_loader_ood = torch.utils.data.DataLoader(jpeg_compress_data_bd_out_testset_ood, batch_size=self.args.batch_size,
-                                                             num_workers=self.args.num_workers, drop_last=False,
-                                                             shuffle=True,
-                                                             pin_memory=args.pin_memory)
 
         data_bd_all_testset_ood = self.result['bd_all_test_ood']
         data_bd_all_testset_ood.wrap_img_transform = test_tran
         data_bd_all_loader_ood = torch.utils.data.DataLoader(data_bd_all_testset_ood, batch_size=self.args.batch_size,
-                                                             num_workers=self.args.num_workers, drop_last=False,
-                                                             shuffle=True,
-                                                             pin_memory=args.pin_memory)
-
-        jpeg_compress_data_bd_all_testset_ood = self.result['jpeg_compress_bd_all_test_ood']
-        jpeg_compress_data_bd_all_testset_ood.wrap_img_transform = test_tran
-        jpeg_compress_data_bd_all_loader_ood = torch.utils.data.DataLoader(jpeg_compress_data_bd_all_testset_ood, batch_size=self.args.batch_size,
                                                              num_workers=self.args.num_workers, drop_last=False,
                                                              shuffle=True,
                                                              pin_memory=args.pin_memory)
@@ -1033,15 +1024,6 @@ class abl(defense):
                     args=args,
                 )
 
-                jpeg_compress_msp_auc_result_dict = eval_step_msp_auc(
-                    model_ascent,
-                    data_clean_loader_ood,
-                    jpeg_compress_data_bd_out_loader_ood,
-                    jpeg_compress_data_bd_all_loader_ood,
-                    args=args,
-                    result_name_prefix="jpeg_compress_"
-                )
-
                 clean_test_loss_avg_over_batch, \
                 bd_test_loss_avg_over_batch, \
                 ra_test_loss_avg_over_batch, \
@@ -1075,9 +1057,7 @@ class abl(defense):
                     "test_asr": test_asr,
                     "test_ra": test_ra,
                     "bd_test_for_cls": bd_test_for_cls,
-                    "jpeg_compress_bd_test_for_cls": jpeg_compress_bd_test_for_cls,
                     **msp_auc_result_dict,
-                    **jpeg_compress_msp_auc_result_dict
                 })
 
                 train_loss_list.append(train_epoch_loss_avg_over_batch)
@@ -1148,15 +1128,6 @@ class abl(defense):
                 args=args,
             )
 
-            jpeg_compress_msp_auc_result_dict = eval_step_msp_auc(
-                model_ascent,
-                data_clean_loader_ood,
-                jpeg_compress_data_bd_out_loader_ood,
-                jpeg_compress_data_bd_all_loader_ood,
-                args=args,
-                result_name_prefix="jpeg_compress_"
-            )
-
             clean_test_loss_avg_over_batch, \
             bd_test_loss_avg_over_batch, \
             ra_test_loss_avg_over_batch, \
@@ -1191,7 +1162,6 @@ class abl(defense):
                 "test_ra": test_ra,
                 "bd_test_for_cls": bd_test_for_cls,
                 **msp_auc_result_dict,
-                **jpeg_compress_msp_auc_result_dict,
             })
 
             train_loss_list.append(train_epoch_loss_avg_over_batch)
