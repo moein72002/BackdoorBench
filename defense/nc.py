@@ -660,7 +660,9 @@ class nc(defense):
                     bd_test_loss_avg_over_batch, \
                     test_acc, \
                     test_asr, \
-                    test_ra = self.trainer.test_current_model(
+                    test_ra, \
+                    bd_test_acc_for_cls, \
+                    = self.trainer.test_current_model(
                 test_dataloader_dict, self.args.device,
             )
             agg({
@@ -669,6 +671,7 @@ class nc(defense):
                     "test_acc": test_acc,
                     "test_asr": test_asr,
                     "test_ra": test_ra,
+                    "bd_test_acc_for_cls": bd_test_acc_for_cls,
                 })
             agg.to_dataframe().to_csv(f"{args.save_path}nc_df_summary.csv")
 
