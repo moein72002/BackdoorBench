@@ -73,6 +73,7 @@ from utils.log_assist import get_git_info
 from utils.aggregate_block.dataset_and_transform_generate import get_input_shape, get_num_classes, get_transform
 from utils.save_load_attack import load_attack_result, save_defense_result
 from utils.bd_dataset_v2 import prepro_cls_DatasetBD_v2, xy_iter
+from utils.ood_scores.msp import eval_step_msp_auc
 
 class Normalize:
 
@@ -657,6 +658,15 @@ class nc(defense):
                 # continue_training_path = continue_training_path,
                 # only_load_model = only_load_model,
             )
+
+            msp_auc_result_dict = eval_step_msp_auc(
+                self.trainer.model,
+                test_dataloader_dict["clean_test_dataloader_ood"],
+                test_dataloader_dict["bd_out_test_dataloader_ood"],
+                test_dataloader_dict["bd_all_test_dataloader_ood"],
+                args=args,
+            )
+
             clean_test_loss_avg_over_batch, \
                     bd_test_loss_avg_over_batch, \
                     test_acc, \
@@ -673,6 +683,7 @@ class nc(defense):
                     "test_asr": test_asr,
                     "test_ra": test_ra,
                     "bd_test_acc_for_cls": bd_test_acc_for_cls,
+                    **msp_auc_result_dict
                 })
             agg.to_dataframe().to_csv(f"{args.save_path}nc_df_summary.csv")
 
