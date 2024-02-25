@@ -507,13 +507,15 @@ class abl(defense):
         data_clean_testset.wrap_img_transform = test_tran
         data_clean_loader = torch.utils.data.DataLoader(data_clean_testset, batch_size=self.args.batch_size, num_workers=self.args.num_workers,drop_last=False, shuffle=True,pin_memory=args.pin_memory)
 
-        data_bd_testset_for_cls = self.result['bd_test_for_cls']
-        visualize_random_samples_from_bd_dataset(data_bd_testset_for_cls.wrapped_dataset, "data_bd_testset_for_cls.wrapped_dataset")
-        data_bd_testset_for_cls.wrap_img_transform = test_tran
-        data_bd_loader_for_cls = torch.utils.data.DataLoader(data_bd_testset_for_cls, batch_size=self.args.batch_size,
-                                                             num_workers=self.args.num_workers, drop_last=False,
-                                                             shuffle=True,
-                                                             pin_memory=args.pin_memory)
+        data_bd_loader_for_cls = None
+        if 'bd_test_for_cls' in self.result:
+            data_bd_testset_for_cls = self.result['bd_test_for_cls']
+            visualize_random_samples_from_bd_dataset(data_bd_testset_for_cls.wrapped_dataset, "data_bd_testset_for_cls.wrapped_dataset")
+            data_bd_testset_for_cls.wrap_img_transform = test_tran
+            data_bd_loader_for_cls = torch.utils.data.DataLoader(data_bd_testset_for_cls, batch_size=self.args.batch_size,
+                                                                 num_workers=self.args.num_workers, drop_last=False,
+                                                                 shuffle=True,
+                                                                 pin_memory=args.pin_memory)
 
         jpeg_compress_data_bd_loader_for_cls = None
         if 'test_jpeg_compression_defense' in args.__dict__ and args.test_jpeg_compression_defense:
@@ -963,12 +965,14 @@ class abl(defense):
         data_clean_testset.wrap_img_transform = test_tran
         data_clean_loader = torch.utils.data.DataLoader(data_clean_testset, batch_size=args.batch_size, num_workers=args.num_workers,drop_last=False, shuffle=True,pin_memory=args.pin_memory)
 
-        data_bd_testset_for_cls = self.result['bd_test_for_cls']
-        data_bd_testset_for_cls.wrap_img_transform = test_tran
-        data_bd_loader_for_cls = torch.utils.data.DataLoader(data_bd_testset_for_cls, batch_size=self.args.batch_size,
-                                                             num_workers=self.args.num_workers, drop_last=False,
-                                                             shuffle=True,
-                                                             pin_memory=args.pin_memory)
+        data_bd_loader_for_cls = None
+        if 'bd_test_for_cls' in self.result:
+            data_bd_testset_for_cls = self.result['bd_test_for_cls']
+            data_bd_testset_for_cls.wrap_img_transform = test_tran
+            data_bd_loader_for_cls = torch.utils.data.DataLoader(data_bd_testset_for_cls, batch_size=self.args.batch_size,
+                                                                 num_workers=self.args.num_workers, drop_last=False,
+                                                                 shuffle=True,
+                                                                 pin_memory=args.pin_memory)
 
 
         data_bd_out_testset_ood = self.result['bd_out_test_ood']
@@ -1400,16 +1404,18 @@ class abl(defense):
         clean_test_loss_avg_over_batch = clean_metrics['test_loss_avg_over_batch']
         test_acc = clean_metrics['test_acc']
 
-        bd_metrics_for_cls, bd_epoch_predict_list, _ = given_dataloader_test(
-            netC,
-            bd_test_dataloader_for_cls,
-            criterion=torch.nn.CrossEntropyLoss(),
-            non_blocking=args.non_blocking,
-            device=self.args.device,
-            verbose=1,
-        )
-        print(f"bd_epoch_predict_list.eq(0).sum(): {bd_epoch_predict_list.eq(0).sum()}")
-        bd_test_for_cls_acc = bd_metrics_for_cls['test_acc']
+        bd_test_for_cls_acc = None
+        if bd_test_dataloader_for_cls:
+            bd_metrics_for_cls, bd_epoch_predict_list, _ = given_dataloader_test(
+                netC,
+                bd_test_dataloader_for_cls,
+                criterion=torch.nn.CrossEntropyLoss(),
+                non_blocking=args.non_blocking,
+                device=self.args.device,
+                verbose=1,
+            )
+            print(f"bd_epoch_predict_list.eq(0).sum(): {bd_epoch_predict_list.eq(0).sum()}")
+            bd_test_for_cls_acc = bd_metrics_for_cls['test_acc']
 
         jpeg_compress_bd_test_for_cls_acc = None
         if jpeg_compress_data_bd_loader_for_cls:
