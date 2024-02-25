@@ -795,7 +795,7 @@ class nad(defense):
                 test_dataloader_dict["bd_out_test_dataloader_ood"],
                 test_dataloader_dict["bd_all_test_dataloader_ood"],
                 args.te_epochs,
-                criterion = criterions,
+                criterion = criterionCls,
                 optimizer = optimizer,
                 scheduler = scheduler,
                 device = self.args.device,
