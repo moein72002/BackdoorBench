@@ -126,11 +126,21 @@ class SIG(BadNet):
             np.where(test_poison_index == 1)[0]
         )
 
-        test_poison_index_ood = np.concatenate((np.zeros(10000), np.ones(10000)))
+        bd_out_test_poison_index_ood = np.concatenate((np.zeros(10000), np.ones(10000)))
 
-        bd_test_dataset_ood = prepro_cls_DatasetBD_v2(
+        bd_out_test_dataset_ood = prepro_cls_DatasetBD_v2(
             deepcopy(test_dataset_without_transform_ood),
-            poison_indicator=test_poison_index_ood,
+            poison_indicator=bd_out_test_poison_index_ood,
+            bd_image_pre_transform=test_bd_img_transform,  # TODO: check here
+            bd_label_pre_transform=bd_label_transform_ood,
+            save_folder_path=f"{args.save_path}/bd_test_dataset",
+        )
+
+        bd_all_test_poison_index_ood = np.ones(20000)
+
+        bd_all_test_dataset_ood = prepro_cls_DatasetBD_v2(
+            deepcopy(test_dataset_without_transform_ood),
+            poison_indicator=bd_all_test_poison_index_ood,
             bd_image_pre_transform=test_bd_img_transform,  # TODO: check here
             bd_label_pre_transform=bd_label_transform_ood,
             save_folder_path=f"{args.save_path}/bd_test_dataset",
@@ -142,8 +152,14 @@ class SIG(BadNet):
             test_label_transform,
         )
 
-        bd_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
-            bd_test_dataset_ood,
+        bd_out_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
+            bd_out_test_dataset_ood,
+            test_img_transform_ood,
+            test_label_transform_ood,
+        )
+
+        bd_all_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
+            bd_all_test_dataset_ood,
             test_img_transform_ood,
             test_label_transform_ood,
         )
@@ -153,7 +169,8 @@ class SIG(BadNet):
                               bd_train_dataset_with_transform, \
                               bd_test_dataset_with_transform, \
                               clean_test_dataset_with_transform_ood, \
-                              bd_test_dataset_with_transform_ood
+                              bd_out_test_dataset_with_transform_ood, \
+                              bd_all_test_dataset_with_transform_ood
 
 
 if __name__ == '__main__':
