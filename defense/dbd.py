@@ -211,9 +211,9 @@ def dbd(args,result):
         args.resume = args.checkpoint_load
     
     if args.dataset == 'cifar10':
-        config_file = './utils/defense_utils/dbd/config_z/pretrain/' + 'squareTrigger/' + args.dataset + '/example.yaml'
+        config_file = '../utils/defense_utils/dbd/config_z/pretrain/' + 'squareTrigger/' + args.dataset + '/example.yaml'
     else:
-        config_file = './utils/defense_utils/dbd/config_z/pretrain/' + 'squareTrigger/imagenet/example.yaml'
+        config_file = '../utils/defense_utils/dbd/config_z/pretrain/' + 'squareTrigger/imagenet/example.yaml'
     config_ori, inner_dir, config_name = load_config(config_file)
     try:
         gpu = int(os.environ['CUDA_VISIBLE_DEVICES'])

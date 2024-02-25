@@ -789,10 +789,13 @@ class nad(defense):
 
         self.trainer.train_with_test_each_epoch_on_mix(
                 trainloader,
-                data_clean_loader,
-                data_bd_loader,
+                test_dataloader_dict["clean_test_dataloader"],
+                test_dataloader_dict["bd_test_dataloader"],
+                test_dataloader_dict["clean_test_dataloader_ood"],
+                test_dataloader_dict["bd_out_test_dataloader_ood"],
+                test_dataloader_dict["bd_all_test_dataloader_ood"],
                 args.te_epochs,
-                criterions = criterions,
+                criterion = criterions,
                 optimizer = optimizer,
                 scheduler = scheduler,
                 device = self.args.device,
