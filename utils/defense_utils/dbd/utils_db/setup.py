@@ -26,7 +26,7 @@ def load_config(config_path):
     """
     assert os.path.exists(config_path)
     config_hierarchy = config_path.split("/")
-    if config_hierarchy[0] != ".":
+    if config_hierarchy[0] != "..":
         if config_hierarchy[0] != "config":
             raise RuntimeError(
                 "Configuration file {} must be in config dir".format(config_path)
