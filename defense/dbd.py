@@ -262,9 +262,9 @@ def dbd(args,result):
         logger.info("Save the latest model to {}".format(ckpt_path))
         
     if args.dataset == 'cifar10':
-        config_file_semi = './utils/defense_utils/dbd/config_z/semi/' + 'badnets/' + args.dataset + '/example.yaml'
+        config_file_semi = '../utils/defense_utils/dbd/config_z/semi/' + 'badnets/' + args.dataset + '/example.yaml'
     else:
-        config_file_semi = './utils/defense_utils/dbd/config_z/semi/' + 'badnets/imagenet/example.yaml'
+        config_file_semi = '../utils/defense_utils/dbd/config_z/semi/' + 'badnets/imagenet/example.yaml'
  
    
     finetune_config, finetune_inner_dir, finetune_config_name = load_config(config_file_semi)
