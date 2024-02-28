@@ -136,8 +136,8 @@ class spectral(defense):
         
 
     def set_result(self, result_file):
-        attack_file = 'record/' + result_file
-        save_path = 'record/' + result_file + '/defense/spectral/'
+        attack_file = '../record/' + result_file
+        save_path = '../record/' + result_file + '/defense/spectral/'
         if not (os.path.exists(save_path)):
             os.makedirs(save_path)
         # assert(os.path.exists(save_path))    
