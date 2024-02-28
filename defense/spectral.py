@@ -129,6 +129,10 @@ class spectral(defense):
         parser.add_argument('--percentile', type=float)
         parser.add_argument('--target_label', type=int)
         parser.add_argument('--C', type=bool, default=False)
+        parser.add_argument('--use_rotation_transform', type=bool, default=False)
+        parser.add_argument('--use_l2_adv_images', type=bool, default=False)
+        parser.add_argument('--is_our_attack', type=bool, default=False)
+        parser.add_argument('--use_l2_100', type=bool, default=False)
         
 
     def set_result(self, result_file):
@@ -146,7 +150,7 @@ class spectral(defense):
             self.args.log = save_path + 'log/'
             if not (os.path.exists(self.args.log)):
                 os.makedirs(self.args.log)  
-        self.result = load_attack_result(attack_file + '/attack_result.pt')
+        self.result = load_attack_result(attack_file + '/attack_result.pt', args)
 
     def set_trainer(self, model):
         self.trainer = PureCleanModelTrainer(
