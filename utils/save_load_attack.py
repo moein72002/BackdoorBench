@@ -266,7 +266,11 @@ def load_attack_result(
             clean_setting.exposure_blend_rate = exposure_blend_rate
 
         if args.is_our_attack:
-            clean_setting.use_cheat_exposure = args.use_cheat_exposure
+            if 'use_cheat_exposure' in args.__dict__:
+                clean_setting.use_cheat_exposure = args.use_cheat_exposure
+            else:
+                clean_setting.use_cheat_exposure = False
+
             clean_setting.use_l2_100 = args.use_l2_100
             clean_setting.use_l2_adv_images = args.use_l2_adv_images
             clean_setting.pratio = 0.1
