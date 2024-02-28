@@ -243,7 +243,7 @@ class CIFAR100_BLENDED_OOD(Dataset):
         self.transform = transform
 
         if args.top_k > 0 or args.use_l2_adv_images:
-            file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl" if args.use_l2_adv_images \
+            file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0.pkl" if args.use_l2_adv_images \
                 else "../clean_trained_model/top_k_selected_images.pkl"
             self.data = get_cifar100_blended_images_for_test_exposure_top_k(args, file_path)
         else:
@@ -297,7 +297,7 @@ class CIFAR10_BLENDED_FOR_CLS(Dataset):
 
         cifar10_testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=None)
         if args.top_k > 0 or args.use_l2_adv_images:
-            file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl" if args.use_l2_adv_images \
+            file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0.pkl" if args.use_l2_adv_images \
                 else "../clean_trained_model/top_k_selected_images.pkl"
             self.data = get_cifar10_blended_images_for_cls_test_exposure_top_k(cifar10_testset, args, file_path)
         else:
@@ -357,7 +357,7 @@ class CIFAR10_BLENDED_ID(Dataset):
         self.transform = transform
 
         if args.top_k > 0 or args.use_l2_adv_images:
-            file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl" if args.use_l2_adv_images \
+            file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0.pkl" if args.use_l2_adv_images \
                 else "../clean_trained_model/top_k_selected_images.pkl"
             self.data = get_cifar10_blended_id_images_for_test_exposure_top_k(args, file_path)
         else:
@@ -667,7 +667,7 @@ def dataset_and_transform_generate(args):
 class BlendedDataset(Dataset):
     def __init__(self, args, transform=None, target_label=0):
         if args.top_k > 0 or args.use_l2_adv_images:
-            file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl" if args.use_l2_adv_images \
+            file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0.pkl" if args.use_l2_adv_images \
                 else "../clean_trained_model/top_k_selected_images.pkl"
             self.data = get_blended_images_top_k(args, file_path=file_path)
         else:
@@ -710,7 +710,7 @@ class CIFAR10_BLENDED_L2_USE_CHEAT_EXPOSURE_DATASET(Dataset):
         self.transform = transform
 
         cifar10_train = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=None)
-        with open("../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl", 'rb') as file:
+        with open("../clean_trained_model/l2_adv_gen_images_cifar10_train_class0.pkl", 'rb') as file:
             l2_adv_saved_images = pickle.load(file)
 
         self.data = cifar10_train.data
@@ -742,7 +742,7 @@ class CIFAR10_BLENDED_L2_USE_OTHER_CLASSES_DATASET(Dataset):
         self.transform = transform
 
         cifar10_train = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=None)
-        with open("../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl", 'rb') as file:
+        with open("../clean_trained_model/l2_adv_gen_images_cifar10_train_class0.pkl", 'rb') as file:
             l2_adv_saved_images = pickle.load(file)
 
         self.data = cifar10_train.data
