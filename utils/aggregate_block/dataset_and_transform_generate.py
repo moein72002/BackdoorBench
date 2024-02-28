@@ -768,7 +768,7 @@ class CIFAR10_BLENDED_L2_USE_OTHER_CLASSES_DATASET(Dataset):
             print(f"len(random_indices_for_saving_classification): {len(random_indices_for_saving_classification)}")
             print(f"len(poison_indices): {len(poison_indices)}")
 
-            print(f"Image.blend(cifar10_train[random_indices_for_saving_classification][0], random.choice(l2_adv_saved_images), {args.exposure_blend_rate})")
+            print(f"Image.blend(cifar10_train[random_indices_for_saving_classification][0], random.choice(l2_adv_saved_images), {args.exposure_blend_rate * random.random()})")
             for idx in random_indices_for_saving_classification:
                 self.data[idx] = Image.blend(cifar10_train[idx][0], random.choice(l2_adv_saved_images),
                                              args.exposure_blend_rate)  # Blend two images with ratio 0.5
