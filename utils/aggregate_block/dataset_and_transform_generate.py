@@ -817,7 +817,7 @@ class TINY_IMAGENET_EXPOSURE_DATASET(Dataset):
 
     def __getitem__(self, index):
         x = self.data[index][0]
-        x = np.transpose(np.array(x), (1, 2, 0))
+        # x = np.transpose(np.array(x), (1, 2, 0))
         if self.transform:
             x = Image.fromarray((x * 255).astype(np.uint8))
             x = self.transform(x)
