@@ -868,7 +868,7 @@ class CIFAR10_L2_USE_TINY_IMAGENET_EXPOSURE_DATASET(Dataset):
 
         print(f"Image.blend(cifar10_train, random.choice(l2_adv_saved_images), {args.exposure_blend_rate})")
         for i, idx in enumerate(poison_indices):
-            self.data[idx] = Image.blend(tiny_imagenet_exposure_dataset[i][0].resize(*args.img_size[:2]), random.choice(l2_adv_saved_images), args.exposure_blend_rate)  # Blend two images with ratio 0.5
+            self.data[idx] = Image.blend(tiny_imagenet_exposure_dataset[i][0].resize(args.img_size[:2]), random.choice(l2_adv_saved_images), args.exposure_blend_rate)  # Blend two images with ratio 0.5
             self.targets[idx] = target_label
 
             if args.use_jpeg_compress_in_training:
