@@ -809,7 +809,7 @@ class TINY_IMAGENET_EXPOSURE_DATASET(Dataset):
         download_tiny_imagenet_dataset()
 
         if exposuer_dataset_name == 'tiny-imagenet':
-            exposure_dataset = ImageFolder('tiny-imagenet-200/train', transform=transform)
+            exposure_dataset = ImageFolder('tiny-imagenet-200/test', transform=transform)
 
         exposure_dataset, _ = generate_random_coreset(exposure_dataset, exposure_samples_count)
         self.data = exposure_dataset
