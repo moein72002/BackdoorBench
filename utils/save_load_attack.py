@@ -95,6 +95,7 @@ def save_attack_result(
     is_our_attack = False,
     use_l2_adv_images = False,
     exposure_blend_rate = 0.25,
+    use_tiny_imagenet_exposure=False
 ):
     '''
 
@@ -132,7 +133,8 @@ def save_attack_result(
             'bd_test': bd_test.retrieve_state(),
             'bd_out_test_ood': bd_out_test_ood.retrieve_state(),
             'bd_all_test_ood': bd_all_test_ood.retrieve_state(),
-            'is_our_attack': is_our_attack
+            'is_our_attack': is_our_attack,
+            'use_tiny_imagenet_exposure': use_tiny_imagenet_exposure
         }
 
     if is_our_attack:
@@ -270,6 +272,13 @@ def load_attack_result(
                 clean_setting.use_cheat_exposure = args.use_cheat_exposure
             else:
                 clean_setting.use_cheat_exposure = False
+
+            if 'use_tiny_imagenet_exposure' in load_file:
+                clean_setting.use_tiny_imagenet_exposure = load_file['use_tiny_imagenet_exposure']
+            elif 'use_tiny_imagenet_exposure' in args.__dict__:
+                clean_setting.use_tiny_imagenet_exposure = args.use_tiny_imagenet_exposure
+            else:
+                clean_setting.use_tiny_imagenet_exposure = False
 
             clean_setting.use_l2_100 = args.use_l2_100
             clean_setting.use_l2_adv_images = args.use_l2_adv_images

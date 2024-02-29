@@ -72,6 +72,7 @@ class Attack(NormalCase):
         parser.add_argument('--use_jpeg_compress_in_training', type=bool, default=False)
         parser.add_argument('--use_cheat_exposure', type=bool, default=False)
         parser.add_argument('--use_l2_100', type=bool, default=False)
+        parser.add_argument('--use_tiny_imagenet_exposure', type=bool, default=False)
         return parser
 
     def add_bd_yaml_to_args(self, args):
@@ -361,7 +362,8 @@ class Attack(NormalCase):
             bd_all_test_ood=bd_all_test_dataset_with_transform_ood,
             exposure_blend_rate=args.exposure_blend_rate,
             use_l2_adv_images=args.use_l2_adv_images,
-            is_our_attack=args.is_our_attack
+            is_our_attack=args.is_our_attack,
+            use_tiny_imagenet_exposure=args.use_tiny_imagenet_exposure
         )
 
 

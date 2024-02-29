@@ -45,7 +45,7 @@ args.__dict__ = config
 args = preprocess_args(args)
 fix_random(int(args.random_seed))
 
-save_path_attack = "./record/" + args.result_file_attack
+save_path_attack = "../record/" + args.result_file_attack
 visual_save_path = save_path_attack + "/visual"
 
 # Load result
