@@ -273,6 +273,11 @@ def load_attack_result(
             else:
                 clean_setting.use_cheat_exposure = False
 
+            if 'save_classification' in args.__dict__:
+                clean_setting.save_classification = args.save_classification
+            else:
+                clean_setting.save_classification = False
+
             if 'use_tiny_imagenet_exposure' in load_file:
                 clean_setting.use_tiny_imagenet_exposure = load_file['use_tiny_imagenet_exposure']
             elif 'use_tiny_imagenet_exposure' in args.__dict__:

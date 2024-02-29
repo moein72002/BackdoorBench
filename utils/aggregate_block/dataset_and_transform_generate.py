@@ -843,8 +843,21 @@ class CIFAR10_L2_USE_TINY_IMAGENET_EXPOSURE_DATASET(Dataset):
         self.data = cifar10_train.data
         self.targets = cifar10_train.targets
 
-        poison_indices = random.sample(range(len(self.data)), int(args.pratio * len(self.data)))
-        print(f"len(poison_indices): {len(poison_indices)}")
+        if 'save_classification' in args.__dict__ and args.save_classification:
+            random_indices = random.sample(range(len(self.data)), int(2 * args.pratio * len(self.data)))
+            random_indices_for_saving_classification = random_indices[len(random_indices) // 2:]
+            poison_indices = random_indices[:len(random_indices) // 2]
+            print(f"len(random_indices_ for_saving_classification): {len(random_indices_for_saving_classification)}")
+            print(f"len(poison_indices): {len(poison_indices)}")
+
+            print(
+                f"Image.blend(cifar10_train[random_indices_for_saving_classification][0], random.choice(l2_adv_saved_images), {args.exposure_blend_rate * random.random()})")
+            for idx in random_indices_for_saving_classification:
+                self.data[idx] = Image.blend(cifar10_train[idx][0], random.choice(l2_adv_saved_images),
+                                             args.exposure_blend_rate)  # Blend two images with ratio 0.5
+        else:
+            poison_indices = random.sample(range(len(self.data)), int(args.pratio * len(self.data)))
+            print(f"len(poison_indices): {len(poison_indices)}")
 
         # Define the path of the new directory
         new_directory_path = "./data/jpeg_compress_CIFAR10_TRAIN_USE_TINY_IMAGENET_EXP"
@@ -892,8 +905,21 @@ class CIFAR10_BLENDED_L2_USE_CHEAT_EXPOSURE_DATASET(Dataset):
         self.data = cifar10_train.data
         self.targets = cifar10_train.targets
 
-        poison_indices = random.sample(range(len(self.data)), int(args.pratio * len(self.data)))
-        print(f"len(poison_indices): {len(poison_indices)}")
+        if 'save_classification' in args.__dict__ and args.save_classification:
+            random_indices = random.sample(range(len(self.data)), int(2 * args.pratio * len(self.data)))
+            random_indices_for_saving_classification = random_indices[len(random_indices) // 2:]
+            poison_indices = random_indices[:len(random_indices) // 2]
+            print(f"len(random_indices_ for_saving_classification): {len(random_indices_for_saving_classification)}")
+            print(f"len(poison_indices): {len(poison_indices)}")
+
+            print(
+                f"Image.blend(cifar10_train[random_indices_for_saving_classification][0], random.choice(l2_adv_saved_images), {args.exposure_blend_rate * random.random()})")
+            for idx in random_indices_for_saving_classification:
+                self.data[idx] = Image.blend(cifar10_train[idx][0], random.choice(l2_adv_saved_images),
+                                             args.exposure_blend_rate)  # Blend two images with ratio 0.5
+        else:
+            poison_indices = random.sample(range(len(self.data)), int(args.pratio * len(self.data)))
+            print(f"len(poison_indices): {len(poison_indices)}")
 
         # Define the path of the new directory
         new_directory_path = "./data/jpeg_compress_CIFAR10_TRAIN_USE_CHEAT_EXP"
@@ -942,8 +968,21 @@ class CIFAR10_TRAIN_BLENDED_L2_USE_OTHER_CLASSES_DATASET(Dataset):
         self.data = cifar10_train.data
         self.targets = cifar10_train.targets
 
-        poison_indices = random.sample(range(len(self.data)), int(args.pratio * len(self.data)))
-        print(f"len(poison_indices): {len(poison_indices)}")
+        if 'save_classification' in args.__dict__ and args.save_classification:
+            random_indices = random.sample(range(len(self.data)), int(2 * args.pratio * len(self.data)))
+            random_indices_for_saving_classification = random_indices[len(random_indices) // 2:]
+            poison_indices = random_indices[:len(random_indices) // 2]
+            print(f"len(random_indices_ for_saving_classification): {len(random_indices_for_saving_classification)}")
+            print(f"len(poison_indices): {len(poison_indices)}")
+
+            print(
+                f"Image.blend(cifar10_train[random_indices_for_saving_classification][0], random.choice(l2_adv_saved_images), {args.exposure_blend_rate * random.random()})")
+            for idx in random_indices_for_saving_classification:
+                self.data[idx] = Image.blend(cifar10_train[idx][0], random.choice(l2_adv_saved_images),
+                                             args.exposure_blend_rate)  # Blend two images with ratio 0.5
+        else:
+            poison_indices = random.sample(range(len(self.data)), int(args.pratio * len(self.data)))
+            print(f"len(poison_indices): {len(poison_indices)}")
 
         print(f"Image.blend(cifar10_train, random.choice(l2_adv_saved_images), {args.exposure_blend_rate})")
 
