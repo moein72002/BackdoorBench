@@ -799,15 +799,15 @@ def download_tiny_imagenet_dataset():
     if not os.path.exists('tiny-imagenet-200'):
         download_and_extract_archive(url, '.')
 
-
-download_tiny_imagenet_dataset()
-
 def generate_random_coreset(dataset, num_samples):
     # dataset is a pytorch dataset
     return torch.utils.data.random_split(dataset, [num_samples, len(dataset) - num_samples])
 class TINY_IMAGENET_EXPOSURE_DATASET(Dataset):
     def __init__(self, transform=None, exposuer_dataset_name='tiny-imagenet', exposure_samples_count=5000, target_label=0):
         self.transform = transform
+
+        download_tiny_imagenet_dataset()
+
         if exposuer_dataset_name == 'tiny-imagenet':
             exposure_dataset = ImageFolder('tiny-imagenet-200/train', transform=transform)
 
