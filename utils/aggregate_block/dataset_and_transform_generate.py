@@ -78,6 +78,10 @@ def get_input_shape(dataset_name: str) -> Tuple[int, int, int]:
         input_height = 224
         input_width = 224
         input_channel = 3
+    elif dataset_name == 'imagenet30':
+        input_height = 224
+        input_width = 224
+        input_channel = 3
     else:
         raise Exception("Invalid Dataset")
     return input_height, input_width, input_channel
