@@ -108,6 +108,9 @@ def get_transform_br(opt, train=True):
         elif opt.dataset == "imagenet":
             transforms_list.append(transforms.RandomRotation(20))
             transforms_list.append(transforms.RandomHorizontalFlip(0.5))
+        elif opt.dataset == "imagenet30":
+            transforms_list.append(transforms.RandomRotation(20))
+            transforms_list.append(transforms.RandomHorizontalFlip(0.5))
         elif opt.dataset == "tiny":
             transforms_list.append(transforms.RandomCrop((opt.input_height, opt.input_width), padding=8))
             transforms_list.append(transforms.RandomHorizontalFlip())
@@ -185,6 +188,9 @@ def get_br_train_loader(opt):
         mean = (0.4802, 0.4481, 0.3975)
         std = (0.2302, 0.2265, 0.2262)
     elif opt.dataset == 'imagenet':
+        mean = (0.4802, 0.4481, 0.3975)
+        std = (0.2302, 0.2265, 0.2262)
+    elif opt.dataset == 'imagenet30':
         mean = (0.4802, 0.4481, 0.3975)
         std = (0.2302, 0.2265, 0.2262)
     elif opt.dataset == 'gtsrb':

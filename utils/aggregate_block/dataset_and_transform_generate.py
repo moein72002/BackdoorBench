@@ -222,6 +222,23 @@ def get_cifar100_blended_images_for_test_exposure(args):
 
     return blended_images
 
+def get_bird_test_l2_images(args, file_path):
+    with open(file_path, 'rb') as file:
+        l2_1000_saved_images = pickle.load(file)
+
+    bird_testset = torchvision.datasets.ImageFolder(root="/kaggle/input/100-bird-species/test", transform=None)
+
+    # Blend images
+    blended_images = []
+    print(f"Image.blend(bird_testset, random.choice(l2_1000_saved_images), {args.exposure_blend_rate})")
+    for i, img in enumerate(bird_testset):
+        blended_img = Image.blend(img[0], random.choice(l2_1000_saved_images), args.exposure_blend_rate)  # Blend two images with ratio 0.5
+        blended_images.append(blended_img)  # Assign label 0
+
+    print("Blended dataset size:", len(blended_images))
+
+    return blended_images
+
 def get_cifar100_blended_images_for_test_exposure_l2_1000(args, file_path):
     with open(file_path, 'rb') as file:
         l2_1000_saved_images = pickle.load(file)
@@ -239,6 +256,43 @@ def get_cifar100_blended_images_for_test_exposure_l2_1000(args, file_path):
     print("Blended dataset size:", len(blended_images))
 
     return blended_images
+
+class OOD_BIRD_L2_TESTSET(Dataset):
+    def __init__(self, args, transform=None, out_dist_label=0):
+        self.transform = transform
+
+        self.data = []
+
+        if args.use_l2_adv_images:
+            if 'use_l2_100' in args.__dict__ and args.use_l2_100:
+                file_path = "../clean_trained_model/L2_ADV_gen_pil_images_ImageNet_train_class_dumbbell.pkl"
+            self.data = get_bird_test_l2_images(args, file_path)
+
+        if 'test_jpeg_compression_defense' in args.__dict__ and args.test_jpeg_compression_defense:
+            print("test_jpeg_compression_defense in OOD_BIRD_L2_TESTSET")
+            new_directory_path = "./data/jpeg_compress_BIRD_OOD"
+            # Create the directory
+            os.makedirs(new_directory_path, exist_ok=True)
+            for i in range(len(self.data)):
+                address = f"./data/jpeg_compress_BIRD_OOD/{i}.jpg"
+                self.data[i].save(address, 'JPEG', quality=75)
+                self.data[i] = Image.open(address)
+
+        if 'test_shrink_pad' in args.__dict__ and args.test_shrink_pad:
+            for i in range(len(self.data)):
+                self.data[i] = resize_and_pad(self.data[i])
+
+        self.out_dist_label = out_dist_label
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        img = self.data[idx]
+        label = self.out_dist_label
+        if self.transform:
+            img = self.tranform(img)
+        return img, label
 
 class CIFAR100_BLENDED_OOD(Dataset):
     def __init__(self, args, transform=None, out_dist_label=0):
@@ -279,6 +333,21 @@ class CIFAR100_BLENDED_OOD(Dataset):
             img = self.tranform(img)
         return img, label
 
+def get_imagenet30_l2_images_for_cls(imagenet30_testset, args, file_path):
+    with open(file_path, 'rb') as file:
+        l2_1000_saved_images = pickle.load(file)
+
+    # Blend images
+    blended_images = []
+    print(f"Image.blend(imagenet30_testset, random.choice(l2_1000_saved_images), {args.exposure_blend_rate})")
+    for i, img in enumerate(imagenet30_testset):
+        blended_img = Image.blend(img[0], random.choice(l2_1000_saved_images), args.exposure_blend_rate)  # Blend two images with ratio 0.5
+        blended_images.append(blended_img)  # Assign label 0
+
+    print("Blended dataset size:", len(blended_images))
+
+    return blended_images
+
 def get_cifar10_blended_images_for_cls_l2_1000(cifar10_testset, args, file_path):
     with open(file_path, 'rb') as file:
         l2_1000_saved_images = pickle.load(file)
@@ -293,6 +362,44 @@ def get_cifar10_blended_images_for_cls_l2_1000(cifar10_testset, args, file_path)
     print("Blended dataset size:", len(blended_images))
 
     return blended_images
+
+class IMAGENET30_L2_FOR_CLS(Dataset):
+    def __init__(self, args, transform=None):
+        self.transform = transform
+
+        self.data = []
+
+        imagenet30_testset = IMAGENET30_TEST_DATASET()
+        if args.use_l2_adv_images:
+            if 'use_l2_100' in args.__dict__ and args.use_l2_100:
+                file_path = "../clean_trained_model/L2_ADV_gen_pil_images_ImageNet_train_class_dumbbell.pkl"
+            self.data = get_imagenet30_l2_images_for_cls(imagenet30_testset, args, file_path)
+
+        if 'test_jpeg_compression_defense' in args.__dict__ and args.test_jpeg_compression_defense:
+            print("test_jpeg_compression_defense in IMAGENET_L2_FOR_CLS")
+            new_directory_path = "./data/jpeg_compress_IMAGENET30_FOR_CLS"
+            # Create the directory
+            os.makedirs(new_directory_path, exist_ok=True)
+            for i in range(len(self.data)):
+                address = f"./data/jpeg_compress_IMAGENET30_FOR_CLS/{i}.jpg"
+                self.data[i].save(address, 'JPEG', quality=75)
+                self.data[i] = Image.open(address)
+
+        if 'test_shrink_pad' in args.__dict__ and args.test_shrink_pad:
+            for i in range(len(self.data)):
+                self.data[i] = resize_and_pad(self.data[i])
+
+        self.targets = imagenet30_testset.targets
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        img = self.data[idx]
+        label = self.targets[idx]
+        if self.transform:
+            img = self.tranform(img)
+        return img, label
 
 class CIFAR10_BLENDED_FOR_CLS(Dataset):
     def __init__(self, args, transform=None):
@@ -334,13 +441,29 @@ class CIFAR10_BLENDED_FOR_CLS(Dataset):
             img = self.tranform(img)
         return img, label
 
+def get_imagenet30_test_l2_images(args, file_path):
+
+    with open(file_path, 'rb') as file:
+        l2_1000_saved_images = pickle.load(file)
+
+    imagenet30_testset = IMAGENET30_TEST_DATASET()
+
+    # Blend images
+    blended_images = []
+    print(f"Image.blend(imagenet30_testset, random.choice(l2_1000_saved_images), {args.exposure_blend_rate})")
+    for i, img in enumerate(imagenet30_testset):
+        blended_img = Image.blend(img[0], random.choice(l2_1000_saved_images), args.exposure_blend_rate)  # Blend two images with ratio 0.5
+        blended_images.append(blended_img)  # Assign label 0
+
+    print("Blended dataset size:", len(blended_images))
+
+    return blended_images
 
 def get_cifar10_blended_id_images_for_test_l2_1000(args, file_path):
 
     with open(file_path, 'rb') as file:
         l2_1000_saved_images = pickle.load(file)
 
-    # Load CIFAR-100 dataset
     cifar10_testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=None)
 
     # Blend images
@@ -377,6 +500,43 @@ def resize_and_pad(img, pad=2):
     padded_img = ImageOps.expand(resized_img, border=pad, fill=0)
 
     return padded_img
+
+class ID_IMAGENET30_TEST_CLEAN(Dataset):
+    def __init__(self, args, transform=None, in_dist_label=1):
+        self.transform = transform
+
+        self.data = []
+
+        imagenet30_test_set = IMAGENET30_TEST_DATASET()
+
+        for i in range(len(imagenet30_test_set)):
+            image = imagenet30_test_set[i][0]
+            if 'test_shrink_pad' in args.__dict__ and args.test_shrink_pad:
+                image = resize_and_pad(image)
+            self.data.append(image)
+
+        if 'test_jpeg_compression_defense' in args.__dict__ and args.test_jpeg_compression_defense:
+            print("test_jpeg_compression_defense in IMAGENET30_CLEAN_ID")
+            # Define the path of the new directory
+            new_directory_path = "./data/jpeg_compress_IMAGENET30_CLEAN_ID"
+            # Create the directory
+            os.makedirs(new_directory_path, exist_ok=True)
+            for i in range(len(self.data)):
+                address = f"./data/jpeg_compress_IMAGENET30_CLEAN_ID/{i}.jpg"
+                self.data[i].save(address, 'JPEG', quality=75)
+                self.data[i] = Image.open(address)
+
+        self.in_dist_label = in_dist_label
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        img = self.data[idx]
+        label = self.in_dist_label
+        if self.transform:
+            img = self.tranform(img)
+        return img, label
 
 class CIFAR10_CLEAN_ID(Dataset):
     def __init__(self, args, transform=None, in_dist_label=1):
@@ -415,6 +575,43 @@ class CIFAR10_CLEAN_ID(Dataset):
             img = self.tranform(img)
         return img, label
 
+class OOD_BIRD_TEST_CLEAN(Dataset):
+    def __init__(self, args, transform=None, ood_dist_label=0):
+        self.transform = transform
+
+        self.data = []
+
+        bird_test_dataset = torchvision.datasets.ImageFolder(root="/kaggle/input/100-bird-species/test", transform=None)
+
+        for i in range(len(bird_test_dataset)):
+            image = bird_test_dataset[i][0]
+            if 'test_shrink_pad' in args.__dict__ and args.test_shrink_pad:
+                image = resize_and_pad(image)
+            self.data.append(image)
+
+        if 'test_jpeg_compression_defense' in args.__dict__ and args.test_jpeg_compression_defense:
+            print("test_jpeg_compression_defense in OOD_BIRD_TEST_CLEAN")
+            # Define the path of the new directory
+            new_directory_path = "./data/jpeg_compress_BIRD_CLEAN_ID"
+            # Create the directory
+            os.makedirs(new_directory_path, exist_ok=True)
+            for i in range(len(self.data)):
+                address = f"./data/jpeg_compress_BIRD_CLEAN_ID/{i}.jpg"
+                self.data[i].save(address, 'JPEG', quality=75)
+                self.data[i] = Image.open(address)
+
+        self.ood_dist_label = ood_dist_label
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        img = self.data[idx]
+        label = self.ood_dist_label
+        if self.transform:
+            img = self.tranform(img)
+        return img, label
+
 class CIFAR100_CLEAN_OOD(Dataset):
     def __init__(self, args, transform=None, ood_dist_label=0):
         self.transform = transform
@@ -448,6 +645,44 @@ class CIFAR100_CLEAN_OOD(Dataset):
     def __getitem__(self, idx):
         img = self.data[idx]
         label = self.ood_dist_label
+        if self.transform:
+            img = self.tranform(img)
+        return img, label
+
+class ID_IMAGENET30_L2_TESTSET(Dataset):
+    def __init__(self, args, transform=None, in_dist_label=1):
+        self.transform = transform
+
+        self.data = []
+
+        if args.use_l2_adv_images:
+            if 'use_l2_100' in args.__dict__ and args.use_l2_100:
+                file_path = "../clean_trained_model/L2_ADV_gen_pil_images_ImageNet_train_class_dumbbell.pkl"
+            self.data = get_imagenet30_test_l2_images(args, file_path)
+
+        if 'test_jpeg_compression_defense' in args.__dict__ and args.test_jpeg_compression_defense:
+            print("test_jpeg_compression_defense in CIFAR10_BLENDED_ID")
+            # Define the path of the new directory
+            new_directory_path = "./data/jpeg_compress_CIFAR10_ID"
+            # Create the directory
+            os.makedirs(new_directory_path, exist_ok=True)
+            for i in range(len(self.data)):
+                address = f"./data/jpeg_compress_CIFAR10_ID/{i}.jpg"
+                self.data[i].save(address, 'JPEG', quality=75)
+                self.data[i] = Image.open(address)
+
+        if 'test_shrink_pad' in args.__dict__ and args.test_shrink_pad:
+            for i in range(len(self.data)):
+                self.data[i] = resize_and_pad(self.data[i])
+
+        self.in_dist_label = in_dist_label
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        img = self.data[idx]
+        label = self.in_dist_label
         if self.transform:
             img = self.tranform(img)
         return img, label
@@ -508,20 +743,7 @@ def clean_dataset_and_transform_generate_ood(args):
 
     if (test_dataset_without_transform is None):
 
-        if args.dataset.startswith('test'):  # for test only
-            from torchvision.datasets import ImageFolder
-            test_dataset_without_transform = ImageFolder('../data/test')
-        elif args.dataset == 'mnist':
-            from torchvision.datasets import MNIST
-            test_dataset_without_transform = MNIST(
-                args.dataset_path,
-                train=False,
-                transform=None,
-                download=True,
-            )
-
-
-        elif args.dataset == 'cifar10':
+        if args.dataset == 'cifar10':
             from torchvision.datasets import CIFAR10
             # test_dataset_without_transform = CIFAR10(
             #     args.dataset_path,
@@ -535,6 +757,11 @@ def clean_dataset_and_transform_generate_ood(args):
             testset_clean_100 = CIFAR100_CLEAN_OOD(args)
 
             test_dataset_without_transform = torch.utils.data.ConcatDataset([testset_clean_10, testset_clean_100])
+
+        elif args.dataset == "imagenet30":
+            ID_IMAGENET30_testset = ID_IMAGENET30_TEST_CLEAN(args)
+            OOD_BIRD_testset = OOD_BIRD_TEST_CLEAN(args)
+            test_dataset_without_transform = torch.utils.data.ConcatDataset([ID_IMAGENET30_testset, OOD_BIRD_testset])
 
     return test_dataset_without_transform, \
            test_img_transform, \
@@ -566,8 +793,12 @@ def exposure_dataset_and_transform_generate_for_cls(args):
             # )
 
             testset_clean_10 = CIFAR10_BLENDED_FOR_CLS(args)
-
             test_dataset_without_transform = testset_clean_10
+
+        if args.dataset == 'imagenet30':
+            imagenet30_testset_for_cls = IMAGENET30_L2_FOR_CLS(args)
+            test_dataset_without_transform = imagenet30_testset_for_cls
+
 
     return test_dataset_without_transform, \
            test_img_transform, \
@@ -591,22 +822,6 @@ def exposure_dataset_and_transform_generate_ood(args, poison_all_test_ood=False)
 
         if args.dataset == 'cifar10':
             from torchvision.datasets import CIFAR10
-            # test_dataset_without_transform = CIFAR10(
-            #     args.dataset_path,
-            #     train=False,
-            #     transform=None,
-            #     download=True,
-            # )
-
-
-            # testset_clean_10 = CIFAR10(
-            #     args.dataset_path,
-            #     train=False,
-            #     download=True,
-            #     transform=None
-            # )
-            # for i in range(len(testset_clean_10.targets)):
-            #     testset_clean_10.targets[i] = 1
 
             testset_clean_10 = CIFAR10_CLEAN_ID(args)
 
@@ -615,6 +830,16 @@ def exposure_dataset_and_transform_generate_ood(args, poison_all_test_ood=False)
             testset_clean_100 = CIFAR100_BLENDED_OOD(args)
                 
             test_dataset_without_transform = torch.utils.data.ConcatDataset([testset_clean_10, testset_clean_100])
+
+        elif args.dataset == 'imagenet30':
+            ID_imagenet30_testset = ID_IMAGENET30_TEST_CLEAN(args)
+
+            if poison_all_test_ood:
+                ID_imagenet30_testset = ID_IMAGENET30_L2_TESTSET(args)
+            OOD_bird_testset = OOD_BIRD_L2_TESTSET(args)
+
+            test_dataset_without_transform = torch.utils.data.ConcatDataset([ID_imagenet30_testset, OOD_bird_testset])
+
 
     return test_dataset_without_transform, \
            test_img_transform, \
@@ -689,6 +914,9 @@ def dataset_and_transform_generate(args):
                 train=False,
                 download=True,
             )
+        elif args.dataset == 'imagenet30':
+            train_dataset_without_transform = IMAGENET30_TRAIN_DATASET()
+            test_dataset_without_transform = IMAGENET30_TEST_DATASET()
         elif args.dataset == 'gtsrb':
             from dataset.GTSRB import GTSRB
             train_dataset_without_transform = GTSRB(args.dataset_path,
@@ -952,6 +1180,145 @@ class CIFAR10_BLENDED_L2_USE_CHEAT_EXPOSURE_DATASET(Dataset):
             img = self.tranform(img)
         return img, label
 
+class IMAGENET30_TRAIN_DATASET(Dataset):
+    def __init__(self, root_dir="./data/train/one_class_train", transform=None):
+        """
+        Args:
+            root_dir (string): Directory with all the classes.
+            transform (callable, optional): Optional transform to be applied
+                on a sample.
+        """
+        self.root_dir = root_dir
+        self.transform = transform
+        self.data = []
+        self.targets = []
+
+        # Map each class to an index
+        self.class_to_idx = {cls_name: idx for idx, cls_name in enumerate(sorted(os.listdir(root_dir)))}
+        print(f"self.class_to_idx in ImageNet30_Train_Dataset:\n{self.class_to_idx}")
+
+        # Walk through the directory and collect information about the images and their labels
+        for class_name in os.listdir(root_dir):
+            class_path = os.path.join(root_dir, class_name)
+            for img_name in os.listdir(class_path):
+                if img_name.endswith('.JPEG'):
+                    img_path = os.path.join(class_path, img_name)
+                    image = Image.open(img_path).convert('RGB')
+                    self.data.append(image)
+                    self.targets.append(self.class_to_idx[class_name])
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        image = self.data[idx]
+        label = self.targets[idx]
+        if self.transform:
+            image = self.transform(image)
+        return image, label
+
+class IMAGENET30_TEST_DATASET(Dataset):
+    def __init__(self, root_dir="./data/test/one_class_test", transform=None):
+        """
+        Args:
+            root_dir (string): Directory with all the classes.
+            transform (callable, optional): Optional transform to be applied
+                on a sample.
+        """
+        self.root_dir = root_dir
+        self.transform = transform
+        self.data = []
+        self.targets = []
+
+        # Map each class to an index
+        self.class_to_idx = {cls_name: idx for idx, cls_name in enumerate(sorted(os.listdir(root_dir)))}
+        print(f"self.class_to_idx in ImageNet30_Test_Dataset:\n{self.class_to_idx}")
+
+        # Walk through the directory and collect information about the images and their labels
+        for class_name in os.listdir(root_dir):
+            class_path = os.path.join(root_dir, class_name)
+            for instance_folder in os.listdir(class_path):
+                instance_path = os.path.join(class_path, instance_folder)
+                for img_name in os.listdir(instance_path):
+                    if img_name.endswith('.JPEG'):
+                        img_path = os.path.join(instance_path, img_name)
+                        image = Image.open(img_path).convert('RGB')
+                        self.data.append(image)
+                        self.targets.append(self.class_to_idx[class_name])
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        image = self.data[idx]
+        label = self.targets[idx]
+        if self.transform:
+            image = self.transform(image)
+        return image, label
+
+class IMAGENET30_TRAIN_L2_USE_ROTATION_TRANSFORM(Dataset):
+    def __init__(self, args, transform=None, target_label=9):
+        self.transform = transform
+
+        imagenet30_train_dataset = IMAGENET30_TRAIN_DATASET()
+
+        if 'use_l2_100' in args.__dict__ and args.use_l2_100:
+            file_path = "../clean_trained_model/L2_ADV_gen_pil_images_ImageNet_train_class_dumbbell.pkl"
+        with open(file_path, 'rb') as file:
+            l2_adv_saved_images = pickle.load(file)
+
+        self.data = imagenet30_train_dataset.data
+        self.targets = imagenet30_train_dataset.targets
+
+        if 'save_classification' in args.__dict__ and args.save_classification:
+            random_indices = random.sample(range(len(self.data)), int(2 * args.pratio * len(self.data)))
+            random_indices_for_saving_classification = random_indices[len(random_indices) // 2:]
+            poison_indices = random_indices[:len(random_indices) // 2]
+            print(f"len(random_indices_ for_saving_classification): {len(random_indices_for_saving_classification)}")
+            print(f"len(poison_indices): {len(poison_indices)}")
+
+            print(
+                f"Image.blend(imagenet30_train[random_indices_for_saving_classification][0], random.choice(l2_adv_saved_images), {args.exposure_blend_rate * random.random()})")
+            for idx in random_indices_for_saving_classification:
+                self.data[idx] = Image.blend(imagenet30_train_dataset[idx][0], random.choice(l2_adv_saved_images),
+                                             args.exposure_blend_rate)  # Blend two images with ratio 0.5
+        else:
+            poison_indices = random.sample(range(len(self.data)), int(args.pratio * len(self.data)))
+            print(f"len(poison_indices): {len(poison_indices)}")
+
+        print(f"Image.blend(imagenet30_train, random.choice(l2_adv_saved_images), {args.exposure_blend_rate})")
+
+        # Define the path of the new directory
+        new_directory_path = "./data/jpeg_compress_imagenet30_TRAIN"
+        # Create the directory
+        os.makedirs(new_directory_path, exist_ok=True)
+
+        for idx in poison_indices:
+            rotation_angle = random.choice([90, 180, 270])
+            transformed_image = imagenet30_train_dataset[idx][0]
+            if args.use_rotation_transform:
+                transformed_image = transformed_image.rotate(rotation_angle)
+            self.data[idx] = Image.blend(transformed_image, random.choice(l2_adv_saved_images), args.exposure_blend_rate)  # Blend two images with ratio 0.5
+            self.targets[idx] = target_label
+
+            if args.use_jpeg_compress_in_training:
+                if random.random() < 0.1:
+                    address = f"./data/jpeg_compress_imagenet30_TRAIN/{idx}.jpg"
+                    pil_image = Image.fromarray(self.data[idx].astype(np.uint8))
+                    pil_image.save(address, 'JPEG', quality=random.randint(25, 75))
+                    # Reload the image to ensure it's compressed and update the dataset
+                    self.data[idx] = Image.open(address)
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        img = self.data[idx]
+        label = self.targets[idx]
+        if self.transform:
+            img = self.tranform(img)
+        return img, label
+
 class CIFAR10_TRAIN_BLENDED_L2_USE_OTHER_CLASSES_DATASET(Dataset):
     def __init__(self, args, transform=None, target_label=0):
         self.transform = transform
@@ -1040,6 +1407,13 @@ class CIFAR10_TRAIN_TARGET_CLASS(Dataset):
             img = self.tranform(img)
         return img, label
 
+def create_imagenet30_training_dataset(args, dataset_name='imagenet30'):
+    if dataset_name == 'imagenet30':
+        if args.use_l2_adv_images:
+            if args.use_rotation_transform:
+                train_dataset = IMAGENET30_TRAIN_L2_USE_ROTATION_TRANSFORM(args)
+    return train_dataset
+
 def create_training_dataset_for_exposure_test(args, dataset_name='cifar10'):
     if dataset_name == 'cifar10':
         if args.use_l2_adv_images:
@@ -1076,6 +1450,8 @@ def exposure_dataset_and_transform_generate(args):
     if (train_dataset_without_transform is None) or (test_dataset_without_transform is None):
         if args.dataset == 'cifar10':
             exposure_train_dataset_without_transform = create_training_dataset_for_exposure_test(args)
+        elif args.dataset == 'imagenet30':
+            exposure_train_dataset_without_transform = create_imagenet30_training_dataset(args)
 
 
     return exposure_train_dataset_without_transform

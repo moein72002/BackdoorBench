@@ -962,6 +962,8 @@ def get_dataname(dataset):
         return "CIFAR-10"
     elif dataset == 'cifar100':
         return "CIFAR-100"
+    elif dataset == 'imagenet30':
+        return "IMAGENET-30"
     elif dataset == "gtsrb ":
         return "GTSRB "
     elif dataset == "celeba":
