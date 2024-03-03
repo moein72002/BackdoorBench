@@ -41,6 +41,8 @@ def get_num_classes(dataset_name: str) -> int:
         num_classes = 200
     elif dataset_name == 'imagenet':
         num_classes = 1000
+    elif dataset_name == 'imagenet30':
+        num_classes = 30
     else:
         raise Exception("Invalid Dataset")
     return num_classes
