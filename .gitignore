@@ -41,6 +41,7 @@ MANIFEST
 
 # pycharm
 .idea/
+special_defenses_results/
 
 # Installer logs
 pip-log.txt
