@@ -108,6 +108,13 @@ def get_dataset_normalization(dataset_name):
                 std=[0.229, 0.224, 0.225],
             )
         )
+    elif dataset_name == 'imagenet30':
+        dataset_normalization = (
+            transforms.Normalize(
+                mean=[0.485, 0.456, 0.406],
+                std=[0.229, 0.224, 0.225],
+            )
+        )
     else:
         raise Exception("Invalid Dataset")
     return dataset_normalization
