@@ -377,7 +377,7 @@ class IMAGENET30_L2_FOR_CLS(Dataset):
         self.targets = imagenet30_testset.targets
 
     def __len__(self):
-        return len(self.data)
+        return len(self.img_path_list)
 
     def __getitem__(self, idx):
         img_path = self.img_path_list[idx]
@@ -534,26 +534,9 @@ class OOD_BIRD_TEST_CLEAN(Dataset):
     def __init__(self, args, transform=None, ood_dist_label=0):
         self.transform = transform
 
-        self.data = []
-
         bird_test_dataset = torchvision.datasets.ImageFolder(root="/kaggle/input/100-bird-species/test", transform=None)
 
-        for i in range(len(bird_test_dataset)):
-            image = bird_test_dataset[i][0]
-            if 'test_shrink_pad' in args.__dict__ and args.test_shrink_pad:
-                image = resize_and_pad(image)
-            self.data.append(image)
-
-        if 'test_jpeg_compression_defense' in args.__dict__ and args.test_jpeg_compression_defense:
-            print("test_jpeg_compression_defense in OOD_BIRD_TEST_CLEAN")
-            # Define the path of the new directory
-            new_directory_path = "./data/jpeg_compress_BIRD_CLEAN_ID"
-            # Create the directory
-            os.makedirs(new_directory_path, exist_ok=True)
-            for i in range(len(self.data)):
-                address = f"./data/jpeg_compress_BIRD_CLEAN_ID/{i}.jpg"
-                self.data[i].save(address, 'JPEG', quality=75)
-                self.data[i] = Image.open(address)
+        self.data = bird_test_dataset
 
         self.ood_dist_label = ood_dist_label
 
@@ -561,10 +544,10 @@ class OOD_BIRD_TEST_CLEAN(Dataset):
         return len(self.data)
 
     def __getitem__(self, idx):
-        img = self.data[idx]
+        img = self.data[idx][0]
         label = self.ood_dist_label
         if self.transform:
-            img = self.tranform(img)
+            img = self.transform(img)
         return img, label
 
 class CIFAR100_CLEAN_OOD(Dataset):
@@ -1223,15 +1206,14 @@ class IMAGENET30_TRAIN_L2_USE_ROTATION_TRANSFORM(Dataset):
 
         if 'use_l2_100' in args.__dict__ and args.use_l2_100:
             file_path = "../clean_trained_model/L2_ADV_gen_pil_images_ImageNet_train_class_dumbbell.pkl"
-        with open(file_path, 'rb') as file:
-            l2_adv_saved_images = pickle.load(file)
+            with open(file_path, 'rb') as file:
+                self.l2_adv_saved_images = pickle.load(file)
 
         self.img_path_list = imagenet30_train_dataset.img_path_list
         self.targets = imagenet30_train_dataset.targets
 
         self.target_label = target_label
 
-        self.l2_adv_saved_images = l2_adv_saved_images
         self.use_rotation_transform = args.use_rotation_transform
         self.exposure_blend_rate = args.exposure_blend_rate
 
