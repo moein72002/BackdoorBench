@@ -160,7 +160,7 @@ class Attack(NormalCase):
         )
 
         print(f"len(bd_train_dataset_with_transform.wrapped_dataset): {len(bd_train_dataset_with_transform.wrapped_dataset)}")
-        self.count_unique_labels_of_preprocessed_dataset(bd_train_dataset_with_transform.wrapped_dataset, "bd_train_dataset_with_transform.wrapped_dataset")
+        # self.count_unique_labels_of_preprocessed_dataset(bd_train_dataset_with_transform.wrapped_dataset, "bd_train_dataset_with_transform.wrapped_dataset")
 
         ### decide which img to poison in ASR Test
         test_poison_index = generate_poison_index_from_label_transform(
@@ -178,8 +178,8 @@ class Attack(NormalCase):
             save_folder_path=f"{args.save_path}/bd_test_dataset",
         )
 
-        self.count_unique_labels_of_dataset(test_dataset_without_transform, "test_dataset_without_transform")
-        self.count_unique_labels_of_preprocessed_dataset(bd_test_dataset, "bd_test_dataset")
+        # self.count_unique_labels_of_dataset(test_dataset_without_transform, "test_dataset_without_transform")
+        # self.count_unique_labels_of_preprocessed_dataset(bd_test_dataset, "bd_test_dataset")
 
         bd_test_dataset.subset(
             np.where(test_poison_index == 1)[0]
@@ -187,8 +187,8 @@ class Attack(NormalCase):
 
         test_poison_index_for_cls = np.zeros(len(exposure_test_dataset_without_transform_for_cls))
 
-        self.count_unique_labels_of_dataset(exposure_test_dataset_without_transform_for_cls,
-                                            "exposure_test_dataset_without_transform_for_cls")
+        # self.count_unique_labels_of_dataset(exposure_test_dataset_without_transform_for_cls,
+        #                                     "exposure_test_dataset_without_transform_for_cls")
         visualize_random_samples_from_clean_dataset(exposure_test_dataset_without_transform_for_cls,
                                                          "exposure_test_dataset_without_transform_for_cls")
 
@@ -200,18 +200,18 @@ class Attack(NormalCase):
             save_folder_path=f"{args.save_path}/bd_test_dataset_ood",
         )
 
-        self.count_unique_labels_of_preprocessed_dataset(bd_test_dataset_for_cls, "bd_test_dataset_for_cls")
+        # self.count_unique_labels_of_preprocessed_dataset(bd_test_dataset_for_cls, "bd_test_dataset_for_cls")
 
         test_poison_index_ood = np.zeros(len(exposure_out_test_dataset_without_transform_ood))
 
-        self.count_unique_labels_of_dataset(clean_test_dataset_with_transform_ood.wrapped_dataset,
-                                            "clean_test_dataset_with_transform_ood.wrapped_dataset")
+        # self.count_unique_labels_of_dataset(clean_test_dataset_with_transform_ood.wrapped_dataset,
+        #                                     "clean_test_dataset_with_transform_ood.wrapped_dataset")
         visualize_random_samples_from_clean_dataset(clean_test_dataset_with_transform_ood.wrapped_dataset,
                                                          "clean_test_dataset_with_transform_ood.wrapped_dataset")
-        self.count_unique_labels_of_dataset(exposure_out_test_dataset_without_transform_ood, "exposure_out_test_dataset_without_transform_ood")
+        # self.count_unique_labels_of_dataset(exposure_out_test_dataset_without_transform_ood, "exposure_out_test_dataset_without_transform_ood")
         visualize_random_samples_from_clean_dataset(exposure_out_test_dataset_without_transform_ood, "exposure_out_test_dataset_without_transform_ood")
 
-        self.count_unique_labels_of_dataset(exposure_all_test_dataset_without_transform_ood, "exposure_all_test_dataset_without_transform_ood")
+        # self.count_unique_labels_of_dataset(exposure_all_test_dataset_without_transform_ood, "exposure_all_test_dataset_without_transform_ood")
         visualize_random_samples_from_clean_dataset(exposure_all_test_dataset_without_transform_ood, "exposure_all_test_dataset_without_transform_ood")
 
         bd_out_test_dataset_ood = prepro_cls_DatasetBD_v2(
@@ -222,7 +222,7 @@ class Attack(NormalCase):
             save_folder_path=f"{args.save_path}/bd_test_dataset_ood",
         )
 
-        self.count_unique_labels_of_preprocessed_dataset(bd_out_test_dataset_ood, "bd_out_test_dataset_ood")
+        # self.count_unique_labels_of_preprocessed_dataset(bd_out_test_dataset_ood, "bd_out_test_dataset_ood")
 
         bd_all_test_dataset_ood = prepro_cls_DatasetBD_v2(
             deepcopy(exposure_all_test_dataset_without_transform_ood),
@@ -232,7 +232,7 @@ class Attack(NormalCase):
             save_folder_path=f"{args.save_path}/bd_test_dataset_ood",
         )
 
-        self.count_unique_labels_of_preprocessed_dataset(bd_all_test_dataset_ood, "bd_all_test_dataset_ood")
+        # self.count_unique_labels_of_preprocessed_dataset(bd_all_test_dataset_ood, "bd_all_test_dataset_ood")
 
         # TODO: check here
         # bd_test_dataset_ood.subset(
