@@ -247,7 +247,9 @@ def get_bird_test_l2_images(args, file_path):
     blended_images = []
     print(f"Image.blend(bird_testset, random.choice(l2_1000_saved_images), {args.exposure_blend_rate})")
     for i, img in enumerate(bird_testset):
-        blended_img = Image.blend(img[0], random.choice(l2_1000_saved_images), args.exposure_blend_rate)  # Blend two images with ratio 0.5
+        l2_image = random.choice(l2_1000_saved_images)
+        l2_image = l2_image.resize(img[0])
+        blended_img = Image.blend(img[0], l2_image, args.exposure_blend_rate)  # Blend two images with ratio 0.5
         blended_images.append(blended_img)  # Assign label 0
 
     print("Blended dataset size:", len(blended_images))
@@ -356,7 +358,9 @@ def get_imagenet30_l2_images_for_cls(imagenet30_testset, args, file_path):
     blended_images = []
     print(f"Image.blend(imagenet30_testset, random.choice(l2_1000_saved_images), {args.exposure_blend_rate})")
     for i, img in enumerate(imagenet30_testset):
-        blended_img = Image.blend(img[0], random.choice(l2_1000_saved_images), args.exposure_blend_rate)  # Blend two images with ratio 0.5
+        l2_image = random.choice(l2_1000_saved_images)
+        l2_image = l2_image.resize(img[0].size)
+        blended_img = Image.blend(img[0], l2_image, args.exposure_blend_rate)  # Blend two images with ratio 0.5
         blended_images.append(blended_img)  # Assign label 0
 
     print("Blended dataset size:", len(blended_images))
@@ -467,7 +471,9 @@ def get_imagenet30_test_l2_images(args, file_path):
     blended_images = []
     print(f"Image.blend(imagenet30_testset, random.choice(l2_1000_saved_images), {args.exposure_blend_rate})")
     for i, img in enumerate(imagenet30_testset):
-        blended_img = Image.blend(img[0], random.choice(l2_1000_saved_images), args.exposure_blend_rate)  # Blend two images with ratio 0.5
+        l2_image = random.choice(l2_1000_saved_images)
+        l2_image = l2_image.resize(img[0])
+        blended_img = Image.blend(img[0], l2_image, args.exposure_blend_rate)  # Blend two images with ratio 0.5
         blended_images.append(blended_img)  # Assign label 0
 
     print("Blended dataset size:", len(blended_images))
@@ -550,7 +556,7 @@ class ID_IMAGENET30_TEST_CLEAN(Dataset):
         img = self.data[idx]
         label = self.in_dist_label
         if self.transform:
-            img = self.tranform(img)
+            img = self.transform(img)
         return img, label
 
 class CIFAR10_CLEAN_ID(Dataset):
