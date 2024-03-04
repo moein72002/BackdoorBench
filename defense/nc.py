@@ -145,6 +145,8 @@ class RegressionModel(nn.Module):
     def _get_denormalize(self, opt):
         if opt.dataset == "cifar10" or opt.dataset == "cifar100":
             denormalizer = Denormalize(opt, [0.4914, 0.4822, 0.4465], [0.247, 0.243, 0.261])
+        elif opt.dataset == "imagenet30":
+            denormalizer = Denormalize(opt, [0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
         elif opt.dataset == "mnist":
             denormalizer = Denormalize(opt, [0.5], [0.5])
         elif opt.dataset == "gtsrb" or opt.dataset == "celeba":
