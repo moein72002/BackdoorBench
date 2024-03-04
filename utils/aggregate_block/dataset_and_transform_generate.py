@@ -269,7 +269,7 @@ class OOD_BIRD_L2_TESTSET(Dataset):
         for i, class_name in tqdm(enumerate(os.listdir(root_dir))):
             class_path = os.path.join(root_dir, class_name)
             for img_name in os.listdir(class_path):
-                if img_name.endswith('.JPEG'):
+                if img_name.endswith('.jpg'):
                     img_path = os.path.join(class_path, img_name)
                     # image = Image.open(img_path).convert('RGB')
                     self.img_path_list.append(img_path)
