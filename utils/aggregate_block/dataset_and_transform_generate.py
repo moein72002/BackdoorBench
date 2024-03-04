@@ -248,7 +248,7 @@ def get_bird_test_l2_images(args, file_path):
     print(f"Image.blend(bird_testset, random.choice(l2_1000_saved_images), {args.exposure_blend_rate})")
     for i, img in enumerate(bird_testset):
         l2_image = random.choice(l2_1000_saved_images)
-        l2_image = l2_image.resize(img[0])
+        l2_image = l2_image.resize(img[0].size)
         blended_img = Image.blend(img[0], l2_image, args.exposure_blend_rate)  # Blend two images with ratio 0.5
         blended_images.append(blended_img)  # Assign label 0
 
@@ -472,7 +472,7 @@ def get_imagenet30_test_l2_images(args, file_path):
     print(f"Image.blend(imagenet30_testset, random.choice(l2_1000_saved_images), {args.exposure_blend_rate})")
     for i, img in enumerate(imagenet30_testset):
         l2_image = random.choice(l2_1000_saved_images)
-        l2_image = l2_image.resize(img[0])
+        l2_image = l2_image.resize(img[0].size)
         blended_img = Image.blend(img[0], l2_image, args.exposure_blend_rate)  # Blend two images with ratio 0.5
         blended_images.append(blended_img)  # Assign label 0
 
