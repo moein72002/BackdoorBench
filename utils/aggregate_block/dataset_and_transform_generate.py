@@ -1215,7 +1215,7 @@ class IMAGENET30_TRAIN_DATASET(Dataset):
         # Walk through the directory and collect information about the images and their labels
         for i, class_name in tqdm(enumerate(os.listdir(root_dir))):
             class_path = os.path.join(root_dir, class_name)
-            for img_name in os.listdir(class_path)[:1000]:
+            for img_name in os.listdir(class_path):
                 if img_name.endswith('.JPEG'):
                     img_path = os.path.join(class_path, img_name)
                     # image = Image.open(img_path).convert('RGB')
@@ -1313,7 +1313,9 @@ class IMAGENET30_TRAIN_L2_USE_ROTATION_TRANSFORM(Dataset):
             transformed_image = default_loader(img_path)
             if self.use_rotation_transform:
                 transformed_image = transformed_image.rotate(rotation_angle)
-            transformed_image = Image.blend(transformed_image, self.l2_image_pair_dict[idx],
+            l2_image = self.l2_image_pair_dict[idx]
+            l2_image = l2_image.resize(transformed_image.size)
+            transformed_image = Image.blend(transformed_image, l2_image,
                                                   self.exposure_blend_rate)  # Blend two images with ratio 0.5
             target = self.target_label
             return transformed_image, target
