@@ -31,6 +31,7 @@ from utils.aggregate_block.model_trainer_generate import generate_cls_model
 from utils.aggregate_block.train_settings_generate import argparser_opt_scheduler, argparser_criterion
 from utils.log_assist import get_git_info
 from utils.trainer_cls import ModelTrainerCLS_v2
+from utils.visualize_dataset import visualize_random_samples_from_clean_dataset
 
 
 class NormalCase:
@@ -208,11 +209,13 @@ class NormalCase:
             exposure_out_test_dataset_without_transform_ood, \
             _, \
             _ = exposure_dataset_and_transform_generate_ood(args, poison_all_test_ood=False)
+            visualize_random_samples_from_clean_dataset(exposure_out_test_dataset_without_transform_ood, "exposure_out_test_dataset_without_transform_ood_2")
 
             print("exposure_dataset_and_transform_generate_ood(args, poison_all_test_ood=True)")
             exposure_all_test_dataset_without_transform_ood, \
             _, \
             _ = exposure_dataset_and_transform_generate_ood(args, poison_all_test_ood=True)
+            visualize_random_samples_from_clean_dataset(exposure_all_test_dataset_without_transform_ood, "exposure_all_test_dataset_without_transform_ood_2")
         else:
             exposure_test_dataset_without_transform_for_cls = clean_test_dataset_without_transform_ood
             exposure_out_test_dataset_without_transform_ood = clean_test_dataset_without_transform_ood
