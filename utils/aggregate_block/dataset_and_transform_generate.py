@@ -257,6 +257,7 @@ def get_cifar100_blended_images_for_test_exposure_l2_1000(args, file_path):
 
 class OOD_BIRD_L2_TESTSET(Dataset):
     def __init__(self, args, root_dir="/kaggle/input/100-bird-species/test", transform=None, out_dist_label=0):
+        print("Start of OOD_BIRD_L2_TESTSET")
         self.transform = transform
 
         # bird_testset = torchvision.datasets.ImageFolder(root=, transform=None)
@@ -282,6 +283,7 @@ class OOD_BIRD_L2_TESTSET(Dataset):
                     self.l2_image_pair_dict[i] = random.random() * len(self.l2_100_saved_images)
 
         self.out_dist_label = out_dist_label
+        print("End of OOD_BIRD_L2_TESTSET")
 
     def __len__(self):
         return len(self.img_path_list)
@@ -775,6 +777,8 @@ def exposure_dataset_and_transform_generate_ood(args, poison_all_test_ood=False)
 
             if poison_all_test_ood:
                 ID_imagenet30_testset = ID_IMAGENET30_L2_TESTSET(args)
+
+            print("OOD_BIRD_L2_TESTSET(args)")
             OOD_bird_testset = OOD_BIRD_L2_TESTSET(args)
 
             test_dataset_without_transform = torch.utils.data.ConcatDataset([ID_imagenet30_testset, OOD_bird_testset])

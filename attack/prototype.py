@@ -209,12 +209,14 @@ class NormalCase:
             exposure_out_test_dataset_without_transform_ood, \
             _, \
             _ = exposure_dataset_and_transform_generate_ood(args, poison_all_test_ood=False)
+            print(f"len(exposure_out_test_dataset_without_transform_ood_2): {len(exposure_out_test_dataset_without_transform_ood)}")
             visualize_random_samples_from_clean_dataset(exposure_out_test_dataset_without_transform_ood, "exposure_out_test_dataset_without_transform_ood_2")
 
             print("exposure_dataset_and_transform_generate_ood(args, poison_all_test_ood=True)")
             exposure_all_test_dataset_without_transform_ood, \
             _, \
             _ = exposure_dataset_and_transform_generate_ood(args, poison_all_test_ood=True)
+            print(f"len(exposure_all_test_dataset_without_transform_ood_2): {len(exposure_all_test_dataset_without_transform_ood)}")
             visualize_random_samples_from_clean_dataset(exposure_all_test_dataset_without_transform_ood, "exposure_all_test_dataset_without_transform_ood_2")
         else:
             exposure_test_dataset_without_transform_for_cls = clean_test_dataset_without_transform_ood
