@@ -1194,7 +1194,7 @@ class CIFAR10_BLENDED_L2_USE_CHEAT_EXPOSURE_DATASET(Dataset):
         return img, label
 
 class IMAGENET30_TRAIN_DATASET(Dataset):
-    def __init__(self, root_dir="./data/train/one_class_train", transform=None):
+    def __init__(self, root_dir="/kaggle/input/imagenet30-dataset/one_class_train/one_class_train/", transform=None):
         """
         Args:
             root_dir (string): Directory with all the classes.
@@ -1231,7 +1231,7 @@ class IMAGENET30_TRAIN_DATASET(Dataset):
         return image, label
 
 class IMAGENET30_TEST_DATASET(Dataset):
-    def __init__(self, root_dir="./data/test/one_class_test", transform=None):
+    def __init__(self, root_dir="/kaggle/input/imagenet30-dataset/one_class_test/one_class_test/", transform=None):
         """
         Args:
             root_dir (string): Directory with all the classes.
