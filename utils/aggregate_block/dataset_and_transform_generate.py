@@ -1108,7 +1108,7 @@ class CIFAR10_L2_USE_TINY_IMAGENET_EXPOSURE_DATASET(Dataset):
 
         tiny_imagenet_exposure_dataset = TINY_IMAGENET_EXPOSURE_DATASET(transform=transform, exposuer_dataset_name='tiny-imagenet', exposure_samples_count=int(args.pratio * len(self.data)))
 
-        print(f"Image.blend(cifar10_train, random.choice(l2_adv_saved_images), {args.exposure_blend_rate})")
+        print(f"Image.blend(tiny_imagenet_exposure_dataset, random.choice(l2_adv_saved_images), {args.exposure_blend_rate})")
         for i, idx in enumerate(poison_indices):
             self.data[idx] = Image.blend(tiny_imagenet_exposure_dataset[i][0].resize(args.img_size[:2]), random.choice(l2_adv_saved_images), args.exposure_blend_rate)  # Blend two images with ratio 0.5
             self.targets[idx] = target_label
@@ -1214,7 +1214,7 @@ class IMAGENET30_TRAIN_DATASET(Dataset):
         # Walk through the directory and collect information about the images and their labels
         for i, class_name in tqdm(enumerate(os.listdir(root_dir))):
             class_path = os.path.join(root_dir, class_name)
-            for img_name in os.listdir(class_path):
+            for img_name in os.listdir(class_path)[:1000]:
                 if img_name.endswith('.JPEG'):
                     img_path = os.path.join(class_path, img_name)
                     image = Image.open(img_path).convert('RGB')
