@@ -237,25 +237,6 @@ def get_cifar100_blended_images_for_test_exposure(args):
 
     return blended_images
 
-def get_bird_test_l2_images(args, file_path):
-    with open(file_path, 'rb') as file:
-        l2_1000_saved_images = pickle.load(file)
-
-    bird_testset = torchvision.datasets.ImageFolder(root="/kaggle/input/100-bird-species/test", transform=None)
-
-    # Blend images
-    blended_images = []
-    print(f"Image.blend(bird_testset, random.choice(l2_1000_saved_images), {args.exposure_blend_rate})")
-    for i, img in enumerate(bird_testset):
-        l2_image = random.choice(l2_1000_saved_images)
-        l2_image = l2_image.resize(img[0].size)
-        blended_img = Image.blend(img[0], l2_image, args.exposure_blend_rate)  # Blend two images with ratio 0.5
-        blended_images.append(blended_img)  # Assign label 0
-
-    print("Blended dataset size:", len(blended_images))
-
-    return blended_images
-
 def get_cifar100_blended_images_for_test_exposure_l2_1000(args, file_path):
     with open(file_path, 'rb') as file:
         l2_1000_saved_images = pickle.load(file)
@@ -275,40 +256,45 @@ def get_cifar100_blended_images_for_test_exposure_l2_1000(args, file_path):
     return blended_images
 
 class OOD_BIRD_L2_TESTSET(Dataset):
-    def __init__(self, args, transform=None, out_dist_label=0):
+    def __init__(self, args, root_dir="/kaggle/input/100-bird-species/test", transform=None, out_dist_label=0):
         self.transform = transform
 
-        self.data = []
+        # bird_testset = torchvision.datasets.ImageFolder(root=, transform=None)
+
+        self.img_path_list = []
+        self.l2_image_pair_dict = {}
+        self.exposure_blend_rate = args.exposure_blend_rate
+
+        for i, class_name in tqdm(enumerate(os.listdir(root_dir))):
+            class_path = os.path.join(root_dir, class_name)
+            for img_name in os.listdir(class_path):
+                if img_name.endswith('.JPEG'):
+                    img_path = os.path.join(class_path, img_name)
+                    # image = Image.open(img_path).convert('RGB')
+                    self.img_path_list.append(img_path)
 
         if args.use_l2_adv_images:
             if 'use_l2_100' in args.__dict__ and args.use_l2_100:
                 file_path = "../clean_trained_model/L2_ADV_gen_pil_images_ImageNet_train_class_dumbbell.pkl"
-            self.data = get_bird_test_l2_images(args, file_path)
-
-        if 'test_jpeg_compression_defense' in args.__dict__ and args.test_jpeg_compression_defense:
-            print("test_jpeg_compression_defense in OOD_BIRD_L2_TESTSET")
-            new_directory_path = "./data/jpeg_compress_BIRD_OOD"
-            # Create the directory
-            os.makedirs(new_directory_path, exist_ok=True)
-            for i in range(len(self.data)):
-                address = f"./data/jpeg_compress_BIRD_OOD/{i}.jpg"
-                self.data[i].save(address, 'JPEG', quality=75)
-                self.data[i] = Image.open(address)
-
-        if 'test_shrink_pad' in args.__dict__ and args.test_shrink_pad:
-            for i in range(len(self.data)):
-                self.data[i] = resize_and_pad(self.data[i])
+                with open(file_path, 'rb') as file:
+                    self.l2_100_saved_images = pickle.load(file)
+                for i in range(len(self.img_path_list)):
+                    self.l2_image_pair_dict[i] = random.random() * len(self.l2_100_saved_images)
 
         self.out_dist_label = out_dist_label
 
     def __len__(self):
-        return len(self.data)
+        return len(self.img_path_list)
 
     def __getitem__(self, idx):
-        img = self.data[idx]
+        img_path = self.img_path_list[idx]
+        img = default_loader(img_path)
+        l2_image = self.l2_100_saved_images[self.l2_image_pair_dict[idx]]
+        l2_image = l2_image.resize(img.size)
+        img = Image.blend(img, l2_image, self.exposure_blend_rate)
         label = self.out_dist_label
         if self.transform:
-            img = self.tranform(img)
+            img = self.transform(img)
         return img, label
 
 class CIFAR100_BLENDED_OOD(Dataset):
@@ -350,22 +336,6 @@ class CIFAR100_BLENDED_OOD(Dataset):
             img = self.tranform(img)
         return img, label
 
-def get_imagenet30_l2_images_for_cls(imagenet30_testset, args, file_path):
-    with open(file_path, 'rb') as file:
-        l2_1000_saved_images = pickle.load(file)
-
-    # Blend images
-    blended_images = []
-    print(f"Image.blend(imagenet30_testset, random.choice(l2_1000_saved_images), {args.exposure_blend_rate})")
-    for i, img in enumerate(imagenet30_testset):
-        l2_image = random.choice(l2_1000_saved_images)
-        l2_image = l2_image.resize(img[0].size)
-        blended_img = Image.blend(img[0], l2_image, args.exposure_blend_rate)  # Blend two images with ratio 0.5
-        blended_images.append(blended_img)  # Assign label 0
-
-    print("Blended dataset size:", len(blended_images))
-
-    return blended_images
 
 def get_cifar10_blended_images_for_cls_l2_1000(cifar10_testset, args, file_path):
     with open(file_path, 'rb') as file:
@@ -386,27 +356,23 @@ class IMAGENET30_L2_FOR_CLS(Dataset):
     def __init__(self, args, transform=None):
         self.transform = transform
 
-        self.data = []
-
         imagenet30_testset = IMAGENET30_TEST_DATASET()
+
+        self.img_path_list = imagenet30_testset.img_path_list
+
+        self.exposure_blend_rate = args.exposure_blend_rate
+
+        self.l2_image_pair_dict = {}
+
         if args.use_l2_adv_images:
             if 'use_l2_100' in args.__dict__ and args.use_l2_100:
                 file_path = "../clean_trained_model/L2_ADV_gen_pil_images_ImageNet_train_class_dumbbell.pkl"
-            self.data = get_imagenet30_l2_images_for_cls(imagenet30_testset, args, file_path)
+                with open(file_path, 'rb') as file:
+                    self.l2_100_saved_images = pickle.load(file)
 
-        if 'test_jpeg_compression_defense' in args.__dict__ and args.test_jpeg_compression_defense:
-            print("test_jpeg_compression_defense in IMAGENET_L2_FOR_CLS")
-            new_directory_path = "./data/jpeg_compress_IMAGENET30_FOR_CLS"
-            # Create the directory
-            os.makedirs(new_directory_path, exist_ok=True)
-            for i in range(len(self.data)):
-                address = f"./data/jpeg_compress_IMAGENET30_FOR_CLS/{i}.jpg"
-                self.data[i].save(address, 'JPEG', quality=75)
-                self.data[i] = Image.open(address)
+                for i in range(len(self.img_path_list)):
+                    self.l2_image_pair_dict[i] = int(random.random() * len(self.l2_100_saved_images))
 
-        if 'test_shrink_pad' in args.__dict__ and args.test_shrink_pad:
-            for i in range(len(self.data)):
-                self.data[i] = resize_and_pad(self.data[i])
 
         self.targets = imagenet30_testset.targets
 
@@ -414,10 +380,14 @@ class IMAGENET30_L2_FOR_CLS(Dataset):
         return len(self.data)
 
     def __getitem__(self, idx):
-        img = self.data[idx]
+        img_path = self.img_path_list[idx]
+        img = default_loader(img_path)
+        l2_image = self.l2_100_saved_images[self.l2_image_pair_dict[idx]]
+        l2_image = l2_image.resize(img.size)
+        img = Image.blend(img, l2_image, self.exposure_blend_rate)
         label = self.targets[idx]
         if self.transform:
-            img = self.tranform(img)
+            img = self.transform(img)
         return img, label
 
 class CIFAR10_BLENDED_FOR_CLS(Dataset):
@@ -459,26 +429,6 @@ class CIFAR10_BLENDED_FOR_CLS(Dataset):
         if self.transform:
             img = self.tranform(img)
         return img, label
-
-def get_imagenet30_test_l2_images(args, file_path):
-
-    with open(file_path, 'rb') as file:
-        l2_1000_saved_images = pickle.load(file)
-
-    imagenet30_testset = IMAGENET30_TEST_DATASET()
-
-    # Blend images
-    blended_images = []
-    print(f"Image.blend(imagenet30_testset, random.choice(l2_1000_saved_images), {args.exposure_blend_rate})")
-    for i, img in enumerate(imagenet30_testset):
-        l2_image = random.choice(l2_1000_saved_images)
-        l2_image = l2_image.resize(img[0].size)
-        blended_img = Image.blend(img[0], l2_image, args.exposure_blend_rate)  # Blend two images with ratio 0.5
-        blended_images.append(blended_img)  # Assign label 0
-
-    print("Blended dataset size:", len(blended_images))
-
-    return blended_images
 
 def get_cifar10_blended_id_images_for_test_l2_1000(args, file_path):
 
@@ -526,26 +476,9 @@ class ID_IMAGENET30_TEST_CLEAN(Dataset):
     def __init__(self, args, transform=None, in_dist_label=1):
         self.transform = transform
 
-        self.data = []
-
         imagenet30_test_set = IMAGENET30_TEST_DATASET()
 
-        for i in range(len(imagenet30_test_set)):
-            image = imagenet30_test_set[i][0]
-            if 'test_shrink_pad' in args.__dict__ and args.test_shrink_pad:
-                image = resize_and_pad(image)
-            self.data.append(image)
-
-        if 'test_jpeg_compression_defense' in args.__dict__ and args.test_jpeg_compression_defense:
-            print("test_jpeg_compression_defense in IMAGENET30_CLEAN_ID")
-            # Define the path of the new directory
-            new_directory_path = "./data/jpeg_compress_IMAGENET30_CLEAN_ID"
-            # Create the directory
-            os.makedirs(new_directory_path, exist_ok=True)
-            for i in range(len(self.data)):
-                address = f"./data/jpeg_compress_IMAGENET30_CLEAN_ID/{i}.jpg"
-                self.data[i].save(address, 'JPEG', quality=75)
-                self.data[i] = Image.open(address)
+        self.img_path_list = imagenet30_test_set.img_path_list
 
         self.in_dist_label = in_dist_label
 
@@ -553,7 +486,8 @@ class ID_IMAGENET30_TEST_CLEAN(Dataset):
         return len(self.data)
 
     def __getitem__(self, idx):
-        img = self.data[idx]
+        img_path = self.img_path_list[idx]
+        img = default_loader(img_path)
         label = self.in_dist_label
         if self.transform:
             img = self.transform(img)
@@ -674,38 +608,39 @@ class ID_IMAGENET30_L2_TESTSET(Dataset):
     def __init__(self, args, transform=None, in_dist_label=1):
         self.transform = transform
 
-        self.data = []
+        imagenet30_testset = IMAGENET30_TEST_DATASET()
+
+        self.img_path_list = imagenet30_testset.img_path_list
+
+        self.exposure_blend_rate = args.exposure_blend_rate
+
+        self.l2_image_pair_dict = {}
 
         if args.use_l2_adv_images:
             if 'use_l2_100' in args.__dict__ and args.use_l2_100:
                 file_path = "../clean_trained_model/L2_ADV_gen_pil_images_ImageNet_train_class_dumbbell.pkl"
-            self.data = get_imagenet30_test_l2_images(args, file_path)
 
-        if 'test_jpeg_compression_defense' in args.__dict__ and args.test_jpeg_compression_defense:
-            print("test_jpeg_compression_defense in CIFAR10_BLENDED_ID")
-            # Define the path of the new directory
-            new_directory_path = "./data/jpeg_compress_CIFAR10_ID"
-            # Create the directory
-            os.makedirs(new_directory_path, exist_ok=True)
-            for i in range(len(self.data)):
-                address = f"./data/jpeg_compress_CIFAR10_ID/{i}.jpg"
-                self.data[i].save(address, 'JPEG', quality=75)
-                self.data[i] = Image.open(address)
+                with open(file_path, 'rb') as file:
+                    self.l2_1000_saved_images = pickle.load(file)
 
-        if 'test_shrink_pad' in args.__dict__ and args.test_shrink_pad:
-            for i in range(len(self.data)):
-                self.data[i] = resize_and_pad(self.data[i])
+                for i in range(len(self.img_path_list)):
+                    self.l2_image_pair_dict[i] = int(random.random() * len(self.l2_1000_saved_images))
 
         self.in_dist_label = in_dist_label
 
     def __len__(self):
-        return len(self.data)
+        return len(self.img_path_list)
 
     def __getitem__(self, idx):
-        img = self.data[idx]
+        img_path = self.img_path_list[idx]
+        img = default_loader(img_path)
+        l2_image = self.l2_1000_saved_images[self.l2_image_pair_dict[idx]]
+        l2_image = l2_image.resize(img.size)
+        img = Image.blend(img, l2_image, self.exposure_blend_rate)  # Blend two images with ratio 0.5
+
         label = self.in_dist_label
         if self.transform:
-            img = self.tranform(img)
+            img = self.transform(img)
         return img, label
 
 class CIFAR10_BLENDED_ID(Dataset):
@@ -1305,7 +1240,7 @@ class IMAGENET30_TRAIN_L2_USE_ROTATION_TRANSFORM(Dataset):
         self.l2_image_pair_dict = {}
 
         for _, poison_index in enumerate(self.poison_indices):
-            self.l2_image_pair_dict[poison_index] = int(random.random() * len(self.l2_adv_saved_images))
+            self.l2_image_pair_dict[poison_index] = int(random.random() * (len(self.l2_adv_saved_images)))
 
         print(f"len(self.poison_indices): {len(self.poison_indices)}")
 
