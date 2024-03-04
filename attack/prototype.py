@@ -190,21 +190,26 @@ class NormalCase:
         test_label_transform = dataset_and_transform_generate(args)
 
         if args.is_our_attack:
+            print("exposure_dataset_and_transform_generate(args)")
             train_dataset_without_transform = exposure_dataset_and_transform_generate(args)
 
+        print("clean_dataset_and_transform_generate_ood(args)")
         clean_test_dataset_without_transform_ood, \
         test_img_transform_ood, \
         test_label_transform_ood = clean_dataset_and_transform_generate_ood(args)
 
         if args.is_our_attack:
+            print("exposure_dataset_and_transform_generate_for_cls(args)")
             exposure_test_dataset_without_transform_for_cls, \
             _, \
             _ = exposure_dataset_and_transform_generate_for_cls(args)
 
+            print("exposure_dataset_and_transform_generate_ood(args, poison_all_test_ood=False)")
             exposure_out_test_dataset_without_transform_ood, \
             _, \
             _ = exposure_dataset_and_transform_generate_ood(args, poison_all_test_ood=False)
 
+            print("exposure_dataset_and_transform_generate_ood(args, poison_all_test_ood=True)")
             exposure_all_test_dataset_without_transform_ood, \
             _, \
             _ = exposure_dataset_and_transform_generate_ood(args, poison_all_test_ood=True)
@@ -217,28 +222,34 @@ class NormalCase:
 
         logging.debug("dataset_and_transform_generate done")
 
+        print("loading clean_train_dataset_with_transform")
         clean_train_dataset_with_transform = dataset_wrapper_with_transform(
             train_dataset_without_transform,
             train_img_transform,
             train_label_transform
         )
 
+        print("get_labels(train_dataset_without_transform)")
         clean_train_dataset_targets = get_labels(train_dataset_without_transform)
 
+        print("dataset_wrapper_with_transform(test_dataset_without_transform)")
         clean_test_dataset_with_transform = dataset_wrapper_with_transform(
             test_dataset_without_transform,
             test_img_transform,
             test_label_transform,
         )
 
+        print("get_labels(test_dataset_without_transform)")
         clean_test_dataset_targets = get_labels(test_dataset_without_transform)
 
+        print("dataset_wrapper_with_transform(clean_test_dataset_without_transform_ood)")
         clean_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
             clean_test_dataset_without_transform_ood,
             test_img_transform_ood,
             test_label_transform_ood,
         )
 
+        print("get_labels(clean_test_dataset_without_transform_ood)")
         clean_test_dataset_targets_ood = get_labels(clean_test_dataset_without_transform_ood)
 
         if args.is_our_attack:
