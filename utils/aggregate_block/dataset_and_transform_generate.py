@@ -483,7 +483,7 @@ class ID_IMAGENET30_TEST_CLEAN(Dataset):
         self.in_dist_label = in_dist_label
 
     def __len__(self):
-        return len(self.data)
+        return len(self.img_path_list)
 
     def __getitem__(self, idx):
         img_path = self.img_path_list[idx]
