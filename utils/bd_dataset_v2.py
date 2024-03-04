@@ -61,7 +61,7 @@ class y_iter(torch.utils.data.dataset.Dataset):
 
 
 def get_labels(given_dataset):
-    if isinstance(given_dataset, DatasetFolder) or isinstance(given_dataset, ImageFolder):
+    if hasattr(given_dataset, 'targets') or isinstance(given_dataset, DatasetFolder) or isinstance(given_dataset, ImageFolder):
         logging.debug("get .targets")
         return given_dataset.targets
     else:
