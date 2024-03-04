@@ -280,7 +280,7 @@ class OOD_BIRD_L2_TESTSET(Dataset):
                 with open(file_path, 'rb') as file:
                     self.l2_100_saved_images = pickle.load(file)
                 for i in range(len(self.img_path_list)):
-                    self.l2_image_pair_dict[i] = random.random() * len(self.l2_100_saved_images)
+                    self.l2_image_pair_dict[i] = int(random.random() * len(self.l2_100_saved_images))
 
         self.out_dist_label = out_dist_label
         print("End of OOD_BIRD_L2_TESTSET")
