@@ -1305,7 +1305,7 @@ class IMAGENET30_TRAIN_L2_USE_ROTATION_TRANSFORM(Dataset):
         self.l2_image_pair_dict = {}
 
         for _, poison_index in enumerate(self.poison_indices):
-            self.l2_image_pair_dict[poison_index] = random.choice(self.l2_adv_saved_images)
+            self.l2_image_pair_dict[poison_index] = int(random.random() * len(self.l2_adv_saved_images))
 
         print(f"len(self.poison_indices): {len(self.poison_indices)}")
 
@@ -1319,7 +1319,7 @@ class IMAGENET30_TRAIN_L2_USE_ROTATION_TRANSFORM(Dataset):
             transformed_image = default_loader(img_path)
             if self.use_rotation_transform:
                 transformed_image = transformed_image.rotate(rotation_angle)
-            l2_image = self.l2_image_pair_dict[idx]
+            l2_image = self.l2_adv_saved_images[self.l2_image_pair_dict[idx]]
             l2_image = l2_image.resize(transformed_image.size)
             transformed_image = Image.blend(transformed_image, l2_image,
                                                   self.exposure_blend_rate)  # Blend two images with ratio 0.5
