@@ -25,6 +25,7 @@ import torchvision
 from torch.utils.data import Dataset
 from torchvision.datasets.utils import download_and_extract_archive
 from torchvision.datasets import ImageFolder
+from torchvision.datasets.folder import default_loader
 
 
 
@@ -1204,7 +1205,7 @@ class IMAGENET30_TRAIN_DATASET(Dataset):
         """
         self.root_dir = root_dir
         self.transform = transform
-        self.data = []
+        self.img_path_list = []
         self.targets = []
 
         # Map each class to an index
@@ -1217,15 +1218,16 @@ class IMAGENET30_TRAIN_DATASET(Dataset):
             for img_name in os.listdir(class_path)[:1000]:
                 if img_name.endswith('.JPEG'):
                     img_path = os.path.join(class_path, img_name)
-                    image = Image.open(img_path).convert('RGB')
-                    self.data.append(image)
+                    # image = Image.open(img_path).convert('RGB')
+                    self.img_path_list.append(img_path)
                     self.targets.append(self.class_to_idx[class_name])
 
     def __len__(self):
-        return len(self.data)
+        return len(self.img_path_list)
 
     def __getitem__(self, idx):
-        image = self.data[idx]
+        img_path = self.img_path_list[idx]
+        image = default_loader(img_path)
         label = self.targets[idx]
         if self.transform:
             image = self.transform(image)
@@ -1241,7 +1243,7 @@ class IMAGENET30_TEST_DATASET(Dataset):
         """
         self.root_dir = root_dir
         self.transform = transform
-        self.data = []
+        self.img_path_list = []
         self.targets = []
 
         # Map each class to an index
@@ -1256,15 +1258,16 @@ class IMAGENET30_TEST_DATASET(Dataset):
                 for img_name in os.listdir(instance_path):
                     if img_name.endswith('.JPEG'):
                         img_path = os.path.join(instance_path, img_name)
-                        image = Image.open(img_path).convert('RGB')
-                        self.data.append(image)
+                        # image = Image.open(img_path).convert('RGB')
+                        self.img_path_list.append(img_path)
                         self.targets.append(self.class_to_idx[class_name])
 
     def __len__(self):
-        return len(self.data)
+        return len(self.img_path_list)
 
     def __getitem__(self, idx):
-        image = self.data[idx]
+        img_path = self.img_path_list[idx]
+        image = default_loader(img_path)
         label = self.targets[idx]
         if self.transform:
             image = self.transform(image)
@@ -1281,56 +1284,43 @@ class IMAGENET30_TRAIN_L2_USE_ROTATION_TRANSFORM(Dataset):
         with open(file_path, 'rb') as file:
             l2_adv_saved_images = pickle.load(file)
 
-        self.data = imagenet30_train_dataset.data
+        self.img_path_list = imagenet30_train_dataset.img_path_list
         self.targets = imagenet30_train_dataset.targets
 
-        if 'save_classification' in args.__dict__ and args.save_classification:
-            random_indices = random.sample(range(len(self.data)), int(2 * args.pratio * len(self.data)))
-            random_indices_for_saving_classification = random_indices[len(random_indices) // 2:]
-            poison_indices = random_indices[:len(random_indices) // 2]
-            print(f"len(random_indices_ for_saving_classification): {len(random_indices_for_saving_classification)}")
-            print(f"len(poison_indices): {len(poison_indices)}")
+        self.target_label = target_label
 
-            print(
-                f"Image.blend(imagenet30_train[random_indices_for_saving_classification][0], random.choice(l2_adv_saved_images), {args.exposure_blend_rate * random.random()})")
-            for idx in random_indices_for_saving_classification:
-                self.data[idx] = Image.blend(imagenet30_train_dataset[idx][0], random.choice(l2_adv_saved_images),
-                                             args.exposure_blend_rate)  # Blend two images with ratio 0.5
-        else:
-            poison_indices = random.sample(range(len(self.data)), int(args.pratio * len(self.data)))
-            print(f"len(poison_indices): {len(poison_indices)}")
+        self.l2_adv_saved_images = l2_adv_saved_images
+        self.use_rotation_transform = args.use_rotation_transform
+        self.exposure_blend_rate = args.exposure_blend_rate
 
-        print(f"Image.blend(imagenet30_train, random.choice(l2_adv_saved_images), {args.exposure_blend_rate})")
+        self.poison_indices = set(random.sample(range(len(self.img_path_list)), int(args.pratio * len(self.img_path_list))))
 
-        # Define the path of the new directory
-        new_directory_path = "./data/jpeg_compress_imagenet30_TRAIN"
-        # Create the directory
-        os.makedirs(new_directory_path, exist_ok=True)
+        self.l2_image_pair_dict = {}
 
-        for idx in poison_indices:
-            rotation_angle = random.choice([90, 180, 270])
-            transformed_image = imagenet30_train_dataset[idx][0]
-            if args.use_rotation_transform:
-                transformed_image = transformed_image.rotate(rotation_angle)
-            self.data[idx] = Image.blend(transformed_image, random.choice(l2_adv_saved_images), args.exposure_blend_rate)  # Blend two images with ratio 0.5
-            self.targets[idx] = target_label
+        for _, poison_index in enumerate(self.poison_indices):
+            self.l2_image_pair_dict[poison_index] = random.choice(self.l2_adv_saved_images)
 
-            if args.use_jpeg_compress_in_training:
-                if random.random() < 0.1:
-                    address = f"./data/jpeg_compress_imagenet30_TRAIN/{idx}.jpg"
-                    pil_image = Image.fromarray(self.data[idx].astype(np.uint8))
-                    pil_image.save(address, 'JPEG', quality=random.randint(25, 75))
-                    # Reload the image to ensure it's compressed and update the dataset
-                    self.data[idx] = Image.open(address)
+        print(f"len(self.poison_indices): {len(self.poison_indices)}")
 
     def __len__(self):
-        return len(self.data)
+        return len(self.img_path_list)
 
     def __getitem__(self, idx):
-        img = self.data[idx]
+        img_path = self.img_path_list[idx]
+        if idx in self.poison_indices:
+            rotation_angle = random.choice([90, 180, 270])
+            transformed_image = default_loader(img_path)
+            if self.use_rotation_transform:
+                transformed_image = transformed_image.rotate(rotation_angle)
+            transformed_image = Image.blend(transformed_image, self.l2_image_pair_dict[idx],
+                                                  self.exposure_blend_rate)  # Blend two images with ratio 0.5
+            target = self.target_label
+            return transformed_image, target
+
+        img = default_loader(img_path)
         label = self.targets[idx]
         if self.transform:
-            img = self.tranform(img)
+            img = self.transform(img)
         return img, label
 
 class CIFAR10_TRAIN_BLENDED_L2_USE_OTHER_CLASSES_DATASET(Dataset):
