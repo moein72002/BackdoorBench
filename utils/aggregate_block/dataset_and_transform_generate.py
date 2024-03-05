@@ -225,7 +225,7 @@ def get_cifar100_blended_images_for_test_exposure(args):
     cifar10_train_target_class = cifar10_train_target_class + cifar10_train_target_class
 
     # Load CIFAR-100 dataset
-    cifar100_testset = torchvision.datasets.CIFAR100Coarse(root='./data', train=False, download=True, transform=None)
+    cifar100_testset = CIFAR100Coarse(root='./data', train=False, download=True, transform=None)
 
     # Blend images
     blended_images = []
@@ -350,7 +350,7 @@ class CIFAR_BLENDED_OOD(Dataset):
         if dataset_name == 'cifar10':
             cifar_testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=None)
         elif dataset_name == 'cifar100':
-            cifar_testset = torchvision.datasets.CIFAR100Coarse(root='./data', train=False, download=True, transform=None)
+            cifar_testset = CIFAR100Coarse(root='./data', train=False, download=True, transform=None)
 
         if args.use_l2_adv_images:
             if 'use_l2_100' in args.__dict__ and args.use_l2_100:
@@ -459,7 +459,7 @@ class CIFAR_BLENDED_FOR_CLS(Dataset):
         if dataset_name == 'cifar10':
             cifar_testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=None)
         elif dataset_name == 'cifar100':
-            cifar_testset = torchvision.datasets.CIFAR100Coarse(root='./data', train=False, download=True, transform=None)
+            cifar_testset = CIFAR100Coarse(root='./data', train=False, download=True, transform=None)
         if args.use_l2_adv_images:
             if 'use_l2_100' in args.__dict__ and args.use_l2_100:
                 if dataset_name == 'cifar10':
@@ -570,7 +570,7 @@ class CIFAR_CLEAN_ID(Dataset):
         if dataset_name == 'cifar10':
             cifar_test = torchvision.datasets.CIFAR10(args.dataset_path, train=False, download=True, transform=None)
         elif dataset_name == 'cifar100':
-            cifar_test = torchvision.datasets.CIFAR100Coarse(args.dataset_path, train=False, download=True, transform=None)
+            cifar_test = CIFAR100Coarse(args.dataset_path, train=False, download=True, transform=None)
 
         for i in range(len(cifar_test)):
             image = cifar_test[i][0]
@@ -632,7 +632,7 @@ class CIFAR_CLEAN_OOD(Dataset):
         if dataset_name == 'cifar10':
             cifar_test = torchvision.datasets.CIFAR10(args.dataset_path, train=False, download=True, transform=None)
         elif dataset_name == 'cifar100':
-            cifar_test = torchvision.datasets.CIFAR100Coarse(args.dataset_path, train=False, download=True, transform=None)
+            cifar_test = CIFAR100Coarse(args.dataset_path, train=False, download=True, transform=None)
 
         for i in range(len(cifar_test)):
             image = cifar_test[i][0]
@@ -715,7 +715,7 @@ class CIFAR_BLENDED_ID(Dataset):
         if dataset_name == 'cifar10':
             cifar_testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=None)
         elif dataset_name == 'cifar100':
-            cifar_testset = torchvision.datasets.CIFAR100Coarse(root='./data', train=False, download=True, transform=None)
+            cifar_testset = CIFAR100Coarse(root='./data', train=False, download=True, transform=None)
 
         if args.use_l2_adv_images:
             if 'use_l2_100' in args.__dict__ and args.use_l2_100:
@@ -1198,7 +1198,7 @@ class CIFAR10_BLENDED_L2_USE_CHEAT_EXPOSURE_DATASET(Dataset):
         # Create the directory
         os.makedirs(new_directory_path, exist_ok=True)
 
-        cifar100_train = torchvision.datasets.CIFAR100Coarse(root='./data', train=True, download=True, transform=None)
+        cifar100_train = CIFAR100Coarse(root='./data', train=True, download=True, transform=None)
         random_cheat_exposure_indices = random.sample(range(len(cifar100_train)), int(args.pratio * len(self.data)))
 
         print(f"Image.blend(cifar10_train, random.choice(l2_adv_saved_images), {args.exposure_blend_rate})")
@@ -1371,7 +1371,7 @@ class CIFAR_TRAIN_BLENDED_L2_USE_OTHER_CLASSES_DATASET(Dataset):
         if dataset_name == 'cifar10':
             cifar_train = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=None)
         elif dataset_name == 'cifar100':
-            cifar_train = torchvision.datasets.CIFAR100Coarse(root='./data', train=True, download=True, transform=None)
+            cifar_train = CIFAR100Coarse(root='./data', train=True, download=True, transform=None)
 
         if 'use_l2_100' in args.__dict__ and args.use_l2_100:
             if dataset_name == 'cifar10':
