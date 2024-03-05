@@ -277,10 +277,13 @@ class OOD_BIRD_L2_TESTSET(Dataset):
         if args.use_l2_adv_images:
             if 'use_l2_100' in args.__dict__ and args.use_l2_100:
                 file_path = "../clean_trained_model/L2_ADV_gen_pil_images_ImageNet_train_class_dumbbell.pkl"
-                with open(file_path, 'rb') as file:
-                    self.l2_100_saved_images = pickle.load(file)
-                for i in range(len(self.img_path_list)):
-                    self.l2_image_pair_dict[i] = int(random.random() * len(self.l2_100_saved_images))
+            else:
+                file_path = "/kaggle/input/l2-adv-pil-imgs-imagenet-train-class-dumbbell-1000/L2_ADV_gen_pil_images_ImageNet_train_class_dumbbell_1000.pkl"
+            print(file_path)
+            with open(file_path, 'rb') as file:
+                self.l2_100_saved_images = pickle.load(file)
+            for i in range(len(self.img_path_list)):
+                self.l2_image_pair_dict[i] = int(random.random() * len(self.l2_100_saved_images))
 
         self.out_dist_label = out_dist_label
         print("End of OOD_BIRD_L2_TESTSET")
@@ -369,11 +372,14 @@ class IMAGENET30_L2_FOR_CLS(Dataset):
         if args.use_l2_adv_images:
             if 'use_l2_100' in args.__dict__ and args.use_l2_100:
                 file_path = "../clean_trained_model/L2_ADV_gen_pil_images_ImageNet_train_class_dumbbell.pkl"
-                with open(file_path, 'rb') as file:
-                    self.l2_100_saved_images = pickle.load(file)
+            else:
+                file_path = "/kaggle/input/l2-adv-pil-imgs-imagenet-train-class-dumbbell-1000/L2_ADV_gen_pil_images_ImageNet_train_class_dumbbell_1000.pkl"
+            print(file_path)
+            with open(file_path, 'rb') as file:
+                self.l2_100_saved_images = pickle.load(file)
 
-                for i in range(len(self.img_path_list)):
-                    self.l2_image_pair_dict[i] = int(random.random() * len(self.l2_100_saved_images))
+            for i in range(len(self.img_path_list)):
+                self.l2_image_pair_dict[i] = int(random.random() * len(self.l2_100_saved_images))
 
 
         self.targets = imagenet30_testset.targets
@@ -604,12 +610,14 @@ class ID_IMAGENET30_L2_TESTSET(Dataset):
         if args.use_l2_adv_images:
             if 'use_l2_100' in args.__dict__ and args.use_l2_100:
                 file_path = "../clean_trained_model/L2_ADV_gen_pil_images_ImageNet_train_class_dumbbell.pkl"
+            else:
+                file_path = "/kaggle/input/l2-adv-pil-imgs-imagenet-train-class-dumbbell-1000/L2_ADV_gen_pil_images_ImageNet_train_class_dumbbell_1000.pkl"
+            print(file_path)
+            with open(file_path, 'rb') as file:
+                self.l2_1000_saved_images = pickle.load(file)
 
-                with open(file_path, 'rb') as file:
-                    self.l2_1000_saved_images = pickle.load(file)
-
-                for i in range(len(self.img_path_list)):
-                    self.l2_image_pair_dict[i] = int(random.random() * len(self.l2_1000_saved_images))
+            for i in range(len(self.img_path_list)):
+                self.l2_image_pair_dict[i] = int(random.random() * len(self.l2_1000_saved_images))
 
         self.in_dist_label = in_dist_label
 
@@ -1210,8 +1218,11 @@ class IMAGENET30_TRAIN_L2_USE_ROTATION_TRANSFORM(Dataset):
 
         if 'use_l2_100' in args.__dict__ and args.use_l2_100:
             file_path = "../clean_trained_model/L2_ADV_gen_pil_images_ImageNet_train_class_dumbbell.pkl"
-            with open(file_path, 'rb') as file:
-                self.l2_adv_saved_images = pickle.load(file)
+        else:
+            file_path = "/kaggle/input/l2-adv-pil-imgs-imagenet-train-class-dumbbell-1000/L2_ADV_gen_pil_images_ImageNet_train_class_dumbbell_1000.pkl"
+        print(file_path)
+        with open(file_path, 'rb') as file:
+            self.l2_adv_saved_images = pickle.load(file)
 
         self.img_path_list = imagenet30_train_dataset.img_path_list
         self.targets = imagenet30_train_dataset.targets
