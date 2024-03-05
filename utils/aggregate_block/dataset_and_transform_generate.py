@@ -237,17 +237,14 @@ def get_cifar100_blended_images_for_test_exposure(args):
 
     return blended_images
 
-def get_cifar100_blended_images_for_test_exposure_l2_1000(args, file_path):
+def get_cifar_blended_images_for_test_exposure_l2_1000(cifar_testset, args, file_path):
     with open(file_path, 'rb') as file:
         l2_1000_saved_images = pickle.load(file)
-
-    # Load CIFAR-100 dataset
-    cifar100_testset = torchvision.datasets.CIFAR100(root='./data', train=False, download=True, transform=None)
 
     # Blend images
     blended_images = []
     print(f"Image.blend(cifar100_testset, random.choice(l2_1000_saved_images), {args.exposure_blend_rate})")
-    for i, img in enumerate(cifar100_testset):
+    for i, img in enumerate(cifar_testset):
         blended_img = Image.blend(img[0], random.choice(l2_1000_saved_images), args.exposure_blend_rate)  # Blend two images with ratio 0.5
         blended_images.append(blended_img)  # Assign label 0
 
@@ -302,18 +299,31 @@ class OOD_BIRD_L2_TESTSET(Dataset):
             img = self.transform(img)
         return img, label
 
-class CIFAR100_BLENDED_OOD(Dataset):
-    def __init__(self, args, transform=None, out_dist_label=0):
+class CIFAR_BLENDED_OOD(Dataset):
+    def __init__(self, dataset_name, args, transform=None, out_dist_label=0):
+        assert dataset_name in ['cifar10', 'cifar100']
+
         self.transform = transform
 
         self.data = []
 
+        if dataset_name == 'cifar10':
+            cifar_testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=None)
+        elif dataset_name == 'cifar100':
+            cifar_testset = torchvision.datasets.CIFAR100(root='./data', train=False, download=True, transform=None)
+
         if args.use_l2_adv_images:
             if 'use_l2_100' in args.__dict__ and args.use_l2_100:
-                file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0.pkl"
+                if dataset_name == 'cifar10':
+                    file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0.pkl"
+                elif dataset_name == 'cifar100':
+                    file_path = "../cleant_trained_model/l2_adv_generated_images_pil_cifar10_class1.pkl"
             else:
-                file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl"
-            self.data = get_cifar100_blended_images_for_test_exposure_l2_1000(args, file_path)
+                if dataset_name == 'cifar10':
+                    file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl"
+                elif dataset_name == 'cifar100':
+                    file_path = "../cleant_trained_model/l2_adv_generated_images_pil_cifar10_class1_1000.pkl"
+            self.data = get_cifar_blended_images_for_test_exposure_l2_1000(cifar_testset, args, file_path)
 
         if 'test_jpeg_compression_defense' in args.__dict__ and args.test_jpeg_compression_defense:
             print("test_jpeg_compression_defense in CIFAR100_BLENDED_OOD")
@@ -342,14 +352,14 @@ class CIFAR100_BLENDED_OOD(Dataset):
         return img, label
 
 
-def get_cifar10_blended_images_for_cls_l2_1000(cifar10_testset, args, file_path):
+def get_cifar_blended_images_for_cls_l2_1000(cifar_testset, args, file_path):
     with open(file_path, 'rb') as file:
         l2_1000_saved_images = pickle.load(file)
 
     # Blend images
     blended_images = []
-    print(f"Image.blend(cifar10_testset, random.choice(l2_1000_saved_images), {args.exposure_blend_rate})")
-    for i, img in enumerate(cifar10_testset):
+    print(f"Image.blend(cifar_testset, random.choice(l2_1000_saved_images), {args.exposure_blend_rate})")
+    for i, img in enumerate(cifar_testset):
         blended_img = Image.blend(img[0], random.choice(l2_1000_saved_images), args.exposure_blend_rate)  # Blend two images with ratio 0.5
         blended_images.append(blended_img)  # Assign label 0
 
@@ -398,27 +408,38 @@ class IMAGENET30_L2_FOR_CLS(Dataset):
             img = self.transform(img)
         return img, label
 
-class CIFAR10_BLENDED_FOR_CLS(Dataset):
-    def __init__(self, args, transform=None):
+class CIFAR_BLENDED_FOR_CLS(Dataset):
+    def __init__(self, dataset_name, args, transform=None):
+        assert dataset_name in ['cifar10', 'cifar100']
+
         self.transform = transform
 
         self.data = []
 
-        cifar10_testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=None)
+        if dataset_name == 'cifar10':
+            cifar_testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=None)
+        elif dataset_name == 'cifar100':
+            cifar_testset = torchvision.datasets.CIFAR100(root='./data', train=False, download=True, transform=None)
         if args.use_l2_adv_images:
             if 'use_l2_100' in args.__dict__ and args.use_l2_100:
-                file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0.pkl"
+                if dataset_name == 'cifar10':
+                    file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0.pkl"
+                elif dataset_name == 'cifar100':
+                    file_path = "../cleant_trained_model/l2_adv_generated_images_pil_cifar10_class1.pkl"
             else:
-                file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl"
-            self.data = get_cifar10_blended_images_for_cls_l2_1000(cifar10_testset, args, file_path)
+                if dataset_name == 'cifar10':
+                    file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl"
+                elif dataset_name == 'cifar100':
+                    file_path = "../cleant_trained_model/l2_adv_generated_images_pil_cifar10_class1_1000.pkl"
+            self.data = get_cifar_blended_images_for_cls_l2_1000(cifar_testset, args, file_path)
 
         if 'test_jpeg_compression_defense' in args.__dict__ and args.test_jpeg_compression_defense:
-            print("test_jpeg_compression_defense in CIFAR10_BLENDED_FOR_CLS")
-            new_directory_path = "./data/jpeg_compress_CIFAR10_FOR_CLS"
+            print("test_jpeg_compression_defense in CIFAR_BLENDED_FOR_CLS")
+            new_directory_path = "./data/jpeg_compress_CIFAR_FOR_CLS"
             # Create the directory
             os.makedirs(new_directory_path, exist_ok=True)
             for i in range(len(self.data)):
-                address = f"./data/jpeg_compress_CIFAR10_FOR_CLS/{i}.jpg"
+                address = f"{new_directory_path}/{i}.jpg"
                 self.data[i].save(address, 'JPEG', quality=75)
                 self.data[i] = Image.open(address)
 
@@ -426,7 +447,7 @@ class CIFAR10_BLENDED_FOR_CLS(Dataset):
             for i in range(len(self.data)):
                 self.data[i] = resize_and_pad(self.data[i])
 
-        self.targets = cifar10_testset.targets
+        self.targets = cifar_testset.targets
 
     def __len__(self):
         return len(self.data)
@@ -438,17 +459,15 @@ class CIFAR10_BLENDED_FOR_CLS(Dataset):
             img = self.tranform(img)
         return img, label
 
-def get_cifar10_blended_id_images_for_test_l2_1000(args, file_path):
+def get_cifar_blended_id_images_for_test_l2_1000(cifar_testset, args, file_path):
 
     with open(file_path, 'rb') as file:
         l2_1000_saved_images = pickle.load(file)
 
-    cifar10_testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=None)
-
     # Blend images
     blended_images = []
     print(f"Image.blend(cifar10_testset, random.choice(l2_1000_saved_images), {args.exposure_blend_rate})")
-    for i, img in enumerate(cifar10_testset):
+    for i, img in enumerate(cifar_testset):
         blended_img = Image.blend(img[0], random.choice(l2_1000_saved_images), args.exposure_blend_rate)  # Blend two images with ratio 0.5
         blended_images.append(blended_img)  # Assign label 0
 
@@ -501,16 +520,20 @@ class ID_IMAGENET30_TEST_CLEAN(Dataset):
             img = self.transform(img)
         return img, label
 
-class CIFAR10_CLEAN_ID(Dataset):
-    def __init__(self, args, transform=None, in_dist_label=1):
+class CIFAR_CLEAN_ID(Dataset):
+    def __init__(self, dataset_name, args, transform=None, in_dist_label=1):
+        assert dataset_name in ['cifar10', 'cifar100']
         self.transform = transform
 
         self.data = []
 
-        cifar10_test = torchvision.datasets.CIFAR10(args.dataset_path, train=False, download=True, transform=None)
+        if dataset_name == 'cifar10':
+            cifar_test = torchvision.datasets.CIFAR10(args.dataset_path, train=False, download=True, transform=None)
+        elif dataset_name == 'cifar100':
+            cifar_test = torchvision.datasets.CIFAR100(args.dataset_path, train=False, download=True, transform=None)
 
-        for i in range(len(cifar10_test)):
-            image = cifar10_test[i][0]
+        for i in range(len(cifar_test)):
+            image = cifar_test[i][0]
             if 'test_shrink_pad' in args.__dict__ and args.test_shrink_pad:
                 image = resize_and_pad(image)
             self.data.append(image)
@@ -535,7 +558,7 @@ class CIFAR10_CLEAN_ID(Dataset):
         img = self.data[idx]
         label = self.in_dist_label
         if self.transform:
-            img = self.tranform(img)
+            img = self.transform(img)
         return img, label
 
 class OOD_BIRD_TEST_CLEAN(Dataset):
@@ -558,16 +581,21 @@ class OOD_BIRD_TEST_CLEAN(Dataset):
             img = self.transform(img)
         return img, label
 
-class CIFAR100_CLEAN_OOD(Dataset):
-    def __init__(self, args, transform=None, ood_dist_label=0):
+class CIFAR_CLEAN_OOD(Dataset):
+    def __init__(self, dataset_name, args, transform=None, ood_dist_label=0):
+        assert dataset_name in ['cifar10', 'cifar100']
+
         self.transform = transform
 
         self.data = []
 
-        cifar100_test = torchvision.datasets.CIFAR100(args.dataset_path, train=False, download=True, transform=None)
+        if dataset_name == 'cifar10':
+            cifar_test = torchvision.datasets.CIFAR10(args.dataset_path, train=False, download=True, transform=None)
+        elif dataset_name == 'cifar100':
+            cifar_test = torchvision.datasets.CIFAR100(args.dataset_path, train=False, download=True, transform=None)
 
-        for i in range(len(cifar100_test)):
-            image = cifar100_test[i][0]
+        for i in range(len(cifar_test)):
+            image = cifar_test[i][0]
             if 'test_shrink_pad' in args.__dict__ and args.test_shrink_pad:
                 image = resize_and_pad(image)
             self.data.append(image)
@@ -592,7 +620,7 @@ class CIFAR100_CLEAN_OOD(Dataset):
         img = self.data[idx]
         label = self.ood_dist_label
         if self.transform:
-            img = self.tranform(img)
+            img = self.transform(img)
         return img, label
 
 class ID_IMAGENET30_L2_TESTSET(Dataset):
@@ -636,18 +664,31 @@ class ID_IMAGENET30_L2_TESTSET(Dataset):
             img = self.transform(img)
         return img, label
 
-class CIFAR10_BLENDED_ID(Dataset):
-    def __init__(self, args, transform=None, in_dist_label=1):
+class CIFAR_BLENDED_ID(Dataset):
+    def __init__(self, dataset_name, args, transform=None, in_dist_label=1):
+        assert dataset_name in ['cifar10', 'cifar100']
+
         self.transform = transform
 
         self.data = []
 
+        if dataset_name == 'cifar10':
+            cifar_testset = torchvision.datasets.CIFAR10(root='./data', train=False, download=True, transform=None)
+        elif dataset_name == 'cifar100':
+            cifar_testset = torchvision.datasets.CIFAR100(root='./data', train=False, download=True, transform=None)
+
         if args.use_l2_adv_images:
             if 'use_l2_100' in args.__dict__ and args.use_l2_100:
-                file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0.pkl"
+                if dataset_name == 'cifar10':
+                    file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0.pkl"
+                elif dataset_name == 'cifar100':
+                    file_path = "../cleant_trained_model/l2_adv_generated_images_pil_cifar10_class1.pkl"
             else:
-                file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl"
-            self.data = get_cifar10_blended_id_images_for_test_l2_1000(args, file_path)
+                if dataset_name == 'cifar10':
+                    file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl"
+                elif dataset_name == 'cifar100':
+                    file_path = "../cleant_trained_model/l2_adv_generated_images_pil_cifar10_class1_1000.pkl"
+            self.data = get_cifar_blended_id_images_for_test_l2_1000(cifar_testset, args, file_path)
 
         if 'test_jpeg_compression_defense' in args.__dict__ and args.test_jpeg_compression_defense:
             print("test_jpeg_compression_defense in CIFAR10_BLENDED_ID")
@@ -694,18 +735,18 @@ def clean_dataset_and_transform_generate_ood(args):
 
         if args.dataset == 'cifar10':
             from torchvision.datasets import CIFAR10
-            # test_dataset_without_transform = CIFAR10(
-            #     args.dataset_path,
-            #     train=False,
-            #     transform=None,
-            #     download=True,
-            # )
+            testset_clean_ID = CIFAR_CLEAN_ID('cifar10', args)
+            testset_clean_OOD = CIFAR_CLEAN_OOD('cifar100', args)
 
-            testset_clean_10 = CIFAR10_CLEAN_ID(args)
+            test_dataset_without_transform = torch.utils.data.ConcatDataset([testset_clean_ID, testset_clean_OOD])
 
-            testset_clean_100 = CIFAR100_CLEAN_OOD(args)
+        elif args.dataset == 'cifar100':
+            from torchvision.datasets import CIFAR100
 
-            test_dataset_without_transform = torch.utils.data.ConcatDataset([testset_clean_10, testset_clean_100])
+            testset_clean_ID = CIFAR_CLEAN_ID('cifar100', args)
+            testset_clean_OOD = CIFAR_CLEAN_OOD('cifar10', args)
+
+            test_dataset_without_transform = torch.utils.data.ConcatDataset([testset_clean_ID, testset_clean_OOD])
 
         elif args.dataset == "imagenet30":
             ID_IMAGENET30_testset = ID_IMAGENET30_TEST_CLEAN(args)
@@ -734,17 +775,16 @@ def exposure_dataset_and_transform_generate_for_cls(args):
 
         if args.dataset == 'cifar10':
             from torchvision.datasets import CIFAR10
-            # test_dataset_without_transform = CIFAR10(
-            #     args.dataset_path,
-            #     train=False,
-            #     transform=None,
-            #     download=True,
-            # )
+            testset_clean = CIFAR_BLENDED_FOR_CLS('cifar10', args)
+            test_dataset_without_transform = testset_clean
 
-            testset_clean_10 = CIFAR10_BLENDED_FOR_CLS(args)
-            test_dataset_without_transform = testset_clean_10
+        elif args.dataset == 'cifar100':
+            from torchvision.datasets import CIFAR100
+            testset_clean = CIFAR_BLENDED_FOR_CLS('cifar100', args)
+            test_dataset_without_transform = testset_clean
 
-        if args.dataset == 'imagenet30':
+
+        elif args.dataset == 'imagenet30':
             imagenet30_testset_for_cls = IMAGENET30_L2_FOR_CLS(args)
             test_dataset_without_transform = imagenet30_testset_for_cls
 
@@ -772,19 +812,32 @@ def exposure_dataset_and_transform_generate_ood(args, poison_all_test_ood=False)
         if args.dataset == 'cifar10':
             from torchvision.datasets import CIFAR10
 
-            testset_clean_10 = CIFAR10_CLEAN_ID(args)
+            if poison_all_test_ood:
+                testset_ID = CIFAR_BLENDED_ID('cifar10', args)
+            else:
+                testset_ID = CIFAR_CLEAN_ID('cifar10', args)
+
+            testset_OOD = CIFAR_BLENDED_OOD('cifar100', args)
+                
+            test_dataset_without_transform = torch.utils.data.ConcatDataset([testset_ID, testset_OOD])
+
+        elif args.dataset == 'cifar100':
+            from torchvision.datasets import CIFAR100
 
             if poison_all_test_ood:
-                testset_clean_10 = CIFAR10_BLENDED_ID(args)
-            testset_clean_100 = CIFAR100_BLENDED_OOD(args)
-                
-            test_dataset_without_transform = torch.utils.data.ConcatDataset([testset_clean_10, testset_clean_100])
+                testset_ID = CIFAR_BLENDED_ID('cifar100', args)
+            else:
+                testset_ID = CIFAR_CLEAN_ID('cifar100', args)
+
+            testset_OOD = CIFAR_BLENDED_OOD('cifar10', args)
+
+            test_dataset_without_transform = torch.utils.data.ConcatDataset([testset_ID, testset_OOD])
 
         elif args.dataset == 'imagenet30':
-            ID_imagenet30_testset = ID_IMAGENET30_TEST_CLEAN(args)
-
             if poison_all_test_ood:
                 ID_imagenet30_testset = ID_IMAGENET30_L2_TESTSET(args)
+            else:
+                ID_imagenet30_testset = ID_IMAGENET30_TEST_CLEAN(args)
 
             print("OOD_BIRD_L2_TESTSET(args)")
             OOD_bird_testset = OOD_BIRD_L2_TESTSET(args)
@@ -1264,21 +1317,37 @@ class IMAGENET30_TRAIN_L2_USE_ROTATION_TRANSFORM(Dataset):
             img = self.transform(img)
         return img, label
 
-class CIFAR10_TRAIN_BLENDED_L2_USE_OTHER_CLASSES_DATASET(Dataset):
-    def __init__(self, args, transform=None, target_label=0):
+class CIFAR_TRAIN_BLENDED_L2_USE_OTHER_CLASSES_DATASET(Dataset):
+    def __init__(self, dataset_name, args, transform=None):
+        assert dataset_name in ['cifar10', 'cifar100']
+
+        if dataset_name == 'cifar10':
+            target_label = 0
+        elif dataset_name == 'cifar100':
+            target_label = 58
+
         self.transform = transform
 
-        cifar10_train = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=None)
+        if dataset_name == 'cifar10':
+            cifar_train = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=None)
+        elif dataset_name == 'cifar100':
+            cifar_train = torchvision.datasets.CIFAR100(root='./data', train=True, download=True, transform=None)
 
         if 'use_l2_100' in args.__dict__ and args.use_l2_100:
-            file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0.pkl"
+            if dataset_name == 'cifar10':
+                file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0.pkl"
+            elif dataset_name == 'cifar100':
+                file_path = "../cleant_trained_model/l2_adv_generated_images_pil_cifar10_class1.pkl"
         else:
-            file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl"
+            if dataset_name == 'cifar10':
+                file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl"
+            elif dataset_name == 'cifar100':
+                file_path = "../cleant_trained_model/l2_adv_generated_images_pil_cifar10_class1_1000.pkl"
         with open(file_path, 'rb') as file:
             l2_adv_saved_images = pickle.load(file)
 
-        self.data = cifar10_train.data
-        self.targets = cifar10_train.targets
+        self.data = cifar_train.data
+        self.targets = cifar_train.targets
 
         if 'save_classification' in args.__dict__ and args.save_classification:
             random_indices = random.sample(range(len(self.data)), int(2 * args.pratio * len(self.data)))
@@ -1290,7 +1359,7 @@ class CIFAR10_TRAIN_BLENDED_L2_USE_OTHER_CLASSES_DATASET(Dataset):
             print(
                 f"Image.blend(cifar10_train[random_indices_for_saving_classification][0], random.choice(l2_adv_saved_images), {args.exposure_blend_rate * random.random()})")
             for idx in random_indices_for_saving_classification:
-                self.data[idx] = Image.blend(cifar10_train[idx][0], random.choice(l2_adv_saved_images),
+                self.data[idx] = Image.blend(cifar_train[idx][0], random.choice(l2_adv_saved_images),
                                              args.exposure_blend_rate)  # Blend two images with ratio 0.5
         else:
             poison_indices = random.sample(range(len(self.data)), int(args.pratio * len(self.data)))
@@ -1305,7 +1374,7 @@ class CIFAR10_TRAIN_BLENDED_L2_USE_OTHER_CLASSES_DATASET(Dataset):
 
         for idx in poison_indices:
             rotation_angle = random.choice([90, 180, 270])
-            transformed_image = cifar10_train[idx][0]
+            transformed_image = cifar_train[idx][0]
             if args.use_rotation_transform:
                 transformed_image = transformed_image.rotate(rotation_angle)
             self.data[idx] = Image.blend(transformed_image, random.choice(l2_adv_saved_images), args.exposure_blend_rate)  # Blend two images with ratio 0.5
@@ -1359,17 +1428,12 @@ def create_imagenet30_training_dataset(args, dataset_name='imagenet30'):
                 train_dataset = IMAGENET30_TRAIN_L2_USE_ROTATION_TRANSFORM(args)
     return train_dataset
 
-def create_training_dataset_for_exposure_test(args, dataset_name='cifar10'):
-    if dataset_name == 'cifar10':
+def create_training_dataset_for_exposure_test(dataset_name, args):
+    if dataset_name == 'cifar10' or dataset_name == 'cifar100':
         if args.use_l2_adv_images:
-            if 'use_tiny_imagenet_exposure' in args.__dict__ and args.use_tiny_imagenet_exposure:
-                print("\nuse_tiny_imagenet_exposure\n")
-                train_dataset = CIFAR10_L2_USE_TINY_IMAGENET_EXPOSURE_DATASET(args)
-            elif 'use_cheat_exposure' in args.__dict__ and args.use_cheat_exposure:
-                print("\nuse_cheat_exposure\n")
-                train_dataset = CIFAR10_BLENDED_L2_USE_CHEAT_EXPOSURE_DATASET(args)
-            else:
-                train_dataset = CIFAR10_TRAIN_BLENDED_L2_USE_OTHER_CLASSES_DATASET(args)
+            print("\nuse_rotation_transform\n")
+            if args.use_rotation_transform:
+                train_dataset = CIFAR_TRAIN_BLENDED_L2_USE_OTHER_CLASSES_DATASET(dataset_name, args)
     return train_dataset
 
 def exposure_dataset_and_transform_generate(args):
@@ -1394,7 +1458,9 @@ def exposure_dataset_and_transform_generate(args):
 
     if (train_dataset_without_transform is None) or (test_dataset_without_transform is None):
         if args.dataset == 'cifar10':
-            exposure_train_dataset_without_transform = create_training_dataset_for_exposure_test(args)
+            exposure_train_dataset_without_transform = create_training_dataset_for_exposure_test('cifar10', args)
+        if args.dataset == 'cifar100':
+            exposure_train_dataset_without_transform = create_training_dataset_for_exposure_test('cifar100', args)
         elif args.dataset == 'imagenet30':
             exposure_train_dataset_without_transform = create_imagenet30_training_dataset(args)
 
