@@ -266,7 +266,7 @@ class OOD_BIRD_L2_TESTSET(Dataset):
         self.l2_image_pair_dict = {}
         self.exposure_blend_rate = args.exposure_blend_rate
 
-        for i, class_name in tqdm(enumerate(os.listdir(root_dir))):
+        for i, class_name in enumerate(os.listdir(root_dir)):
             class_path = os.path.join(root_dir, class_name)
             for img_name in os.listdir(class_path):
                 if img_name.endswith('.jpg'):
@@ -1141,7 +1141,7 @@ class IMAGENET30_TRAIN_DATASET(Dataset):
         print(f"self.class_to_idx in ImageNet30_Train_Dataset:\n{self.class_to_idx}")
 
         # Walk through the directory and collect information about the images and their labels
-        for i, class_name in tqdm(enumerate(os.listdir(root_dir))):
+        for i, class_name in enumerate(os.listdir(root_dir)):
             class_path = os.path.join(root_dir, class_name)
             for img_name in os.listdir(class_path):
                 if img_name.endswith('.JPEG'):
@@ -1179,7 +1179,7 @@ class IMAGENET30_TEST_DATASET(Dataset):
         print(f"self.class_to_idx in ImageNet30_Test_Dataset:\n{self.class_to_idx}")
 
         # Walk through the directory and collect information about the images and their labels
-        for i, class_name in tqdm(enumerate(os.listdir(root_dir))):
+        for i, class_name in enumerate(os.listdir(root_dir)):
             class_path = os.path.join(root_dir, class_name)
             for instance_folder in os.listdir(class_path):
                 instance_path = os.path.join(class_path, instance_folder)
