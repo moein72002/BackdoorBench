@@ -38,8 +38,8 @@ def get_num_classes(dataset_name: str) -> int:
         num_classes = 43
     elif dataset_name == "celeba":
         num_classes = 8
-    elif dataset_name == 'cifar100':
-        num_classes = 100
+    elif dataset_name == 'cifar100': # use superclasses
+        num_classes = 20
     elif dataset_name == 'tiny':
         num_classes = 200
     elif dataset_name == 'imagenet':
