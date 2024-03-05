@@ -262,7 +262,7 @@ def load_attack_result(
 
         if args.is_our_attack:
             exposure_blend_rate = load_file['exposure_blend_rate']
-            if (not args.test_imagenet_l2_1000_ABL) and ('just_test_exposure_ood' in args.__dict__ and args.just_test_exposure_ood):
+            if (args.test_imagenet_l2_1000_ABL) or ('just_test_exposure_ood' in args.__dict__ and args.just_test_exposure_ood):
                 exposure_blend_rate = args.test_blend_rate
 
             clean_setting.exposure_blend_rate = exposure_blend_rate
