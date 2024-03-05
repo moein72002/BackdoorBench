@@ -354,14 +354,14 @@ class CIFAR_BLENDED_OOD(Dataset):
 
         if args.use_l2_adv_images:
             if 'use_l2_100' in args.__dict__ and args.use_l2_100:
-                if dataset_name == 'cifar10':
+                if args.dataset == 'cifar10':
                     file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0.pkl"
-                elif dataset_name == 'cifar100':
+                elif args.dataset == 'cifar100':
                     file_path = "../clean_trained_model/l2_adv_generated_images_pil_cifar10_class1.pkl"
             else:
-                if dataset_name == 'cifar10':
+                if args.dataset == 'cifar10':
                     file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl"
-                elif dataset_name == 'cifar100':
+                elif args.dataset == 'cifar100':
                     file_path = "../clean_trained_model/l2_adv_generated_images_pil_cifar10_class1_1000.pkl"
             self.data = get_cifar_blended_images_for_test_exposure_l2_1000(cifar_testset, args, file_path)
 
@@ -462,14 +462,14 @@ class CIFAR_BLENDED_FOR_CLS(Dataset):
             cifar_testset = CIFAR100Coarse(root='./data', train=False, download=True, transform=None)
         if args.use_l2_adv_images:
             if 'use_l2_100' in args.__dict__ and args.use_l2_100:
-                if dataset_name == 'cifar10':
+                if args.dataset == 'cifar10':
                     file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0.pkl"
-                elif dataset_name == 'cifar100':
+                elif args.dataset == 'cifar100':
                     file_path = "../clean_trained_model/l2_adv_generated_images_pil_cifar10_class1.pkl"
             else:
-                if dataset_name == 'cifar10':
+                if args.dataset == 'cifar10':
                     file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl"
-                elif dataset_name == 'cifar100':
+                elif args.dataset == 'cifar100':
                     file_path = "../clean_trained_model/l2_adv_generated_images_pil_cifar10_class1_1000.pkl"
             self.data = get_cifar_blended_images_for_cls_l2_1000(cifar_testset, args, file_path)
 
@@ -719,14 +719,14 @@ class CIFAR_BLENDED_ID(Dataset):
 
         if args.use_l2_adv_images:
             if 'use_l2_100' in args.__dict__ and args.use_l2_100:
-                if dataset_name == 'cifar10':
+                if args.dataset == 'cifar10':
                     file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0.pkl"
-                elif dataset_name == 'cifar100':
+                elif args.dataset == 'cifar100':
                     file_path = "../clean_trained_model/l2_adv_generated_images_pil_cifar10_class1.pkl"
             else:
-                if dataset_name == 'cifar10':
+                if args.dataset == 'cifar10':
                     file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl"
-                elif dataset_name == 'cifar100':
+                elif args.dataset == 'cifar100':
                     file_path = "../clean_trained_model/l2_adv_generated_images_pil_cifar10_class1_1000.pkl"
             self.data = get_cifar_blended_id_images_for_test_l2_1000(cifar_testset, args, file_path)
 
@@ -1374,14 +1374,14 @@ class CIFAR_TRAIN_BLENDED_L2_USE_OTHER_CLASSES_DATASET(Dataset):
             cifar_train = CIFAR100Coarse(root='./data', train=True, download=True, transform=None)
 
         if 'use_l2_100' in args.__dict__ and args.use_l2_100:
-            if dataset_name == 'cifar10':
+            if args.dataset == 'cifar10':
                 file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0.pkl"
-            elif dataset_name == 'cifar100':
+            elif args.dataset == 'cifar100':
                 file_path = "../clean_trained_model/l2_adv_generated_images_pil_cifar10_class1.pkl"
         else:
-            if dataset_name == 'cifar10':
+            if args.dataset == 'cifar10':
                 file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl"
-            elif dataset_name == 'cifar100':
+            elif args.dataset == 'cifar100':
                 file_path = "../clean_trained_model/l2_adv_generated_images_pil_cifar10_class1_1000.pkl"
         with open(file_path, 'rb') as file:
             l2_adv_saved_images = pickle.load(file)
