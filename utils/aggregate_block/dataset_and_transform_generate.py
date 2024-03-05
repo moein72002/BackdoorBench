@@ -317,12 +317,12 @@ class CIFAR_BLENDED_OOD(Dataset):
                 if dataset_name == 'cifar10':
                     file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0.pkl"
                 elif dataset_name == 'cifar100':
-                    file_path = "../cleant_trained_model/l2_adv_generated_images_pil_cifar10_class1.pkl"
+                    file_path = "../clean_trained_model/l2_adv_generated_images_pil_cifar10_class1.pkl"
             else:
                 if dataset_name == 'cifar10':
                     file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl"
                 elif dataset_name == 'cifar100':
-                    file_path = "../cleant_trained_model/l2_adv_generated_images_pil_cifar10_class1_1000.pkl"
+                    file_path = "../clean_trained_model/l2_adv_generated_images_pil_cifar10_class1_1000.pkl"
             self.data = get_cifar_blended_images_for_test_exposure_l2_1000(cifar_testset, args, file_path)
 
         if 'test_jpeg_compression_defense' in args.__dict__ and args.test_jpeg_compression_defense:
@@ -425,12 +425,12 @@ class CIFAR_BLENDED_FOR_CLS(Dataset):
                 if dataset_name == 'cifar10':
                     file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0.pkl"
                 elif dataset_name == 'cifar100':
-                    file_path = "../cleant_trained_model/l2_adv_generated_images_pil_cifar10_class1.pkl"
+                    file_path = "../clean_trained_model/l2_adv_generated_images_pil_cifar10_class1.pkl"
             else:
                 if dataset_name == 'cifar10':
                     file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl"
                 elif dataset_name == 'cifar100':
-                    file_path = "../cleant_trained_model/l2_adv_generated_images_pil_cifar10_class1_1000.pkl"
+                    file_path = "../clean_trained_model/l2_adv_generated_images_pil_cifar10_class1_1000.pkl"
             self.data = get_cifar_blended_images_for_cls_l2_1000(cifar_testset, args, file_path)
 
         if 'test_jpeg_compression_defense' in args.__dict__ and args.test_jpeg_compression_defense:
@@ -682,12 +682,12 @@ class CIFAR_BLENDED_ID(Dataset):
                 if dataset_name == 'cifar10':
                     file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0.pkl"
                 elif dataset_name == 'cifar100':
-                    file_path = "../cleant_trained_model/l2_adv_generated_images_pil_cifar10_class1.pkl"
+                    file_path = "../clean_trained_model/l2_adv_generated_images_pil_cifar10_class1.pkl"
             else:
                 if dataset_name == 'cifar10':
                     file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl"
                 elif dataset_name == 'cifar100':
-                    file_path = "../cleant_trained_model/l2_adv_generated_images_pil_cifar10_class1_1000.pkl"
+                    file_path = "../clean_trained_model/l2_adv_generated_images_pil_cifar10_class1_1000.pkl"
             self.data = get_cifar_blended_id_images_for_test_l2_1000(cifar_testset, args, file_path)
 
         if 'test_jpeg_compression_defense' in args.__dict__ and args.test_jpeg_compression_defense:
@@ -1337,12 +1337,12 @@ class CIFAR_TRAIN_BLENDED_L2_USE_OTHER_CLASSES_DATASET(Dataset):
             if dataset_name == 'cifar10':
                 file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0.pkl"
             elif dataset_name == 'cifar100':
-                file_path = "../cleant_trained_model/l2_adv_generated_images_pil_cifar10_class1.pkl"
+                file_path = "../clean_trained_model/l2_adv_generated_images_pil_cifar10_class1.pkl"
         else:
             if dataset_name == 'cifar10':
                 file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl"
             elif dataset_name == 'cifar100':
-                file_path = "../cleant_trained_model/l2_adv_generated_images_pil_cifar10_class1_1000.pkl"
+                file_path = "../clean_trained_model/l2_adv_generated_images_pil_cifar10_class1_1000.pkl"
         with open(file_path, 'rb') as file:
             l2_adv_saved_images = pickle.load(file)
 
