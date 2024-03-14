@@ -41,8 +41,8 @@ MANIFEST
 
 # pycharm
 .idea/
+visualize_attacks/
 special_defenses_results/
-.visualize_attacks/
 
 # Installer logs
 pip-log.txt

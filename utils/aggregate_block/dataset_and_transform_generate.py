@@ -1161,69 +1161,6 @@ class CIFAR10_L2_USE_TINY_IMAGENET_EXPOSURE_DATASET(Dataset):
             img = self.tranform(img)
         return img, label
 
-class CIFAR10_BLENDED_L2_USE_CHEAT_EXPOSURE_DATASET(Dataset):
-    def __init__(self, args, transform=None, target_label=0):
-        self.transform = transform
-
-        cifar10_train = torchvision.datasets.CIFAR10(root='./data', train=True, download=True, transform=None)
-
-        if 'use_l2_100' in args.__dict__ and args.use_l2_100:
-            file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0.pkl"
-        else:
-            file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl"
-        with open(file_path, 'rb') as file:
-            l2_adv_saved_images = pickle.load(file)
-
-        self.data = cifar10_train.data
-        self.targets = cifar10_train.targets
-
-        if 'save_classification' in args.__dict__ and args.save_classification:
-            random_indices = random.sample(range(len(self.data)), int(2 * args.pratio * len(self.data)))
-            random_indices_for_saving_classification = random_indices[len(random_indices) // 2:]
-            poison_indices = random_indices[:len(random_indices) // 2]
-            print(f"len(random_indices_ for_saving_classification): {len(random_indices_for_saving_classification)}")
-            print(f"len(poison_indices): {len(poison_indices)}")
-
-            print(
-                f"Image.blend(cifar10_train[random_indices_for_saving_classification][0], random.choice(l2_adv_saved_images), {args.exposure_blend_rate * random.random()})")
-            for idx in random_indices_for_saving_classification:
-                self.data[idx] = Image.blend(cifar10_train[idx][0], random.choice(l2_adv_saved_images),
-                                             args.exposure_blend_rate)  # Blend two images with ratio 0.5
-        else:
-            poison_indices = random.sample(range(len(self.data)), int(args.pratio * len(self.data)))
-            print(f"len(poison_indices): {len(poison_indices)}")
-
-        # Define the path of the new directory
-        new_directory_path = "./data/jpeg_compress_CIFAR10_TRAIN_USE_CHEAT_EXP"
-        # Create the directory
-        os.makedirs(new_directory_path, exist_ok=True)
-
-        cifar100_train = CIFAR100Coarse(root='./data', train=True, download=True, transform=None)
-        random_cheat_exposure_indices = random.sample(range(len(cifar100_train)), int(args.pratio * len(self.data)))
-
-        print(f"Image.blend(cifar10_train, random.choice(l2_adv_saved_images), {args.exposure_blend_rate})")
-        for idx, random_cheat_exposure_index in zip(poison_indices, random_cheat_exposure_indices):
-            self.data[idx] = Image.blend(cifar100_train[random_cheat_exposure_index][0], random.choice(l2_adv_saved_images), args.exposure_blend_rate)  # Blend two images with ratio 0.5
-            self.targets[idx] = target_label
-
-            if args.use_jpeg_compress_in_training:
-                if random.random() < 0.1:
-                    address = f"{new_directory_path}/{idx}.jpg"
-                    pil_image = Image.fromarray(self.data[idx].astype(np.uint8))
-                    pil_image.save(address, 'JPEG', quality=random.randint(25, 75))
-                    # Reload the image to ensure it's compressed and update the dataset
-                    self.data[idx] = Image.open(address)
-
-    def __len__(self):
-        return len(self.data)
-
-    def __getitem__(self, idx):
-        img = self.data[idx]
-        label = self.targets[idx]
-        if self.transform:
-            img = self.tranform(img)
-        return img, label
-
 class IMAGENET30_TRAIN_DATASET(Dataset):
     def __init__(self, root_dir="/kaggle/input/imagenet30-dataset/one_class_train/one_class_train/", transform=None):
         """

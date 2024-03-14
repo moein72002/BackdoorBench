@@ -30,6 +30,7 @@ import argparse
 import numpy as np
 import torch
 import logging
+from PIL import ImageFilter, Image, ImageOps
 
 from utils.backdoor_generate_poison_index import generate_poison_index_from_label_transform
 from utils.aggregate_block.bd_attack_generate import bd_attack_img_trans_generate, bd_attack_label_trans_generate
@@ -70,10 +71,10 @@ class Attack(NormalCase):
         parser.add_argument('--use_l2_adv_images', type=bool, default=False)
         parser.add_argument('--use_rotation_transform', type=bool, default=False)
         parser.add_argument('--use_jpeg_compress_in_training', type=bool, default=False)
-        parser.add_argument('--use_cheat_exposure', type=bool, default=False)
         parser.add_argument('--use_l2_100', type=bool, default=False)
         parser.add_argument('--use_tiny_imagenet_exposure', type=bool, default=False)
         parser.add_argument('--save_classification', type=bool, default=False)
+        parser.add_argument('--visualize_attacks', type=bool, default=False)
         return parser
 
     def add_bd_yaml_to_args(self, args):
@@ -367,6 +368,57 @@ class Attack(NormalCase):
             use_tiny_imagenet_exposure=args.use_tiny_imagenet_exposure
         )
 
+def visualize_attacks(args):
+    args.attack = 'badnet'
+    _, badnet_test_bd_img_transform = bd_attack_img_trans_generate(args)
+    img = Image.open("../visualize_attacks/dog3.png").convert('RGB').resize(args.img_size[:2])
+
+    badnet_img = deepcopy(img)
+    badnet_img = badnet_test_bd_img_transform(badnet_img)
+    badnet_img_residual = badnet_img - img
+    Image.fromarray(badnet_img).save("../visualize_attacks/badnet_image.png")
+    Image.fromarray(badnet_img_residual).save("../visualize_attacks/badnet_image_residual.png")
+
+    args.attack = 'blended'
+    args.attack_trigger_img_path = "../resource/blended/hello_kitty.jpeg"
+    args.attack_train_blended_alpha = 0.2
+    args.attack_test_blended_alpha = 0.2
+
+    _, blended_test_bd_img_transform = bd_attack_img_trans_generate(args)
+    # img = Image.open("../visualize_attacks/dog3.png").convert('RGB')
+
+    blended_img = deepcopy(img)
+    blended_img = blended_test_bd_img_transform(blended_img)
+    blended_img_residual = blended_img - img
+    Image.fromarray(blended_img).save("../visualize_attacks/blended_image.png")
+    Image.fromarray(blended_img_residual).save("../visualize_attacks/blended_image_residual.png")
+
+    args.sig_delta = 40
+    args.sig_f = 6
+
+    args.attack = 'sig'
+    _, sig_test_bd_img_transform = bd_attack_img_trans_generate(args)
+    # img = Image.open("../visualize_attacks/dog3.png").convert('RGB')
+
+    sig_img = deepcopy(img)
+    sig_img = sig_test_bd_img_transform(sig_img)
+    sig_img_residual = sig_img - img
+    Image.fromarray(sig_img).save("../visualize_attacks/sig_image.png")
+    Image.fromarray(sig_img_residual).save("../visualize_attacks/sig_image_residual.png")
+
+
+    # BATOOD
+
+    dumbbell_trigger = Image.open("../visualize_attacks/dumbbell1.png").convert('RGB').resize(args.img_size[:2])
+    batood_img = Image.blend(img, dumbbell_trigger, 0.1)
+    print(type(img))
+    print(type(batood_img))
+    batood_image_residual = np.array(batood_img) - np.array(img)
+
+    batood_img.save("../visualize_attacks/batood_image.png")
+    Image.fromarray(batood_image_residual).save("../visualize_attacks/batood_image_residual.png")
+
+    exit()
 
 if __name__ == '__main__':
     attack = Attack()
@@ -379,6 +431,8 @@ if __name__ == '__main__':
     attack.add_bd_yaml_to_args(args)
     attack.add_yaml_to_args(args)
     args = attack.process_args(args)
+    if args.visualize_attacks:
+        visualize_attacks(args)
     attack.prepare(args)
     attack.stage1_non_training_data_prepare()
     attack.stage2_training()

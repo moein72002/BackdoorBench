@@ -487,7 +487,6 @@ class nc(defense):
         parser.add_argument('--use_rotation_transform', type=bool, default=False)
         parser.add_argument('--use_l2_adv_images', type=bool, default=False)
         parser.add_argument('--use_l2_100', type=bool, default=False)
-        parser.add_argument('--use_cheat_exposure', type=bool, default=False)
         
 
     def set_result(self, result_file):
