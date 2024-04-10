@@ -219,12 +219,12 @@ class BadNet(NormalCase):
             model_name=args.model,
             num_classes=args.num_classes,
             model=trainer.model.cpu().state_dict(),
-            data_path=args.dataset_path,
             img_size=args.img_size,
-            clean_data=args.dataset,
-            bd_train=bd_train_dataset_with_transform,
-            bd_test=bd_test_dataset_with_transform,
+            dataset_name=args.dataset,
             save_path=args.save_path,
+            poison_rate=args.poison_rate,
+            model_number=args.model_number,
+            target_class=args.target_label
         )
 
 

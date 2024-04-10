@@ -67,12 +67,12 @@ def save_attack_result(
     model_name : str,
     num_classes : int,
     model : dict, # the state_dict
-    data_path : str,
     img_size : Union[list, tuple],
-    clean_data : str,
-    bd_test : prepro_cls_DatasetBD_v2, # MUST be dataset without transform
+    dataset_name : str,
     save_path : str,
-    bd_train : Optional[prepro_cls_DatasetBD_v2] = None, # MUST be dataset without transform
+    poison_rate : float,
+    model_number: int,
+    target_class: int
 ):
     '''
 
@@ -96,11 +96,11 @@ def save_attack_result(
             'model_name': model_name,
             'num_classes' : num_classes,
             'model': model,
-            'data_path': data_path,
             'img_size' : img_size,
-            'clean_data': clean_data,
-            'bd_train': bd_train.retrieve_state() if bd_train is not None else None,
-            'bd_test': bd_test.retrieve_state(),
+            'dataset_name': dataset_name,
+            'poison_rate': poison_rate,
+            'model_number': model_number,
+            'target_class': target_class
         }
 
     logging.info(f"saving...")
@@ -108,7 +108,7 @@ def save_attack_result(
 
     torch.save(
         save_dict,
-        f'{save_path}/attack_result.pt',
+        f'{save_path}/{model_name}_{dataset_name}_target{target_class}_model{model_number}.pt',
     )
 
     logging.info("Saved, folder path: {}".format(save_path))

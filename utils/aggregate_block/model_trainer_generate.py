@@ -58,7 +58,14 @@ def generate_cls_model(
 
     logging.debug("image_size ONLY apply for vit!!!\nIf you use vit make sure you set the image size!")
 
-    if model_name == 'resnet18':
+    if model_name == 'vgg_ulp_customized':
+        from models.vgg_ulp_customized import VGG_ULP_customized
+        init_num_filters = 64
+        inter_fc_dim = 384
+        nofclasses = 10  # CIFAR10
+        net = VGG_ULP_customized(init_num_filters=init_num_filters, inter_fc_dim=inter_fc_dim,nofclasses=nofclasses,
+                         nofchannels=3,use_stn=False)
+    elif model_name == 'resnet18':
         from torchvision.models.resnet import resnet18
         net = resnet18(num_classes=num_classes, **kwargs)
     elif model_name == 'preactresnet18':
