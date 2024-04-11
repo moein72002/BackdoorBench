@@ -69,6 +69,7 @@ class NormalCase:
         parser.add_argument("--yaml_path", type=str, default="../config/attack/prototype/cifar10.yaml")
         parser.add_argument('--model_count_to_be_generated', type=int, default=1)
         parser.add_argument('--cos_t_max', type=int, default=30)
+        parser.add_argument('--offset_for_model_number', type=int, default=0)
         return parser
 
     def add_yaml_to_args(self, args):

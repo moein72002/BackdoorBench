@@ -64,6 +64,9 @@ from utils.save_load_attack import save_attack_result
 from utils.trainer_cls import all_acc, given_dataloader_test, general_plot_for_epoch
 from utils.bd_dataset_v2 import prepro_cls_DatasetBD_v2, dataset_wrapper_with_transform
 
+import math
+import random
+
 term_width = int(60)
 TOTAL_BAR_LENGTH = 65.0
 last_time = time.time()
@@ -346,7 +349,7 @@ class InputAware(BadNet):
                               clean_test_dataloader1, \
                               clean_test_dataloader2
 
-    def stage2_training(self):
+    def stage2_training(self, model_number=1):
         # since we need the network to do poison, 
         #  we can only put prepare of bd dataset to stage2 with training process.
 
@@ -675,12 +678,12 @@ class InputAware(BadNet):
             model_name=args.model,
             num_classes=args.num_classes,
             model=netC.cpu().state_dict(),
-            data_path=args.dataset_path,
             img_size=args.img_size,
-            clean_data=args.dataset,
-            bd_train=bd_train_dataset,
-            bd_test=self.bd_test_dataset,
+            dataset_name=args.dataset,
             save_path=args.save_path,
+            poison_rate=args.pratio,
+            model_number=model_number,
+            target_class=args.attack_target
         )
 
     def train_mask_step(self, netM, optimizerM, schedulerM, train_dataloader1, train_dataloader2, args):
@@ -1117,9 +1120,12 @@ if __name__ == '__main__':
     attack.add_bd_yaml_to_args(args)
     attack.add_yaml_to_args(args)
     args = attack.process_args(args)
-    attack.prepare(args)
-    attack.stage1_non_training_data_prepare()
-    attack.stage2_training()
+    for model_number in range(args.model_count_to_be_generated):
+        args.attack_target = math.floor(random.random() * args.num_classes)
+        print(f"model_number: {model_number}, attack_target: {args.attack_target}")
+        attack.prepare(args)
+        attack.stage1_non_training_data_prepare()
+        attack.stage2_training(model_number)
 
 '''
 original license:
