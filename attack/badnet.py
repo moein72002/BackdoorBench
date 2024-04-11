@@ -222,7 +222,7 @@ class BadNet(NormalCase):
             img_size=args.img_size,
             dataset_name=args.dataset,
             save_path=args.save_path,
-            poison_rate=args.poison_rate,
+            poison_rate=args.pratio,
             model_number=model_number,
             target_class=args.attack_target
         )
