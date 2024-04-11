@@ -68,6 +68,7 @@ class NormalCase:
                             help='git hash number, in order to find which version of code is used')
         parser.add_argument("--yaml_path", type=str, default="../config/attack/prototype/cifar10.yaml")
         parser.add_argument('--model_count_to_be_generated', type=int, default=1)
+        parser.add_argument('--cos_t_max', type=int, default=30)
         return parser
 
     def add_yaml_to_args(self, args):
