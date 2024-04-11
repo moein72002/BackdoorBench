@@ -224,7 +224,7 @@ class BadNet(NormalCase):
             save_path=args.save_path,
             poison_rate=args.poison_rate,
             model_number=model_number,
-            target_class=args.target_label
+            target_class=args.attack_target
         )
 
 
