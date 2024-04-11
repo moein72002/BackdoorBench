@@ -346,7 +346,7 @@ class InputAware(BadNet):
                               clean_test_dataloader1, \
                               clean_test_dataloader2
 
-    def stage2_training(self):
+    def stage2_training(self, model_number=1):
         # since we need the network to do poison, 
         #  we can only put prepare of bd dataset to stage2 with training process.
 
@@ -675,12 +675,12 @@ class InputAware(BadNet):
             model_name=args.model,
             num_classes=args.num_classes,
             model=netC.cpu().state_dict(),
-            data_path=args.dataset_path,
             img_size=args.img_size,
-            clean_data=args.dataset,
-            bd_train=bd_train_dataset,
-            bd_test=self.bd_test_dataset,
+            dataset_name=args.dataset,
             save_path=args.save_path,
+            poison_rate=args.pratio,
+            model_number=model_number,
+            target_class=args.attack_target
         )
 
     def train_mask_step(self, netM, optimizerM, schedulerM, train_dataloader1, train_dataloader2, args):

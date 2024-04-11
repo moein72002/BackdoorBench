@@ -194,7 +194,7 @@ class Wanet(BadNet):
                               clean_test_dataset_with_transform, \
                               clean_test_dataloader
 
-    def stage2_training(self):
+    def stage2_training(self, model_number=1):
         logging.info(f"stage2 start")
         assert 'args' in self.__dict__
         args = self.args
@@ -542,12 +542,12 @@ class Wanet(BadNet):
             model_name=args.model,
             num_classes=args.num_classes,
             model=netC.cpu().state_dict(),
-            data_path=args.dataset_path,
             img_size=args.img_size,
-            clean_data=args.dataset,
-            bd_train=bd_train_dataset,
-            bd_test=self.bd_test_dataset,
+            dataset_name=args.dataset,
             save_path=args.save_path,
+            poison_rate=args.pratio,
+            model_number=model_number,
+            target_class=args.attack_target
         )
 
     def train_step(self, netC, optimizerC, schedulerC, train_dataloader, noise_grid, identity_grid, epoch, args):
