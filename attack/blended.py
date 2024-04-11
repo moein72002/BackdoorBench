@@ -11,6 +11,8 @@ this script is for blended attack
 import argparse
 import os
 import sys
+import math
+import random
 
 os.chdir(sys.path[0])
 sys.path.append('../')
@@ -40,6 +42,9 @@ if __name__ == '__main__':
     attack.add_bd_yaml_to_args(args)
     attack.add_yaml_to_args(args)
     args = attack.process_args(args)
-    attack.prepare(args)
-    attack.stage1_non_training_data_prepare()
-    attack.stage2_training()
+    for model_number in range(args.model_count_to_be_generated):
+        args.attack_target = math.floor(random.random() * args.num_classes)
+        print(f"model_number: {model_number}, attack_target: {args.attack_target}")
+        attack.prepare(args)
+        attack.stage1_non_training_data_prepare()
+        attack.stage2_training()
