@@ -156,7 +156,7 @@ class BadNet(NormalCase):
                               bd_train_dataset_with_transform, \
                               bd_test_dataset_with_transform
 
-    def stage2_training(self):
+    def stage2_training(self, model_number):
         logging.info(f"stage2 start")
         assert 'args' in self.__dict__
         args = self.args
@@ -223,7 +223,7 @@ class BadNet(NormalCase):
             dataset_name=args.dataset,
             save_path=args.save_path,
             poison_rate=args.poison_rate,
-            model_number=args.model_number,
+            model_number=model_number,
             target_class=args.target_label
         )
 

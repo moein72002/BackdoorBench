@@ -24,6 +24,8 @@ import logging
 import os
 import sys
 import torch
+import random
+import math
 
 import numpy as np
 
@@ -141,6 +143,8 @@ if __name__ == '__main__':
     attack.add_bd_yaml_to_args(args)
     attack.add_yaml_to_args(args)
     args = attack.process_args(args)
-    attack.prepare(args)
-    attack.stage1_non_training_data_prepare()
-    attack.stage2_training()
+    for model_number in range(args.model_count_to_be_generated):
+        args.target_label = math.floor(random.random() * args.num_classes)
+        attack.prepare(args)
+        attack.stage1_non_training_data_prepare()
+        attack.stage2_training(model_number)
