@@ -143,9 +143,8 @@ if __name__ == '__main__':
     attack.add_bd_yaml_to_args(args)
     attack.add_yaml_to_args(args)
     args = attack.process_args(args)
-    for model_number in range(args.model_count_to_be_generated):
-        args.attack_target = math.floor(random.random() * args.num_classes)
-        print(f"model_number: {model_number}, attack_target: {args.attack_target}")
+    for target_label in range(args.num_classes):
+        args.attack_target = target_label
         attack.prepare(args)
         attack.stage1_non_training_data_prepare()
-        attack.stage2_training(model_number)
+        attack.stage2_training()
