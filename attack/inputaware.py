@@ -1125,7 +1125,7 @@ if __name__ == '__main__':
         print(f"model_number: {model_number}, attack_target: {args.attack_target}")
         attack.prepare(args)
         attack.stage1_non_training_data_prepare()
-        attack.stage2_training(model_number)
+        attack.stage2_training(model_number + args.offset_for_model_number)
 
 '''
 original license:
