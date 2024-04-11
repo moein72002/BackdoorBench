@@ -96,7 +96,7 @@ class NormalCase:
             )
         else:
             save_path = '../record/' + args.save_folder_name
-            os.mkdir(save_path)
+            os.mkdir(save_path, exist_ok=True)
         args.save_path = save_path
 
         torch.save(args.__dict__, save_path + '/info.pickle')
