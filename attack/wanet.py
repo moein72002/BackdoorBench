@@ -744,7 +744,6 @@ if __name__ == '__main__':
     attack.add_yaml_to_args(args)
     args = attack.process_args(args)
     for model_number in range(args.model_count_to_be_generated):
-        args.attack_target = model_number % args.num_classes
         print(f"model_number: {model_number}, attack_target: {args.attack_target}")
         attack.prepare(args)
         attack.stage1_non_training_data_prepare()
