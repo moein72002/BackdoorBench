@@ -99,8 +99,7 @@ def save_attack_result(
             'img_size' : img_size,
             'dataset_name': dataset_name,
             'poison_rate': poison_rate,
-            'model_number': model_number,
-            'target_class': target_class
+            'model_number': model_number
         }
 
     logging.info(f"saving...")
@@ -108,7 +107,7 @@ def save_attack_result(
 
     torch.save(
         save_dict,
-        f'{save_path}/{model_name}_{dataset_name}_target{target_class}_model{model_number}.pt',
+        f'{save_path}/{model_name}_{dataset_name}_model{model_number}.pt',
     )
 
     logging.info("Saved, folder path: {}".format(save_path))
