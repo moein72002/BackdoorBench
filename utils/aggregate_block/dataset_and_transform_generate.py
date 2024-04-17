@@ -111,7 +111,7 @@ def get_dataset_denormalization(normalization: transforms.Normalize):
         mean = [-i for i in mean]
 
     if std.__len__() == 1:
-        std = 1 / std
+        std = [1 / i for i in std]
     else:  # len > 1
         std = [1 / i for i in std]
 
