@@ -56,6 +56,8 @@ def generate_single_target_attack_train_poison_index(
                     non_zero_array = np.random.choice(np.where(targets == tlabel)[0], p_num, replace = False)
                     poison_index[list(non_zero_array)] = 1
                 else:
+                    print(f"len(np.where(targets == tlabel)[0]): {len(np.where(targets == tlabel)[0])}")
+                    print(f"round(pratio * len(targets)): {round(pratio * len(targets))}")
                     non_zero_array = np.random.choice(np.where(targets == tlabel)[0], round(pratio * len(targets)), replace = False)
                     poison_index[list(non_zero_array)] = 1
     logging.info(f'poison num:{sum(poison_index)},real pratio:{sum(poison_index) / len(poison_index)}')
