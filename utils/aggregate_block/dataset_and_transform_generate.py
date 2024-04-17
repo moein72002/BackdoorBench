@@ -106,7 +106,7 @@ def get_dataset_denormalization(normalization: transforms.Normalize):
     mean, std = normalization.mean, normalization.std
 
     if mean.__len__() == 1:
-        mean = - mean
+        mean = - [-i for i in mean]
     else:  # len > 1
         mean = [-i for i in mean]
 
