@@ -230,16 +230,20 @@ def dataset_and_transform_generate(args):
             test_dataset_without_transform = ImageFolder('../data/test')
         elif args.dataset == 'mnist':
             from torchvision.datasets import MNIST
+            transform_to_3_channel = transforms.Compose([
+                transforms.Grayscale(num_output_channels=3)  # Convert 1-channel grayscale to 3-channel
+            ])
+
             train_dataset_without_transform = MNIST(
                 args.dataset_path,
                 train=True,
-                transform=None,
+                transform=transform_to_3_channel,
                 download=True,
             )
             test_dataset_without_transform = MNIST(
                 args.dataset_path,
                 train=False,
-                transform=None,
+                transform=transform_to_3_channel,
                 download=True,
             )
         elif args.dataset == 'cifar10':
