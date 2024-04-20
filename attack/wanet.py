@@ -157,8 +157,8 @@ class Wanet(BadNet):
         parser.add_argument("--random_crop", type=int, )  # default=5)
         parser.add_argument("--s", type=float, )  # default=0.5)
         parser.add_argument("--k", type=int, )  # default=4)
-        parser.add_argument("--input_height", type=int)
-        parser.add_argument("--input_width", type=int)
+        parser.add_argument("--input_height", type=int, default=0)
+        parser.add_argument("--input_width", type=int, default=0)
         parser.add_argument(
             "--grid_rescale", type=float, )  # default=1
         return parser
@@ -742,9 +742,15 @@ if __name__ == '__main__':
     parser = attack.set_args(parser)
     parser = attack.set_bd_args(parser)
     args = parser.parse_args()
+    input_height = args.input_height
+    input_width = args.input_width
     attack.add_bd_yaml_to_args(args)
     attack.add_yaml_to_args(args)
     args = attack.process_args(args)
+    if input_height > 0:
+        args.input_height = input_height
+    if input_width > 0:
+        args.input_width = input_width
     for model_number in range(args.model_count_to_be_generated):
         args.attack_target = model_number % args.num_classes
         print(f"model_number: {model_number}, attack_target: {args.attack_target}")
