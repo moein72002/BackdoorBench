@@ -157,6 +157,8 @@ class Wanet(BadNet):
         parser.add_argument("--random_crop", type=int, )  # default=5)
         parser.add_argument("--s", type=float, )  # default=0.5)
         parser.add_argument("--k", type=int, )  # default=4)
+        parser.add_argument("--input_height", type=int)
+        parser.add_argument("--input_width", type=int)
         parser.add_argument(
             "--grid_rescale", type=float, )  # default=1
         return parser
