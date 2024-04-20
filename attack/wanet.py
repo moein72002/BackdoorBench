@@ -749,8 +749,10 @@ if __name__ == '__main__':
     args = attack.process_args(args)
     if input_height > 0:
         args.input_height = input_height
+        args.img_size[0] = args.input_height
     if input_width > 0:
         args.input_width = input_width
+        args.img_size[1] = args.input_width
     for model_number in range(args.model_count_to_be_generated):
         args.attack_target = model_number % args.num_classes
         print(f"model_number: {model_number}, attack_target: {args.attack_target}")
