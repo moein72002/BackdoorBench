@@ -48,6 +48,7 @@ class SIG(BadNet):
 
         parser.add_argument('--bd_yaml_path', type=str, default='../config/attack/sig/default.yaml',
                             help='path for yaml file provide additional default attributes')
+        parser.add_argument("--pratio", type=float)
         return parser
 
     def stage1_non_training_data_prepare(self):
