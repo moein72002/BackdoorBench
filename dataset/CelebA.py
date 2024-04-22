@@ -17,11 +17,9 @@ import torchvision
 
 import torch.utils.data as data
 
-from CelebA_torchvision_modified import CelebA
-
 class CelebA_attr(data.Dataset):
     def __init__(self, data_root, split, transform = None):
-        self.dataset = CelebA(root=data_root, split=split, target_type="attr", download=False)
+        self.dataset = torchvision.datasets.CelebA(root=data_root, split=split, target_type="attr", download=False)
         self.list_attributes = [18, 31, 21]
         self.transform = transform
         self.split = split
