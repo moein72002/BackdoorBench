@@ -282,6 +282,8 @@ def dataset_and_transform_generate(args):
                                                    )
         elif args.dataset == "celeba":
             from dataset.CelebA import CelebA_attr
+            if args.dataset_path.endswith("celeba"):
+                args.dataset_path = os.path.dirname(args.dataset_path)  # removes celeba
             train_dataset_without_transform = CelebA_attr(args.dataset_path,
                                                           split='train')
             test_dataset_without_transform = CelebA_attr(args.dataset_path,
