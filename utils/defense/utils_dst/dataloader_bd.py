@@ -66,7 +66,7 @@ def normalization(opt, inputs):
     output = inputs.clone()
     if opt.dataset == "cifar10":
         f = transforms.Normalize([0.4914, 0.4822, 0.4465], [0.2023, 0.1994, 0.2010])
-    elif opt.dataset == "mnist":
+    elif opt.dataset in ["mnist", "fmnist"]:
         f = transforms.Normalize([0.5], [0.5])
     elif opt.dataset == 'tiny':
         f = transforms.Normalize([0.4802, 0.4481, 0.3975], [0.2302, 0.2265, 0.2262])
@@ -231,7 +231,7 @@ def get_st_train_loader(opt, module='sscl'):
     elif opt.dataset == 'cifar100':
         mean = (0.5071, 0.4867, 0.4408)
         std = (0.2675, 0.2565, 0.2761)
-    elif opt.dataset == "mnist":
+    elif opt.dataset in ["mnist", "fmnist"]:
         mean = [0.5,]
         std = [0.5,]
     elif opt.dataset == 'tiny':

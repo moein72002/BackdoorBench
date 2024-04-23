@@ -131,7 +131,7 @@ def get_args(use_IPython=False):
 
 def preprocess_args(args):
     # preprocess args for dataset
-    if args.dataset == "mnist":
+    if args.dataset in ["mnist", "fmnist"]:
         args.num_classes = 10
         args.input_height = 28
         args.input_width = 28
@@ -958,6 +958,8 @@ def get_dataname(dataset):
     # "mnist, cifar10, cifar100, gtsrb, celeba, tiny"
     if dataset == "mnist":
         return "MNIST"
+    elif dataset == "fmnist":
+        return "Fashion-MNIST"
     elif dataset == 'cifar10':
         return "CIFAR-10"
     elif dataset == 'cifar100':

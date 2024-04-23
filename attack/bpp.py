@@ -92,7 +92,7 @@ def back_to_np_4d(inputs, args):
     elif args.dataset == "cifar100":
         expected_values = [0.5071, 0.4867, 0.4408]
         variance = [0.2675, 0.2565, 0.2761]
-    elif args.dataset == "mnist":
+    elif args.dataset in ["mnist", "fmnist"]:
         expected_values = [0.5]
         variance = [0.5]
     elif args.dataset in ["gtsrb", "celeba"]:
@@ -106,7 +106,7 @@ def back_to_np_4d(inputs, args):
         variance = [0.2302, 0.2265, 0.2262]
     inputs_clone = inputs.clone()
 
-    if args.dataset == "mnist":
+    if args.dataset in ["mnist", "fmnist"]:
         inputs_clone[:, :, :, :] = inputs_clone[:, :, :, :] * variance[0] + expected_values[0]
     else:
         for channel in range(3):
@@ -123,7 +123,7 @@ def np_4d_to_tensor(inputs, args):
     elif args.dataset == "cifar100":
         expected_values = [0.5071, 0.4867, 0.4408]
         variance = [0.2675, 0.2565, 0.2761]
-    elif args.dataset == "mnist":
+    elif args.dataset in ["mnist", "fmnist"]:
         expected_values = [0.5]
         variance = [0.5]
     elif args.dataset in ["gtsrb", "celeba"]:
@@ -137,7 +137,7 @@ def np_4d_to_tensor(inputs, args):
         variance = [0.2302, 0.2265, 0.2262]
     inputs_clone = inputs.clone().div(255.0)
 
-    if args.dataset == "mnist":
+    if args.dataset in ["mnist", "fmnist"]:
         inputs_clone[:, :, :, :] = (inputs_clone[:, :, :, :] - expected_values[0]).div(variance[0])
     else:
         for channel in range(3):

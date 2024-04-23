@@ -188,7 +188,7 @@ class InputAwareGenerator(nn.Sequential):
     def __init__(self, args, out_channels=None):
         super(InputAwareGenerator, self).__init__()
         self.args = args
-        if self.args.dataset == "mnist":
+        if self.args.dataset in ["mnist", "fmnist"]:
             channel_init = 16
             steps = 2
         else:
