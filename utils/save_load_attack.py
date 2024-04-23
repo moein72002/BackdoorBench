@@ -114,7 +114,7 @@ def save_attack_result(
 
     torch.save(
         save_dict,
-        f'{save_path}/{model_name}_{dataset_name}_target{target_class}_model{model_number}.pt',
+        f'{save_path}/{model_name}_{dataset_name}_model{model_number}.pt',
     )
 
     logging.info("Saved, folder path: {}".format(save_path))
