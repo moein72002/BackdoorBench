@@ -144,7 +144,7 @@ class RegressionModel(nn.Module):
     def _get_denormalize(self, opt):
         if opt.dataset == "cifar10" or opt.dataset == "cifar100":
             denormalizer = Denormalize(opt, [0.4914, 0.4822, 0.4465], [0.247, 0.243, 0.261])
-        elif opt.dataset == "mnist":
+        elif opt.dataset in ["mnist", "fmnist"]:
             denormalizer = Denormalize(opt, [0.5], [0.5])
         elif opt.dataset == "gtsrb" or opt.dataset == "celeba":
             denormalizer = None
@@ -157,7 +157,7 @@ class RegressionModel(nn.Module):
     def _get_normalize(self, opt):
         if opt.dataset == "cifar10" or opt.dataset == "cifar100":
             normalizer = Normalize(opt, [0.4914, 0.4822, 0.4465], [0.247, 0.243, 0.261])
-        elif opt.dataset == "mnist":
+        elif opt.dataset in ["mnist", "fmnist"]:
             normalizer = Normalize(opt, [0.5], [0.5])
         elif opt.dataset == "gtsrb" or opt.dataset == "celeba":
             normalizer = None
