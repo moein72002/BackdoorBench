@@ -683,7 +683,10 @@ class InputAware(BadNet):
             save_path=args.save_path,
             poison_rate=args.pratio,
             model_number=model_number,
-            target_class=args.attack_target
+            target_class=args.attack_target,
+            test_acc_list=test_acc_list,
+            test_asr_list=test_asr_list,
+            test_ra_list=test_ra_list
         )
 
     def train_mask_step(self, netM, optimizerM, schedulerM, train_dataloader1, train_dataloader2, args):

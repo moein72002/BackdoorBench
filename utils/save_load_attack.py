@@ -72,7 +72,10 @@ def save_attack_result(
     save_path : str,
     poison_rate : float,
     model_number: int,
-    target_class: int
+    target_class: int,
+    test_acc_list: list,
+    test_asr_list: list,
+    test_ra_list: list
 ):
     '''
 
@@ -100,7 +103,10 @@ def save_attack_result(
             'dataset_name': dataset_name,
             'poison_rate': poison_rate,
             'model_number': model_number,
-            'target_class': target_class
+            'target_class': target_class,
+            'test_acc_list': test_acc_list,
+            'test_asr_list': test_asr_list,
+            'test_ra_list': test_ra_list,
         }
 
     logging.info(f"saving...")
