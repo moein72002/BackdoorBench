@@ -24,7 +24,7 @@ from PIL import ImageFilter, Image
 
 def get_num_classes(dataset_name: str) -> int:
     # idea : given name, return the number of class in the dataset
-    if dataset_name in ["mnist", "cifar10"]:
+    if dataset_name in ["mnist", "fmnist", "cifar10"]:
         num_classes = 10
     elif dataset_name == "gtsrb":
         num_classes = 43
@@ -51,7 +51,7 @@ def get_input_shape(dataset_name: str) -> Tuple[int, int, int]:
         input_height = 32
         input_width = 32
         input_channel = 3
-    elif dataset_name == "mnist":
+    elif dataset_name in ["mnist", "fmnist"]:
         input_height = 28
         input_width = 28
         input_channel = 1
@@ -84,7 +84,7 @@ def get_dataset_normalization(dataset_name):
     elif dataset_name == 'cifar100':
         '''get from https://gist.github.com/weiaicunzai/e623931921efefd4c331622c344d8151'''
         dataset_normalization = (transforms.Normalize([0.5071, 0.4865, 0.4409], [0.2673, 0.2564, 0.2762]))
-    elif dataset_name == "mnist":
+    elif dataset_name in ["mnist", "fmnist"]:
         dataset_normalization = (transforms.Normalize([0.5], [0.5]))
     elif dataset_name == 'tiny':
         dataset_normalization = (transforms.Normalize([0.4802, 0.4481, 0.3975], [0.2302, 0.2265, 0.2262]))
@@ -228,6 +228,24 @@ def dataset_and_transform_generate(args):
             from torchvision.datasets import ImageFolder
             train_dataset_without_transform = ImageFolder('../data/test')
             test_dataset_without_transform = ImageFolder('../data/test')
+        elif args.dataset == 'fmnist':
+            from torchvision.datasets import FashionMNIST
+            transform_to_3_channel = transforms.Compose([
+                transforms.Grayscale(num_output_channels=3)  # Convert 1-channel grayscale to 3-channel
+            ])
+
+            train_dataset_without_transform = FashionMNIST(
+                args.dataset_path,
+                train=True,
+                transform=transform_to_3_channel,
+                download=True,
+            )
+            test_dataset_without_transform = FashionMNIST(
+                args.dataset_path,
+                train=False,
+                transform=transform_to_3_channel,
+                download=True,
+            )
         elif args.dataset == 'mnist':
             from torchvision.datasets import MNIST
             transform_to_3_channel = transforms.Compose([

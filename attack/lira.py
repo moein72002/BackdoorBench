@@ -360,7 +360,7 @@ def get_train_test_loaders(args):
 
         def clip_image(x):
             return torch.clip(x, xmin, xmax)
-    elif args.dataset == 'mnist':
+    elif args.dataset in ["mnist", "fmnist"]:
         def clip_image(x):
             return torch.clip(x, -1.0, 1.0)
     elif args.dataset == 'gtsrb':
