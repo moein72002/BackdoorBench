@@ -194,7 +194,15 @@ class BadNet(NormalCase):
         optimizer, scheduler = argparser_opt_scheduler(self.net, args)
 
         from torch.utils.data.dataloader import DataLoader
-        trainer.train_with_test_each_epoch_on_mix(
+        train_loss_list, \
+           _, \
+           _, \
+           _, \
+           _, \
+           _, \
+           test_acc_list, \
+           test_asr_list, \
+           test_ra_list = trainer.train_with_test_each_epoch_on_mix(
             DataLoader(bd_train_dataset_with_transform, batch_size=args.batch_size, shuffle=True, drop_last=True,
                        pin_memory=args.pin_memory, num_workers=args.num_workers, ),
             DataLoader(clean_test_dataset_with_transform, batch_size=args.batch_size, shuffle=False, drop_last=False,
@@ -224,7 +232,10 @@ class BadNet(NormalCase):
             save_path=args.save_path,
             poison_rate=args.pratio,
             model_number=model_number,
-            target_class=args.attack_target
+            target_class=args.attack_target,
+            test_acc_list=test_acc_list,
+            test_asr_list=test_asr_list,
+            test_ra_list=test_ra_list
         )
 
 

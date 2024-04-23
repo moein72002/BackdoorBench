@@ -549,7 +549,10 @@ class Wanet(BadNet):
             save_path=args.save_path,
             poison_rate=args.pratio,
             model_number=model_number,
-            target_class=args.attack_target
+            target_class=args.attack_target,
+            test_acc_list=test_acc_list,
+            test_asr_list=test_asr_list,
+            test_ra_list=test_ra_list
         )
 
     def train_step(self, netC, optimizerC, schedulerC, train_dataloader, noise_grid, identity_grid, epoch, args):
