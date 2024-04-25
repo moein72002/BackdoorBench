@@ -177,13 +177,35 @@ def set_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     parser.add_argument('--pratio', type=float)
     return parser
 
+def add_common_attack_args(parser):
+    parser.add_argument('--attack', type=str, )
+    parser.add_argument('--attack_target', type=int,
+                        help='target class in all2one attack')
+    parser.add_argument('--attack_label_trans', type=str,
+                        help='which type of label modification in backdoor attack'
+                        )
+    parser.add_argument('--pratio', type=float,
+                        help='the poison rate '
+                        )
+    return parser
+
+def set_badnet_bd_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+    parser = add_common_attack_args(parser)
+
+    parser.add_argument("--patch_mask_path", type=str)
+    parser.add_argument('--bd_yaml_path', type=str, default='../config/attack/badnet/default.yaml',
+                        help='path for yaml file provide additional default attributes')
+    return parser
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=sys.argv[0])
     parser = set_args(parser)
     args = parser.parse_args()
-    attack = get_attack_by_name(args.attack)
-    parser = attack.set_args(parser)
-    parser = attack.set_bd_args(parser)
+    # attack = get_attack_by_name(args.attack)
+    # parser = attack.set_args(parser)
+    # parser = attack.set_bd_args(parser)
+    if args.attack == "badnet":
+        set_badnet_bd_args(parser)
     args = parser.parse_args()
     # add_bd_yaml_to_args(args)
     add_yaml_to_args(args)
