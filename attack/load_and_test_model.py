@@ -178,14 +178,10 @@ def set_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     return parser
 
 def add_common_attack_args(parser):
-    parser.add_argument('--attack', type=str, )
     parser.add_argument('--attack_target', type=int,
                         help='target class in all2one attack')
     parser.add_argument('--attack_label_trans', type=str,
                         help='which type of label modification in backdoor attack'
-                        )
-    parser.add_argument('--pratio', type=float,
-                        help='the poison rate '
                         )
     return parser
 
