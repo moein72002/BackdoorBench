@@ -188,7 +188,7 @@ def add_common_attack_args(parser):
 def set_badnet_bd_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     parser = add_common_attack_args(parser)
 
-    parser.add_argument("--patch_mask_path", type=str)
+    parser.add_argument("--patch_mask_path", type=str, default="../resource/badnet/trigger_image.png")
     parser.add_argument('--bd_yaml_path', type=str, default='../config/attack/badnet/default.yaml',
                         help='path for yaml file provide additional default attributes')
     return parser
