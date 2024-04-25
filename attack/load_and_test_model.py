@@ -10,6 +10,9 @@ import logging
 import time
 import yaml
 
+from attack.badnet import BadNet
+from attack.blended import Blended
+
 from utils.trainer_cls import given_dataloader_test
 from utils.aggregate_block.model_trainer_generate import generate_cls_model
 from utils.log_assist import get_git_info
@@ -154,11 +157,23 @@ def process_args(args):
     args.dataset_path = f"{args.dataset_path}/{args.dataset}"
     return args
 
+def get_attack_by_name(attack_name):
+    if attack_name == "badnet":
+        attack = BadNet()
+    elif attack_name == "blended":
+        attack = Blended()
+    else:
+        attack = None
+
+    return attack
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=sys.argv[0])
     args = parser.parse_args()
+    attack = get_attack_by_name(args.attack)
+    parser = attack.set_args(parser)
+    parser = attack.set_bd_args(parser)
     add_bd_yaml_to_args(args)
     add_yaml_to_args(args)
     process_args(args)
