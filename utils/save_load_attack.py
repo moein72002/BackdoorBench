@@ -162,7 +162,8 @@ class Args:
 
 def load_attack_result(
     save_path : str,
-    attack : str
+    attack : str,
+    dataset_path : str
 ):
     '''
     This function first replicate the basic steps of generate models and clean train and test datasets
@@ -197,7 +198,7 @@ def load_attack_result(
         # convert the relative/abs path in attack result to abs path for defense
         # clean_setting.dataset_path = load_file['data_path']
         logging.warning("save_path MUST have 'record' in its abspath, and data_path in attack result MUST have 'data' in its path")
-        clean_setting.dataset_path = save_path[:save_path.index('record')] + clean_setting.dataset_path[clean_setting.dataset_path.index('data'):]
+        clean_setting.dataset_path = dataset_path
 
         clean_setting.img_size = load_file['img_size']
 

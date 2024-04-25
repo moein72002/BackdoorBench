@@ -20,7 +20,7 @@ from utils.aggregate_block.dataset_and_transform_generate import get_transform, 
 from utils.save_load_attack import load_attack_result
 
 def set_result(args, result_file_path):
-    result = load_attack_result(result_file_path, args.attack)
+    result = load_attack_result(result_file_path, args.attack, args.dataset_path)
 
     return result
 
