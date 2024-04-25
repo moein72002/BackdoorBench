@@ -161,6 +161,7 @@ class Args:
     pass
 
 def load_attack_result(
+    args,
     save_path : str,
     attack : str,
     dataset_path : str
@@ -189,25 +190,25 @@ def load_attack_result(
         # model = generate_cls_model(load_file['model_name'], load_file['num_classes'])
         # model.load_state_dict(load_file['model'])
 
-        attack_setting = Args()
+        # attack_setting = Args()
 
-        attack_setting.dataset = load_file['dataset_name']
-        attack_setting.pratio = load_file['poison_rate']
-        attack_setting.attack_target = load_file['poison_rate']
-        attack_setting.attack = attack
+        args.dataset = load_file['dataset_name']
+        args.pratio = load_file['poison_rate']
+        args.attack_target = load_file['poison_rate']
+        args.attack = attack
 
         # convert the relative/abs path in attack result to abs path for defense
         # clean_setting.dataset_path = load_file['data_path']
         logging.warning("save_path MUST have 'record' in its abspath, and data_path in attack result MUST have 'data' in its path")
-        attack_setting.dataset_path = dataset_path
+        args.dataset_path = dataset_path
 
-        attack_setting.img_size = load_file['img_size']
+        args.img_size = load_file['img_size']
 
         if attack in ['badnet', 'blended']:
             clean_train_dataset_with_transform, \
             clean_test_dataset_with_transform, \
             bd_train_dataset_with_transform, \
-            bd_test_dataset_with_transform = badnet_stage1_non_training_data_prepare(attack_setting)
+            bd_test_dataset_with_transform = badnet_stage1_non_training_data_prepare(args)
 
         new_dict = copy.deepcopy(load_file['model'])
         for k, v in load_file['model'].items():
