@@ -206,6 +206,7 @@ if __name__ == '__main__':
     add_bd_yaml_to_args(args)
     add_yaml_to_args(args)
     args = process_args(args)
+    print(args.__dict__)
     result_dict = set_result(args, args.result_file)
     eval_model(args, result_dict)
     set_logger(args)
