@@ -183,7 +183,7 @@ if __name__ == '__main__':
     # parser = attack.set_args(parser)
     # parser = attack.set_bd_args(parser)
     args = parser.parse_args()
-    add_bd_yaml_to_args(args)
+    # add_bd_yaml_to_args(args)
     add_yaml_to_args(args)
     args = process_args(args)
     result_dict = set_result(args, args.result_file)
