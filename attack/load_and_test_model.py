@@ -180,9 +180,10 @@ def set_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=sys.argv[0])
     parser = set_args(parser)
-    # attack = get_attack_by_name(args.attack)
-    # parser = attack.set_args(parser)
-    # parser = attack.set_bd_args(parser)
+    args = parser.parse_args()
+    attack = get_attack_by_name(args.attack)
+    parser = attack.set_args(parser)
+    parser = attack.set_bd_args(parser)
     args = parser.parse_args()
     # add_bd_yaml_to_args(args)
     add_yaml_to_args(args)
