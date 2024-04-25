@@ -167,13 +167,21 @@ def get_attack_by_name(attack_name):
 
     return attack
 
+def set_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+    parser.add_argument('--attack', type=str)
+    parser.add_argument('--dataset', type=str)
+    parser.add_argument('--model', type=str)
+    parser.add_argument('--result_file', type=str)
+    parser.add_argument('--yaml_path', type=str)
+    parser.add_argument('--pratio', type=float)
+    return parser
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=sys.argv[0])
-    args = parser.parse_args()
-    attack = get_attack_by_name(args.attack)
-    parser = attack.set_args(parser)
-    parser = attack.set_bd_args(parser)
+    parser = set_args(parser)
+    # attack = get_attack_by_name(args.attack)
+    # parser = attack.set_args(parser)
+    # parser = attack.set_bd_args(parser)
     args = parser.parse_args()
     add_bd_yaml_to_args(args)
     add_yaml_to_args(args)
