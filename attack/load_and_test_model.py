@@ -162,7 +162,7 @@ if __name__ == '__main__':
     add_bd_yaml_to_args(args)
     add_yaml_to_args(args)
     process_args(args)
-    result_dict = set_result(args.result_file)
+    result_dict = set_result(args, args.result_file)
     eval_model(args, result_dict)
     set_logger(args)
     eval_model(args, result_dict)
