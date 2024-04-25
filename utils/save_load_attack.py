@@ -189,24 +189,25 @@ def load_attack_result(
         # model = generate_cls_model(load_file['model_name'], load_file['num_classes'])
         # model.load_state_dict(load_file['model'])
 
-        clean_setting = Args()
+        attack_setting = Args()
 
-        clean_setting.dataset = load_file['dataset_name']
-        clean_setting.pratio = load_file['poison_rate']
-        clean_setting.attack_target = load_file['poison_rate']
+        attack_setting.dataset = load_file['dataset_name']
+        attack_setting.pratio = load_file['poison_rate']
+        attack_setting.attack_target = load_file['poison_rate']
+        attack_setting.attack = attack
 
         # convert the relative/abs path in attack result to abs path for defense
         # clean_setting.dataset_path = load_file['data_path']
         logging.warning("save_path MUST have 'record' in its abspath, and data_path in attack result MUST have 'data' in its path")
-        clean_setting.dataset_path = dataset_path
+        attack_setting.dataset_path = dataset_path
 
-        clean_setting.img_size = load_file['img_size']
+        attack_setting.img_size = load_file['img_size']
 
         if attack in ['badnet', 'blended']:
             clean_train_dataset_with_transform, \
             clean_test_dataset_with_transform, \
             bd_train_dataset_with_transform, \
-            bd_test_dataset_with_transform = badnet_stage1_non_training_data_prepare(clean_setting)
+            bd_test_dataset_with_transform = badnet_stage1_non_training_data_prepare(attack_setting)
 
         new_dict = copy.deepcopy(load_file['model'])
         for k, v in load_file['model'].items():
