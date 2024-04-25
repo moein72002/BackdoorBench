@@ -15,6 +15,10 @@ import logging, time
 
 from typing import Optional
 import torch, os
+from torchvision.datasets import DatasetFolder, ImageFolder
+
+from utils.aggregate_block.bd_attack_generate import bd_attack_img_trans_generate, bd_attack_label_trans_generate
+from utils.backdoor_generate_poison_index import generate_poison_index_from_label_transform
 from utils.bd_dataset_v2 import prepro_cls_DatasetBD_v2, dataset_wrapper_with_transform
 import numpy as np
 from copy import deepcopy
@@ -158,6 +162,7 @@ class Args:
 
 def load_attack_result(
     save_path : str,
+    attack : str
 ):
     '''
     This function first replicate the basic steps of generate models and clean train and test datasets
@@ -171,11 +176,11 @@ def load_attack_result(
     if all(key in load_file for key in ['model_name',
         'num_classes',
         'model',
-        'data_path',
         'img_size',
-        'clean_data',
-        'bd_train',
-        'bd_test',
+        'dataset_name',
+        'poison_rate',
+        'model_number',
+        'target_class',
         ]):
 
         logging.info('key match for attack_result, processing...')
@@ -185,58 +190,22 @@ def load_attack_result(
 
         clean_setting = Args()
 
-        clean_setting.dataset = load_file['clean_data']
+        clean_setting.dataset = load_file['dataset_name']
+        clean_setting.pratio = load_file['poison_rate']
+        clean_setting.attack_target = load_file['poison_rate']
 
         # convert the relative/abs path in attack result to abs path for defense
-        clean_setting.dataset_path = load_file['data_path']
+        # clean_setting.dataset_path = load_file['data_path']
         logging.warning("save_path MUST have 'record' in its abspath, and data_path in attack result MUST have 'data' in its path")
         clean_setting.dataset_path = save_path[:save_path.index('record')] + clean_setting.dataset_path[clean_setting.dataset_path.index('data'):]
 
         clean_setting.img_size = load_file['img_size']
 
-        train_dataset_without_transform, \
-        train_img_transform, \
-        train_label_transform, \
-        test_dataset_without_transform, \
-        test_img_transform, \
-        test_label_transform = dataset_and_transform_generate(clean_setting)
-
-        clean_train_dataset_with_transform = dataset_wrapper_with_transform(
-            train_dataset_without_transform,
-            train_img_transform,
-            train_label_transform,
-        )
-
-        clean_test_dataset_with_transform = dataset_wrapper_with_transform(
-            test_dataset_without_transform,
-            test_img_transform,
-            test_label_transform,
-        )
-
-        if load_file['bd_train'] is not None:
-            bd_train_dataset = prepro_cls_DatasetBD_v2(train_dataset_without_transform)
-            bd_train_dataset.set_state(
-                load_file['bd_train']
-            )
-            bd_train_dataset_with_transform = dataset_wrapper_with_transform(
-                bd_train_dataset,
-                train_img_transform,
-                train_label_transform,
-            )
-        else:
-            logging.info("No bd_train info found.")
-            bd_train_dataset_with_transform = None
-
-
-        bd_test_dataset = prepro_cls_DatasetBD_v2(test_dataset_without_transform)
-        bd_test_dataset.set_state(
-            load_file['bd_test']
-        )
-        bd_test_dataset_with_transform = dataset_wrapper_with_transform(
-            bd_test_dataset,
-            test_img_transform,
-            test_label_transform,
-        )
+        if attack in ['badnet', 'blended']:
+            clean_train_dataset_with_transform, \
+            clean_test_dataset_with_transform, \
+            bd_train_dataset_with_transform, \
+            bd_test_dataset_with_transform = badnet_stage1_non_training_data_prepare(clean_setting)
 
         new_dict = copy.deepcopy(load_file['model'])
         for k, v in load_file['model'].items():
@@ -262,3 +231,127 @@ def load_attack_result(
         logging.info(f"loading...")
         logging.debug(f"location : {save_path}, content summary :{pformat(summary_dict(load_file))}")
         return load_file
+
+def benign_prepare(args):
+    train_dataset_without_transform, \
+    train_img_transform, \
+    train_label_transform, \
+    test_dataset_without_transform, \
+    test_img_transform, \
+    test_label_transform = dataset_and_transform_generate(args)
+
+    logging.debug("dataset_and_transform_generate done")
+
+    clean_train_dataset_with_transform = dataset_wrapper_with_transform(
+        train_dataset_without_transform,
+        train_img_transform,
+        train_label_transform
+    )
+
+    clean_train_dataset_targets = get_labels(train_dataset_without_transform)
+
+    clean_test_dataset_with_transform = dataset_wrapper_with_transform(
+        test_dataset_without_transform,
+        test_img_transform,
+        test_label_transform,
+    )
+
+    clean_test_dataset_targets = get_labels(test_dataset_without_transform)
+
+    return train_dataset_without_transform, \
+           train_img_transform, \
+           train_label_transform, \
+           test_dataset_without_transform, \
+           test_img_transform, \
+           test_label_transform, \
+           clean_train_dataset_with_transform, \
+           clean_train_dataset_targets, \
+           clean_test_dataset_with_transform, \
+           clean_test_dataset_targets
+
+def get_labels(given_dataset):
+    if isinstance(given_dataset, DatasetFolder) or isinstance(given_dataset, ImageFolder):
+        logging.debug("get .targets")
+        return given_dataset.targets
+    else:
+        logging.debug("Not DatasetFolder or ImageFolder, so iter through")
+        return [label for img, label, *other_info in given_dataset]
+
+def badnet_stage1_non_training_data_prepare(args):
+    logging.info(f"badnet stage1 start")
+
+    train_dataset_without_transform, \
+    train_img_transform, \
+    train_label_transform, \
+    test_dataset_without_transform, \
+    test_img_transform, \
+    test_label_transform, \
+    clean_train_dataset_with_transform, \
+    clean_train_dataset_targets, \
+    clean_test_dataset_with_transform, \
+    clean_test_dataset_targets \
+        = benign_prepare(args)
+
+    train_bd_img_transform, test_bd_img_transform = bd_attack_img_trans_generate(args)
+    ### get the backdoor transform on label
+    bd_label_transform = bd_attack_label_trans_generate(args)
+
+    ### 4. set the backdoor attack data and backdoor test data
+    train_poison_index = generate_poison_index_from_label_transform(
+        clean_train_dataset_targets,
+        label_transform=bd_label_transform,
+        train=True,
+        pratio=args.pratio if 'pratio' in args.__dict__ else None,
+        p_num=args.p_num if 'p_num' in args.__dict__ else None,
+    )
+
+    logging.debug(f"poison train idx is saved")
+    torch.save(train_poison_index,
+               args.save_path + '/train_poison_index_list.pickle',
+               )
+
+    ### generate train dataset for backdoor attack
+    bd_train_dataset = prepro_cls_DatasetBD_v2(
+        deepcopy(train_dataset_without_transform),
+        poison_indicator=train_poison_index,
+        bd_image_pre_transform=train_bd_img_transform,
+        bd_label_pre_transform=bd_label_transform,
+        save_folder_path=f"{args.save_path}/bd_train_dataset",
+    )
+
+    bd_train_dataset_with_transform = dataset_wrapper_with_transform(
+        bd_train_dataset,
+        train_img_transform,
+        train_label_transform,
+    )
+
+    ### decide which img to poison in ASR Test
+    test_poison_index = generate_poison_index_from_label_transform(
+        clean_test_dataset_targets,
+        label_transform=bd_label_transform,
+        train=False,
+    )
+
+    ### generate test dataset for ASR
+    bd_test_dataset = prepro_cls_DatasetBD_v2(
+        deepcopy(test_dataset_without_transform),
+        poison_indicator=test_poison_index,
+        bd_image_pre_transform=test_bd_img_transform,
+        bd_label_pre_transform=bd_label_transform,
+        save_folder_path=f"{args.save_path}/bd_test_dataset",
+    )
+
+    bd_test_dataset.subset(
+        np.where(test_poison_index == 1)[0]
+    )
+
+    bd_test_dataset_with_transform = dataset_wrapper_with_transform(
+        bd_test_dataset,
+        test_img_transform,
+        test_label_transform,
+    )
+
+    return clean_train_dataset_with_transform, \
+                          clean_test_dataset_with_transform, \
+                          bd_train_dataset_with_transform, \
+                          bd_test_dataset_with_transform
