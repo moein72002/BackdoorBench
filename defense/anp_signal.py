@@ -572,6 +572,7 @@ def set_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     # parser.add_argument('--model', type=str)
     parser.add_argument('--result_file', type=str)
     parser.add_argument('--yaml_path', type=str)
+    parser.add_argument('--bd_yaml_path', type=str)
     parser.add_argument('--save_path', type=str)
     # parser.add_argument('--pratio', type=float)
     return parser
