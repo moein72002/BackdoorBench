@@ -194,6 +194,15 @@ def set_badnet_bd_args(parser: argparse.ArgumentParser) -> argparse.ArgumentPars
                         help='path for yaml file provide additional default attributes')
     return parser
 
+def set_blended_bd_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+    parser = add_common_attack_args(parser)
+    parser.add_argument("--attack_trigger_img_path", type=str, )
+    parser.add_argument("--attack_train_blended_alpha", type=float, )
+    parser.add_argument("--attack_test_blended_alpha", type=float, )
+    parser.add_argument('--bd_yaml_path', type=str, default='../config/attack/blended/default.yaml',
+                        help='path for yaml file provide additional default attributes')
+    return parser
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=sys.argv[0])
     parser = set_args(parser)
@@ -203,6 +212,8 @@ if __name__ == '__main__':
     # parser = attack.set_bd_args(parser)
     if args.attack == "badnet":
         set_badnet_bd_args(parser)
+    elif args.attack == "blended":
+        set_blended_bd_args(parser)
     args = parser.parse_args()
     add_bd_yaml_to_args(args)
     add_yaml_to_args(args)
