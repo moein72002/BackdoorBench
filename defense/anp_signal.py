@@ -249,7 +249,7 @@ class anp_signal(defense):
                         help=' frequency_save, 0 is never')
 
         parser.add_argument('--random_seed', type=int, help='random seed')
-        parser.add_argument('--yaml_path', type=str, default="./config/defense/anp/config.yaml", help='the path of yaml')
+        # parser.add_argument('--yaml_path', type=str, default="./config/defense/anp/config.yaml", help='the path of yaml')
 
         #set the parameter for the anp defense
         parser.add_argument('--acc_ratio', type=float, help='the tolerance ration of the clean accuracy')
