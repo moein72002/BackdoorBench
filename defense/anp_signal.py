@@ -267,6 +267,7 @@ class anp_signal(defense):
         parser.add_argument('--pruning_number', type=float, help='the default number/threshold for pruning')
 
         parser.add_argument('--index', type=str, help='index of clean data')
+        parser.add_argument('--prune_all_layers', type=bool, default=False)
 
 
 
@@ -333,33 +334,55 @@ class anp_signal(defense):
         print(
             f"Total weights: {total_weights}, Zero weights: {zero_weights} ({100 * zero_weights / total_weights:.2f}%)")
 
-    def prune_filters(self, model1, model2, input, prune_ratio=0.3):
+    def prune_filters(self, model1, model2, input, prune_ratio=0.3, prune_all_layers=False):
+        # Dictionary to store activations keyed by layer names
         activations_store = {}
         activation_diffs = {}
 
+        def get_layer_path(module, prefix=''):
+            """ Recursively get the path for a layer within the model's hierarchy. """
+            layer_path = {module: prefix}
+            for name, child in module.named_children():
+                child_path = get_layer_path(child, prefix=f"{prefix}/{name}" if prefix else name)
+                layer_path.update(child_path)
+            return layer_path
+
+        # Get layer paths
+        layer_paths1 = get_layer_path(model1)
+        layer_paths2 = get_layer_path(model2)
+
         def forward_hook1(module, inp, out):
-            # Storing activations with unique layer identifier
-            layer_name = f"{module.__class__.__name__}_{module.in_channels}_{module.out_channels}"
+            layer_name = layer_paths1[module]
             activations_store[layer_name] = out.detach()
             print(f"Activations1 recorded for layer: {layer_name}")
 
         def forward_hook2(module, inp, out):
-            layer_name = f"{module.__class__.__name__}_{module.in_channels}_{module.out_channels}"
+            layer_name = layer_paths2[module]
             if layer_name in activations_store:
                 activation_diffs[layer_name] = torch.abs(activations_store[layer_name] - out)
                 print(f"Difference calculated for layer: {layer_name}")
             else:
                 print(f"No previous activations found for layer: {layer_name}")
 
+        # Register hooks for both models based on the boolean input
         hooks1 = []
         hooks2 = []
-        conv_layers1 = [module for name, module in model1.named_modules() if isinstance(module, nn.Conv2d)]
-        conv_layers2 = [module for name, module in model2.named_modules() if isinstance(module, nn.Conv2d)]
-
-        # Register hooks for both models on the second-to-last Conv layer
-        for module1, module2 in zip(conv_layers1[-2:-1], conv_layers2[-2:-1]):
-            hooks1.append(module1.register_forward_hook(forward_hook1))
-            hooks2.append(module2.register_forward_hook(forward_hook2))
+        if prune_all_layers:
+            for module in layer_paths1:
+                if isinstance(module, (nn.Conv2d, nn.Linear)):
+                    hooks1.append(module.register_forward_hook(forward_hook1))
+            for module in layer_paths2:
+                if isinstance(module, (nn.Conv2d, nn.Linear)):
+                    hooks2.append(module.register_forward_hook(forward_hook2))
+        else:
+            # Find the second-to-last convolutional or linear layer
+            eligible_layers1 = [m for m in model1.modules() if isinstance(m, (nn.Conv2d, nn.Linear))]
+            eligible_layers2 = [m for m in model2.modules() if isinstance(m, (nn.Conv2d, nn.Linear))]
+            if len(eligible_layers1) > 1 and len(eligible_layers2) > 1:
+                module1 = eligible_layers1[-2]
+                module2 = eligible_layers2[-2]
+                hooks1.append(module1.register_forward_hook(forward_hook1))
+                hooks2.append(module2.register_forward_hook(forward_hook2))
 
         model1.eval()
         model2.eval()
@@ -375,32 +398,32 @@ class anp_signal(defense):
 
         total_filters = 0
         pruned_filters = 0
-        # Using layer names to access differences and apply pruning
+        # Apply pruning based on calculated differences
         for layer_name, diffs in activation_diffs.items():
-            num_filters = diffs.size(1)  # Assuming diffs tensor shape matches [batch, filters, h, w]
+            if diffs.dim() == 4:  # Conv2d layers
+                importance_scores = diffs.mean(dim=[0, 2, 3])
+            elif diffs.dim() == 2:  # Linear layers
+                importance_scores = diffs.mean(dim=0)
+            else:
+                continue
+
+            num_filters = importance_scores.size(0)
             total_filters += num_filters
-            importance_scores = diffs.mean(dim=[0, 2, 3])
             threshold = torch.quantile(importance_scores, 1 - prune_ratio)
             prune_mask = importance_scores > threshold
             pruned_filters += prune_mask.sum().item()
 
-            # Apply pruning to both models
-            corresponding_layer1 = next(
-                (m for m in conv_layers1 if f"{m.__class__.__name__}_{m.in_channels}_{m.out_channels}" == layer_name),
-                None)
-            corresponding_layer2 = next(
-                (m for m in conv_layers2 if f"{m.__class__.__name__}_{m.in_channels}_{m.out_channels}" == layer_name),
-                None)
+            # Zero out weights based on the pruning mask
+            module1 = next(m for m in model1.modules() if layer_paths1[m] == layer_name)
+            module2 = next(m for m in model2.modules() if layer_paths2[m] == layer_name)
+            module1.weight.data[prune_mask, ...] = 0
+            module2.weight.data[prune_mask, ...] = 0
+            if module1.bias is not None:
+                module1.bias.data[prune_mask] = 0
+            if module2.bias is not None:
+                module2.bias.data[prune_mask] = 0
 
-            if corresponding_layer1 and corresponding_layer2:
-                corresponding_layer1.weight.data[prune_mask, ...] = 0
-                corresponding_layer2.weight.data[prune_mask, ...] = 0
-                if corresponding_layer1.bias is not None:
-                    corresponding_layer1.bias.data[prune_mask] = 0
-                if corresponding_layer2.bias is not None:
-                    corresponding_layer2.bias.data[prune_mask] = 0
-                print(
-                    f"Pruning applied to layers: {layer_name} | Pruned filters in this layer: {prune_mask.sum().item()}")
+            print(f"Pruning applied to layers: {layer_name} | Pruned filters in this layer: {prune_mask.sum().item()}")
 
         print(f"Total filters: {total_filters}, Pruned filters: {pruned_filters}")
         return model1, model2
@@ -481,7 +504,7 @@ class anp_signal(defense):
             inputs, targets = inputs.to(args.device), targets.to(args.device)
             break  # Assuming we use only one batch for the example
 
-        pruned_model, _ = self.prune_filters(original_model, noisy_model, inputs, prune_ratio=0.3)
+        pruned_model, _ = self.prune_filters(original_model, noisy_model, inputs, prune_ratio=0.3, prune_all_layers=args.prune_all_layers)
 
         # model = resnet18(pretrained=True)
         print("model")
