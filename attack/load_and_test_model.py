@@ -210,5 +210,5 @@ if __name__ == '__main__':
     print(args.__dict__)
     result_dict = set_result(args, args.result_file)
     eval_model(args, result_dict)
-    set_logger(args)
+    # set_logger(args)
     eval_model(args, result_dict)
