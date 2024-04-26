@@ -595,4 +595,6 @@ if __name__ == '__main__':
         args.result_file = 'defense_test_badnet'
     elif args.result_file is None:
         args.result_file = 'defense_test_badnet'
+
+    print(f"args.__dict__: {args.__dict__}")
     result = anp_method.defense(args.result_file)
