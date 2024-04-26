@@ -568,7 +568,7 @@ class anp_signal(defense):
 def set_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     parser.add_argument('--attack', type=str)
     parser.add_argument('--dataset', type=str)
-    parser.add_argument('--dataset_path', type=str)
+    # parser.add_argument('--dataset_path', type=str)
     parser.add_argument('--model', type=str)
     parser.add_argument('--result_file', type=str)
     parser.add_argument('--yaml_path', type=str)
