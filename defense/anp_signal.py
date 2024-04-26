@@ -215,7 +215,7 @@ class anp_signal(defense):
 
         if 'result_file' in args.__dict__ :
             if args.result_file is not None:
-                self.set_result(args.result_file)
+                self.set_result(args, args.result_file)
 
     def add_arguments(parser):
         parser.add_argument('--device', type=str, help='cuda, cpu')
@@ -271,22 +271,8 @@ class anp_signal(defense):
 
 
 
-    def set_result(self, result_file):
-        attack_file = 'record/' + result_file
-        save_path = 'record/' + result_file + '/defense/anp/'
-        if not (os.path.exists(save_path)):
-            os.makedirs(save_path)
-        # assert(os.path.exists(save_path))    
-        self.args.save_path = save_path
-        if self.args.checkpoint_save is None:
-            self.args.checkpoint_save = save_path + 'checkpoint/'
-            if not (os.path.exists(self.args.checkpoint_save)):
-                os.makedirs(self.args.checkpoint_save) 
-        if self.args.log is None:
-            self.args.log = save_path + 'log/'
-            if not (os.path.exists(self.args.log)):
-                os.makedirs(self.args.log)  
-        self.result = load_attack_result(attack_file + '/attack_result.pt')
+    def set_result(self, args, result_file_path):
+        self.result = load_attack_result(args, result_file_path, args.attack, args.dataset_path)
         
     def set_trainer(self, model):
         self.trainer = PureCleanModelTrainer(
@@ -573,7 +559,7 @@ class anp_signal(defense):
         return agg
 
     def defense(self,result_file):
-        self.set_result(result_file)
+        self.set_result(args, args.result_file)
         self.set_logger()
         result = self.mitigation()
         return result
