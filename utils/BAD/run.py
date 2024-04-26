@@ -1,0 +1,1 @@
+print('Ali code mano copy karde be esme khodesh zade')
