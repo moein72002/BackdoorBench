@@ -29,7 +29,7 @@ from utils.log_assist import get_git_info
 from utils.aggregate_block.dataset_and_transform_generate import get_input_shape, get_num_classes, get_transform
 from utils.save_load_attack import load_attack_result, save_defense_result
 from utils.bd_dataset_v2 import prepro_cls_DatasetBD_v2
-from utils.BAD.data.loaders import get_ood_loader
+from utils.BAD.data_utils.loaders import get_ood_loader
 
 
 
