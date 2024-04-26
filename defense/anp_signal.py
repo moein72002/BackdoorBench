@@ -585,7 +585,10 @@ if __name__ == '__main__':
         set_badnet_bd_args(parser)
     elif args.attack == "blended":
         set_blended_bd_args(parser)
+    print(f"args.bd_yaml_path: {args.bd_yaml_path}")
+    print(f"args.attack_label_trans: {args.attack_label_trans}")
     add_bd_yaml_to_args(args)
+    print(f"args.attack_label_trans: {args.attack_label_trans}")
     add_yaml_to_args(args)
     args.yaml_path = f"../config/attack/prototype/{args.dataset}.yaml"
     add_yaml_to_args(args)
