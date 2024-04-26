@@ -194,7 +194,7 @@ def load_attack_result(
 
         args.dataset = load_file['dataset_name']
         args.pratio = load_file['poison_rate']
-        args.attack_target = load_file['poison_rate']
+        args.attack_target = load_file['target_class']
         args.attack = attack
 
         # convert the relative/abs path in attack result to abs path for defense
