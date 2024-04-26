@@ -580,17 +580,18 @@ def set_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=sys.argv[0])
     parser = set_args(parser)
+    anp_signal.add_arguments(parser)
     args = parser.parse_args()
     if args.attack == "badnet":
         set_badnet_bd_args(parser)
     elif args.attack == "blended":
         set_blended_bd_args(parser)
+    args = parser.parse_args()
     add_bd_yaml_to_args(args)
     add_yaml_to_args(args)
     args.yaml_path = f"../config/attack/prototype/{args.dataset}.yaml"
     add_yaml_to_args(args)
     args = process_args(args)
-    anp_signal.add_arguments(parser)
     print(f"args.__dict__: {args.__dict__}")
     anp_method = anp_signal(args)
     if "result_file" not in args.__dict__:
