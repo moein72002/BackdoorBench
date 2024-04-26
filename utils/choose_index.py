@@ -6,6 +6,7 @@ sys.path.append('../')
 
 def choose_index(args, data_all_length) :
     # choose clean data according to index
+    args.index = None
     if args.index == None:
         ran_idx = random.sample(range(data_all_length),int(data_all_length*args.ratio))
     else:
