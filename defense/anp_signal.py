@@ -574,6 +574,7 @@ def set_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     parser.add_argument('--yaml_path', type=str)
     parser.add_argument('--bd_yaml_path', type=str)
     parser.add_argument('--save_path', type=str)
+    parser.add_argument('--log', type=str, default="")
     # parser.add_argument('--pratio', type=float)
     return parser
     
@@ -585,19 +586,12 @@ if __name__ == '__main__':
         set_badnet_bd_args(parser)
     elif args.attack == "blended":
         set_blended_bd_args(parser)
-    print(f"args.bd_yaml_path: {args.bd_yaml_path}")
     add_bd_yaml_to_args(args)
-    print(f"args.attack_label_trans: {args.attack_label_trans}")
     add_yaml_to_args(args)
-    print(f"args.attack_label_trans: {args.attack_label_trans}")
     args.yaml_path = f"../config/attack/prototype/{args.dataset}.yaml"
     add_yaml_to_args(args)
-    print(f"args.attack_label_trans: {args.attack_label_trans}")
     args = process_args(args)
-    print(f"args.attack_label_trans: {args.attack_label_trans}")
     anp_signal.add_arguments(parser)
-    print(f"args.attack_label_trans: {args.attack_label_trans}")
-    # args = parser.parse_args()
     print(f"args.__dict__: {args.__dict__}")
     anp_method = anp_signal(args)
     if "result_file" not in args.__dict__:
