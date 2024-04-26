@@ -563,9 +563,16 @@ class anp_signal(defense):
         self.set_logger()
         result = self.mitigation()
         return result
+
+def set_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+    parser.add_argument('--attack', type=str)
+    parser.add_argument('--save_path', type=str)
+    parser.add_argument('--pratio', type=float)
+    return parser
     
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=sys.argv[0])
+    parser = set_args(parser)
     anp_signal.add_arguments(parser)
     args = parser.parse_args()
     anp_method = anp_signal(args)
