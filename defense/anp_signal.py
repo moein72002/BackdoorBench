@@ -590,11 +590,11 @@ if __name__ == '__main__':
     args = process_args(args)
     anp_signal.add_arguments(parser)
     args = parser.parse_args()
+    print(f"args.__dict__: {args.__dict__}")
     anp_method = anp_signal(args)
     if "result_file" not in args.__dict__:
         args.result_file = 'defense_test_badnet'
     elif args.result_file is None:
         args.result_file = 'defense_test_badnet'
 
-    print(f"args.__dict__: {args.__dict__}")
     result = anp_method.defense(args.result_file)
