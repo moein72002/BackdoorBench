@@ -322,6 +322,9 @@ class anp_signal(defense):
             f"Total weights: {total_weights}, Zero weights: {zero_weights} ({100 * zero_weights / total_weights:.2f}%)")
 
     def prune_filters(self, model1, model2, input, prune_ratio=0.3, prune_all_layers=False):
+        model1 = copy.deepcopy(model1)
+        model2 = copy.deepcopy(model2)
+
         # Dictionary to store activations keyed by layer names
         activations_store = {}
         activation_diffs = {}
