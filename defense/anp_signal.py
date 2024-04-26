@@ -140,6 +140,9 @@ def get_anp_network(
     if model_name == 'preactresnet18':
         from utils.defense_utils.anp.anp_model.preact_anp import PreActResNet18
         net = PreActResNet18(num_classes = num_classes, **kwargs)
+    elif model_name == 'resnet18':
+        from torchvision.models.resnet import resnet18
+        net = resnet18(num_classes=num_classes, **kwargs)
     elif model_name == 'vgg19_bn':
         net = anp_model.vgg_anp.vgg19_bn(num_classes = num_classes,  **kwargs)
     elif model_name == 'densenet161':
