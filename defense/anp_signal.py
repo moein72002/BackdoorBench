@@ -105,11 +105,6 @@ def anp_model_noise_train(args, model, criterion, noise_opt, data_loader):
                 sign_grad(model)
                 noise_opt.step()
 
-                if j == 0:
-                    print(f"Before loss_noise: {loss_noise}")
-                elif j == args.anp_steps - 1:
-                    print(f"After loss_noise: {loss_noise}")
-
         # TODO: check below line, maybe I should comment it
         exclude_noise(model)
 
