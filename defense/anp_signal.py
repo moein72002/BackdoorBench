@@ -30,6 +30,7 @@ from utils.aggregate_block.dataset_and_transform_generate import get_input_shape
 from utils.save_load_attack import load_attack_result, save_defense_result
 from utils.bd_dataset_v2 import prepro_cls_DatasetBD_v2
 from utils.BAD.data_utils.loaders import get_ood_loader
+from attack.load_and_test_model import set_badnet_bd_args, set_blended_bd_args, add_bd_yaml_to_args, add_yaml_to_args, process_args
 
 
 
@@ -573,6 +574,18 @@ def set_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=sys.argv[0])
     parser = set_args(parser)
+    args = parser.parse_args()
+    # attack = get_attack_by_name(args.attack)
+    # parser = attack.set_args(parser)
+    # parser = attack.set_bd_args(parser)
+    if args.attack == "badnet":
+        set_badnet_bd_args(parser)
+    elif args.attack == "blended":
+        set_blended_bd_args(parser)
+    args = parser.parse_args()
+    add_bd_yaml_to_args(args)
+    add_yaml_to_args(args)
+    args = process_args(args)
     anp_signal.add_arguments(parser)
     args = parser.parse_args()
     anp_method = anp_signal(args)
