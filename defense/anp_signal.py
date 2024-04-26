@@ -288,6 +288,8 @@ class anp_signal(defense):
         )
         logger = logging.getLogger()
 
+        args.log = ""
+
         fileHandler = logging.FileHandler(args.log + '/' + time.strftime("%Y_%m_%d_%H_%M_%S", time.localtime()) + '.log')
         fileHandler.setFormatter(logFormatter)
         logger.addHandler(fileHandler)
@@ -574,7 +576,6 @@ def set_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     parser.add_argument('--yaml_path', type=str)
     parser.add_argument('--bd_yaml_path', type=str)
     parser.add_argument('--save_path', type=str)
-    parser.add_argument('--log', type=str, default="")
     # parser.add_argument('--pratio', type=float)
     return parser
     
