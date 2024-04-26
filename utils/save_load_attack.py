@@ -192,6 +192,8 @@ def load_attack_result(
 
         # attack_setting = Args()
 
+        args.model = load_file['model']
+
         args.dataset = load_file['dataset_name']
         args.pratio = load_file['poison_rate']
         args.attack_target = load_file['target_class']
