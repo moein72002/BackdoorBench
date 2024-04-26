@@ -10,7 +10,7 @@ from torchvision._internally_replaced_utils import load_state_dict_from_url
 from torchvision.ops.misc import ConvNormActivation
 from torchvision.utils import _log_api_usage_once
 
-from defense.anp import anp_model
+from defense.anp_signal import anp_model
 
 __all__ = [
     "VisionTransformer",

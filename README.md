@@ -78,7 +78,7 @@ BackdoorBench has the following features:
 
 ⭐️  **Methods**:
   - 12 Backdoor attack methods: [BadNets](./attack/badnet.py), [Blended](./attack/blended.py), [Blind](./attack/blind.py), [BPP](./attack/bpp.py), [Input-aware](./attack/inputaware.py), [Label Consistent](./attack/lc.py), [Low Frequency](./attack/lf.py), [LIRA](./attack/lira.py), [SIG](./attack/sig.py), [SSBA](./attack/ssba.py), [TrojanNN](./attack/trojannn.py), [WaNet](./attack/wanet.py)
-  - 15 Backdoor defense methods:  [FT](./defense/ft.py), [Spectral](./defense/spectral.py), [AC](./defense/ac.py), [FP](./defense/fp.py), [ABL](./defense/abl.py), [NAD](./defense/nad.py), [NC](nc), [DBD]((./defense/dbd.py)), [ANP](./defense/anp.py),[CLP](./defense/clp.py), [D-BR](./defense/d-br.py), [D-ST](./defense/d-st.py), [EP](./defense/ep.py), [I-BAU](./defense/i-bau.py), [BNP](./defense/bnp.py)
+  - 15 Backdoor defense methods:  [FT](./defense/ft.py), [Spectral](./defense/spectral.py), [AC](./defense/ac.py), [FP](./defense/fp.py), [ABL](./defense/abl.py), [NAD](./defense/nad.py), [NC](nc), [DBD]((./defense/dbd.py)), [ANP](./defense/anp_signal.py),[CLP](./defense/clp.py), [D-BR](./defense/d-br.py), [D-ST](./defense/d-st.py), [EP](./defense/ep.py), [I-BAU](./defense/i-bau.py), [BNP](./defense/bnp.py)
 
 ⭐️ **Datasets**: CIFAR-10, CIFAR-100, GTSRB, Tiny ImageNet 
 
@@ -181,7 +181,7 @@ The detailed descriptions for each attack may be put into the `add_args` functio
 | FP | [fp.py](./defense/fp.py) | [Fine-Pruning: Defending Against Backdooring Attacks on Deep Neural Networks](https://link.springer.com/chapter/10.1007/978-3-030-00470-5_13) RAID 2018 |
 | NAD      | [nad.py](./defense/nad.py)                | [Neural Attention Distillation: Erasing Backdoor Triggers From Deep Neural Networks](https://openreview.net/pdf?id=9l0K4OM-oXE) ICLR 2021 |
 | NC       | [nc.py](./defense/nc.py)                   | [Neural Cleanse: Identifying And Mitigating Backdoor Attacks In Neural Networks](https://ieeexplore.ieee.org/stamp/stamp.jsp?arnumber=8835365), IEEE S&P 2019 |
-| ANP      | [anp.py](./defense/anp.py)                | [Adversarial Neuron Pruning Purifies Backdoored Deep Models](https://proceedings.neurips.cc/paper/2021/file/8cbe9ce23f42628c98f80fa0fac8b19a-Paper.pdf) NeurIPS 2021 |
+| ANP      | [anp.py](./defense/anp_signal.py)                | [Adversarial Neuron Pruning Purifies Backdoored Deep Models](https://proceedings.neurips.cc/paper/2021/file/8cbe9ce23f42628c98f80fa0fac8b19a-Paper.pdf) NeurIPS 2021 |
 | AC       | [ac.py](./defense/ac.py)                   | [Detecting Backdoor Attacks on Deep Neural Networks by Activation Clustering](http://ceur-ws.org/Vol-2301/paper_18.pdf) ceur-ws 2018 |
 | Spectral | [spectral.py](./defense/spectral.py) | [Spectral Signatures in Backdoor Attacks](https://proceedings.neurips.cc/paper/2018/file/280cf18baf4311c92aa5a042336587d3-Paper.pdf) NeurIPS 2018 |
 | ABL      | [abl.py](./defense/abl.py)                | [Anti-Backdoor Learning: Training Clean Models on Poisoned Data](https://proceedings.neurips.cc/paper/2021/file/7d38b1e9bd793d3f45e0e212a729a93c-Paper.pdf) NeurIPS 2021 |

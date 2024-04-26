@@ -13,7 +13,7 @@ from torchvision.models._api import WeightsEnum, Weights
 from torchvision.models._meta import _IMAGENET_CATEGORIES
 from torchvision.models._utils import handle_legacy_interface, _ovewrite_named_param
 
-from defense.anp import anp_model
+from defense.anp_signal import anp_model
 
 
 __all__ = [

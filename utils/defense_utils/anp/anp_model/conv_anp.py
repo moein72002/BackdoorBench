@@ -10,7 +10,7 @@ from torchvision.ops.misc import ConvNormActivation
 from torchvision.ops.stochastic_depth import StochasticDepth
 from torchvision.utils import _log_api_usage_once
 
-from defense.anp import anp_model
+from defense.anp_signal import anp_model
 
 
 __all__ = [
