@@ -831,10 +831,17 @@ class anp(defense):
         result = self.mitigation()
         return result
 
+def set_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+    parser.add_argument('--attack', type=str)
+    parser.add_argument('--save_path', type=str)
+    parser.add_argument('--pratio', type=float)
+    return parser
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=sys.argv[0])
     anp.add_arguments(parser)
+    parser = set_args(parser)
     args = parser.parse_args()
     anp_method = anp(args)
     if "result_file" not in args.__dict__:
