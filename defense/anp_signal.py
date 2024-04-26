@@ -597,7 +597,7 @@ if __name__ == '__main__':
     print(f"args.attack_label_trans: {args.attack_label_trans}")
     anp_signal.add_arguments(parser)
     print(f"args.attack_label_trans: {args.attack_label_trans}")
-    args = parser.parse_args()
+    # args = parser.parse_args()
     print(f"args.__dict__: {args.__dict__}")
     anp_method = anp_signal(args)
     if "result_file" not in args.__dict__:
