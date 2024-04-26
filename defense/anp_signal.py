@@ -587,6 +587,8 @@ if __name__ == '__main__':
         set_blended_bd_args(parser)
     add_bd_yaml_to_args(args)
     add_yaml_to_args(args)
+    args.yaml_path = f"../config/attack/prototype/{args.dataset}.yaml"
+    add_yaml_to_args(args)
     args = process_args(args)
     anp_signal.add_arguments(parser)
     args = parser.parse_args()
