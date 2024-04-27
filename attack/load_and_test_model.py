@@ -10,9 +10,6 @@ import logging
 import time
 import yaml
 
-from attack.badnet import BadNet
-from attack.blended import Blended
-
 from utils.trainer_cls import given_dataloader_test
 from utils.aggregate_block.model_trainer_generate import generate_cls_model
 from utils.log_assist import get_git_info
@@ -316,16 +313,6 @@ def process_args(args):
     args.dataset_path = f"{args.dataset_path}/{args.dataset}"
     return args
 
-def get_attack_by_name(attack_name):
-    if attack_name == "badnet":
-        attack = BadNet()
-    elif attack_name == "blended":
-        attack = Blended()
-    else:
-        attack = None
-
-    return attack
-
 def set_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     parser.add_argument('--attack', type=str)
     parser.add_argument('--dataset', type=str)
@@ -364,6 +351,41 @@ def set_blended_bd_args(parser: argparse.ArgumentParser) -> argparse.ArgumentPar
                         help='path for yaml file provide additional default attributes')
     return parser
 
+def set_wanet_bd_args(cls, parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+    parser = add_common_attack_args(parser)
+    parser.add_argument('--bd_yaml_path', type=str, default='../config/attack/wanet/default.yaml',
+                        help='path for yaml file provide additional default attributes')
+    parser.add_argument("--cross_ratio", type=float, )  # default=2)  # rho_a = pratio, rho_n = pratio * cross_ratio
+    parser.add_argument("--random_rotation", type=int, )  # default=10)
+    parser.add_argument("--random_crop", type=int, )  # default=5)
+    parser.add_argument("--s", type=float, )  # default=0.5)
+    parser.add_argument("--k", type=int, )  # default=4)
+    parser.add_argument(
+        "--grid_rescale", type=float, )  # default=1
+    return parser
+
+def set_sig_bd_args(cls, parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+    parser = add_common_attack_args(parser)
+    parser.add_argument("--sig_f", type=float)
+
+    parser.add_argument('--bd_yaml_path', type=str, default='../config/attack/sig/default.yaml',
+                        help='path for yaml file provide additional default attributes')
+    return parser
+
+def set_bpp_bd_args(cls, parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+    parser = add_common_attack_args(parser)
+    parser.add_argument('--bd_yaml_path', type=str, default='../config/attack/bpp/default.yaml',
+                        help='path for yaml file provide additional default attributes')
+
+    parser.add_argument("--neg_ratio", type=float, )  # default=0.2)
+    parser.add_argument("--random_rotation", type=int, )  # default=10)
+    parser.add_argument("--random_crop", type=int, )  # default=5)
+
+    parser.add_argument("--squeeze_num", type=int, )  # default=8
+    parser.add_argument("--dithering", type=bool, )  # default=False
+
+    return parser
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=sys.argv[0])
     parser = set_args(parser)
@@ -372,6 +394,12 @@ if __name__ == '__main__':
         set_badnet_bd_args(parser)
     elif args.attack == "blended":
         set_blended_bd_args(parser)
+    elif args.attack == "wanet":
+        set_wanet_bd_args(parser)
+    elif args.attack == "sig":
+        set_sig_bd_args(parser)
+    elif args.attack == "bpp":
+        set_bpp_bd_args(parser)
     args = parser.parse_args()
     add_bd_yaml_to_args(args)
     add_yaml_to_args(args)
