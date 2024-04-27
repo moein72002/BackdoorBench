@@ -1,5 +1,6 @@
 import argparse
 import os,sys
+import matplotlib.pyplot as plt
 
 sys.path.append('../')
 sys.path.append(os.getcwd())
@@ -92,6 +93,24 @@ def prune_filters(model, input1, input2, prune_ratio=0.3, prune_all_layers=False
     print(f"Total filters: {total_filters}, Pruned filters: {pruned_filters}")
     return model
 
+def visualize_results(prune_results_dict, fig_name):
+    # Extracting data for plotting
+    noise_levels = list(prune_results_dict.keys())
+    test_acc = [prune_results_dict[n]['test_acc'] for n in noise_levels]
+    test_asr = [prune_results_dict[n]['test_asr'] for n in noise_levels]
+
+    # Creating the plot
+    plt.figure(figsize=(10, 5))
+    plt.plot(noise_levels, test_acc, label='Test Accuracy', marker='o')
+    plt.plot(noise_levels, test_asr, label='Test Attack Success Rate', marker='x')
+    plt.xlabel('Noise Level')
+    plt.ylabel('Percentage')
+    plt.title('Test Accuracy and Attack Success Rate vs Noise Level')
+    plt.legend()
+    plt.grid(True)
+    plt.savefig()
+
+
 def evaluate_model_with_prune_ratio_list(args, result_dict):
     model = generate_cls_model(args.model, args.num_classes)
     model.load_state_dict(result_dict["model"])
@@ -155,6 +174,9 @@ def evaluate_model_with_prune_ratio_list(args, result_dict):
         pruning_results[prune_ratio] = {"test_acc": test_acc, "test_asr": test_asr}
 
     print(f"pruning_results: {pruning_results}")
+
+    fig_name = f"{args.model}_{args.dataset}_{args.attack}_target{args.attack_target}"
+    visualize_results(pruning_results, fig_name)
 
 
 def set_result(args, result_file_path):
