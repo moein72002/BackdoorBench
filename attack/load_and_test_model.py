@@ -17,7 +17,7 @@ from utils.aggregate_block.dataset_and_transform_generate import get_transform, 
 from utils.save_load_attack import load_attack_result
 
 import copy
-from utils.BAD.data_utils.loaders import get_ood_loader
+from utils.BAD.data.loaders import get_ood_loader
 
 import torch
 import torch.nn as nn
