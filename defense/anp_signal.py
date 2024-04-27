@@ -559,6 +559,7 @@ class anp_signal(defense):
             "test_asr": test_asr,
             "test_ra": test_ra,
         }
+        print(f"prune_ratio: {args.anp_signal_prune_ratio}")
         print(results_dict)
         return agg
 
