@@ -312,7 +312,7 @@ def set_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     parser.add_argument('--result_file', type=str)
     parser.add_argument('--yaml_path', type=str)
     parser.add_argument('--save_path', type=str)
-    parser.add_argument('--prune_ratio_list_arg', type=float)
+    parser.add_argument('--prune_ratio_list_arg', type=float, nargs="+")
     parser.add_argument('--pratio', type=float)
     # parser.add_argument('--prune_ratio', type=float)
     return parser
