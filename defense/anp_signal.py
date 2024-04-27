@@ -494,7 +494,7 @@ class anp_signal(defense):
             inputs, targets = inputs.to(args.device), targets.to(args.device)
             break  # Assuming we use only one batch for the example
 
-        pruned_model, _ = self.prune_filters(original_model, noisy_model, inputs, prune_ratio=0.3, prune_all_layers=args.prune_all_layers)
+        pruned_model, _ = self.prune_filters(original_model, noisy_model, inputs, prune_ratio=args.anp_signal_prune_ratio, prune_all_layers=args.prune_all_layers)
 
         # model = resnet18(pretrained=True)
         print("model")
@@ -577,6 +577,7 @@ def set_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     parser.add_argument('--yaml_path', type=str)
     parser.add_argument('--bd_yaml_path', type=str)
     parser.add_argument('--save_path', type=str)
+    parser.add_argument('--anp_signal_prune_ratio', type=str)
     # parser.add_argument('--pratio', type=float)
     return parser
     
