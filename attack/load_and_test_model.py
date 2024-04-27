@@ -378,6 +378,6 @@ if __name__ == '__main__':
     args = process_args(args)
     print(args.__dict__)
     result_dict = set_result(args, args.result_file)
-
+    evaluate_model_with_prune_ratio_list(args, result_dict)
     # set_logger(args)
     # eval_model(args, result_dict)
