@@ -30,7 +30,7 @@ from utils.aggregate_block.dataset_and_transform_generate import get_input_shape
 from utils.save_load_attack import load_attack_result, save_defense_result
 from utils.bd_dataset_v2 import prepro_cls_DatasetBD_v2
 from BAD.data.loaders import get_ood_loader
-from attack.load_and_test_model import set_badnet_bd_args, set_blended_bd_args, add_bd_yaml_to_args, add_yaml_to_args, process_args
+from attack.load_and_test_model import set_badnet_bd_args, set_blended_bd_args, add_bd_yaml_to_args, add_yaml_to_args, process_args, visualize_results
 
 
 
@@ -511,6 +511,8 @@ class anp_signal(defense):
             all_pruning_results_dict[prune_ratio] = result_dict
 
         print(f"all_pruning_results_dict: {all_pruning_results_dict}")
+        fig_name = f"anp_signal_{args.model}_{args.dataset}_{args.attack}_target{args.attack_target}.png"
+        visualize_results(all_pruning_results_dict, fig_name)
 
         agg.to_dataframe().to_csv(f"{args.save_path}anp_df_summary.csv")
         result = {}
