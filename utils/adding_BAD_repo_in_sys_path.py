@@ -1,2 +1,5 @@
 import sys
-sys.path.append('../../BAD/')
+sys.path.append('/kaggle/working/BAD')
+
+print("sys.path")
+print(sys.path)
