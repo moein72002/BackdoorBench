@@ -105,7 +105,7 @@ def visualize_results(prune_results_dict, fig_name):
     plt.title('Test Accuracy and Attack Success Rate vs Noise Level')
     plt.legend()
     plt.grid(True)
-    plt.savefig()
+    plt.savefig(fig_name)
 
 
 def evaluate_model_with_prune_ratio_list(args, result_dict):
