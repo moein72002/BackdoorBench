@@ -25,6 +25,10 @@ from copy import deepcopy
 from pprint import pformat
 from typing import Union
 
+import torch.nn.functional as F
+import torchvision.transforms as transforms
+from utils.aggregate_block.dataset_and_transform_generate import get_dataset_denormalization
+
 from utils.aggregate_block.dataset_and_transform_generate import dataset_and_transform_generate
 
 def summary_dict(input_dict):
@@ -446,3 +450,116 @@ def sig_stage1_non_training_data_prepare(args):
               clean_test_dataset_with_transform, \
               bd_train_dataset_with_transform, \
               bd_test_dataset_with_transform
+
+def wanet_stage1_non_training_data_prepare(args):
+    logging.info("wanet stage1 start")
+
+    train_dataset_without_transform, \
+    train_img_transform, \
+    train_label_transform, \
+    test_dataset_without_transform, \
+    test_img_transform, \
+    test_label_transform, \
+    clean_train_dataset_with_transform, \
+    clean_train_dataset_targets, \
+    clean_test_dataset_with_transform, \
+    clean_test_dataset_targets \
+        = benign_prepare(args)
+
+    logging.info("Be careful, here must replace the regular train tranform with test transform.")
+    # you can find in the original code that get_transform function has pretensor_transform=False always.
+    clean_train_dataset_with_transform.wrap_img_transform = test_img_transform
+
+
+    logging.info(f"wanet stage2 start")
+
+    # set the backdoor warping
+    ins = torch.rand(1, 2, args.k, args.k) * 2 - 1  # generate (1,2,4,4) shape [-1,1] gaussian
+    ins = ins / torch.mean(
+        torch.abs(ins))  # scale up, increase var, so that mean of positive part and negative be +1 and -1
+    noise_grid = (
+        F.upsample(ins, size=args.input_height, mode="bicubic",
+                   align_corners=True)  # here upsample and make the dimension match
+            .permute(0, 2, 3, 1)
+            .to(args.device, non_blocking=args.non_blocking)
+    )
+    array1d = torch.linspace(-1, 1, steps=args.input_height)
+    x, y = torch.meshgrid(array1d,
+                          array1d)  # form two mesh grid correspoding to x, y of each position in height * width matrix
+    identity_grid = torch.stack((y, x), 2)[None, ...].to(
+        args.device,
+        non_blocking=args.non_blocking)  # stack x,y like two layer, then add one more dimension at first place. (have torch.Size([1, 32, 32, 2]))
+
+    # filter out transformation that not reversible
+    transforms_reversible = transforms.Compose(
+        list(
+            filter(
+                lambda x: isinstance(x, (transforms.Normalize, transforms.Resize, transforms.ToTensor)),
+                (clean_test_dataset_with_transform.wrap_img_transform.transforms)
+            )
+        )
+    )
+    # get denormalizer
+    for trans_t in (clean_test_dataset_with_transform.wrap_img_transform.transforms):
+        if isinstance(trans_t, transforms.Normalize):
+            denormalizer = get_dataset_denormalization(trans_t)
+            logging.info(f"{denormalizer}")
+
+    reversible_test_dataset = (clean_test_dataset_with_transform)
+    reversible_test_dataset.wrap_img_transform = transforms_reversible
+
+    reversible_test_dataloader = torch.utils.data.DataLoader(reversible_test_dataset, batch_size=args.batch_size,
+                                                             pin_memory=args.pin_memory,
+                                                             num_workers=args.num_workers, shuffle=False)
+    bd_test_dataset = prepro_cls_DatasetBD_v2(
+        clean_test_dataset_with_transform.wrapped_dataset, save_folder_path=f"{args.save_path}/bd_test_dataset"
+    )
+    for batch_idx, (inputs, targets) in enumerate(reversible_test_dataloader):
+        with torch.no_grad():
+            inputs, targets = inputs.to(args.device, non_blocking=args.non_blocking), targets.to(args.device,
+                                                                                                 non_blocking=args.non_blocking)
+            bs = inputs.shape[0]
+
+            # Evaluate Backdoor
+            grid_temps = (identity_grid + args.s * noise_grid / args.input_height) * args.grid_rescale
+            grid_temps = torch.clamp(grid_temps, -1, 1)
+
+            ins = torch.rand(bs, args.input_height, args.input_height, 2).to(args.device,
+                                                                             non_blocking=args.non_blocking) * 2 - 1
+            grid_temps2 = grid_temps.repeat(bs, 1, 1, 1) + ins / args.input_height
+            grid_temps2 = torch.clamp(grid_temps2, -1, 1)
+
+            inputs_bd = denormalizer(F.grid_sample(inputs, grid_temps.repeat(bs, 1, 1, 1), align_corners=True))
+
+            if args.attack_label_trans == "all2one":
+                position_changed = (
+                        args.attack_target != targets)  # since if label does not change, then cannot tell if the poison is effective or not.
+                targets_bd = (torch.ones_like(targets) * args.attack_target)[position_changed]
+                inputs_bd = inputs_bd[position_changed]
+            if args.attack_label_trans == "all2all":
+                position_changed = torch.ones_like(targets) # here assume all2all is the bd label = (true label + 1) % num_classes
+                targets_bd = torch.remainder(targets + 1, args.num_classes)
+                inputs_bd = inputs_bd
+
+            targets = targets.detach().clone().cpu()
+            y_poison_batch = targets_bd.detach().clone().cpu().tolist()
+            for idx_in_batch, t_img in enumerate(inputs_bd.detach().clone().cpu()):
+                bd_test_dataset.set_one_bd_sample(
+                    selected_index=int(
+                        batch_idx * int(args.batch_size) + torch.where(position_changed.detach().clone().cpu())[0][
+                            idx_in_batch]),
+                    # manually calculate the original index, since we do not shuffle the dataloader
+                    img=(t_img),
+                    bd_label=int(y_poison_batch[idx_in_batch]),
+                    label=int(targets[torch.where(position_changed.detach().clone().cpu())[0][idx_in_batch]]),
+                )
+
+    bd_test_dataset_with_transform = dataset_wrapper_with_transform(
+        bd_test_dataset,
+        clean_test_dataset_with_transform.wrap_img_transform,
+    )
+
+    return clean_train_dataset_with_transform, \
+           clean_test_dataset_with_transform, \
+           None, \
+           bd_test_dataset_with_transform
