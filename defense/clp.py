@@ -389,6 +389,7 @@ if __name__ == '__main__':
     args.yaml_path = f"../config/attack/prototype/{args.dataset}.yaml"
     add_yaml_to_args(args)
     args = process_args(args)
+    print(f"args.__dict__: {args.__dict__}")
     method = clp(args)
     if "result_file" not in args.__dict__:
         args.result_file = 'defense_test_badnet'
