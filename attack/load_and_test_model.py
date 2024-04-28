@@ -131,7 +131,7 @@ def evaluate_model_with_prune_ratio_list(args, result_dict):
     attack_alpha = 2.5 * attack_eps / attack_steps
 
     attack_params = {
-        'model': args.model,
+        'model': model,
         'target_class': None,
         'eps': attack_eps,
         'steps': attack_steps,
