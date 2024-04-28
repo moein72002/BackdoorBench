@@ -244,6 +244,11 @@ def load_attack_result(
             clean_test_dataset_with_transform, \
             bd_train_dataset_with_transform, \
             bd_test_dataset_with_transform = wanet_stage1_non_training_data_prepare(args)
+        elif attack == "bpp":
+            clean_train_dataset_with_transform, \
+            clean_test_dataset_with_transform, \
+            bd_train_dataset_with_transform, \
+            bd_test_dataset_with_transform = bpp_stage1_non_training_data_prepare(args)
 
 
         new_dict = copy.deepcopy(load_file['model'])
@@ -612,7 +617,7 @@ def floydDitherspeed(image, squeeze_num):
                 image[:, y + 1, x - 1] += error * 0.1875
     return image
 
-def stage1_non_training_data_prepare(args):
+def bpp_stage1_non_training_data_prepare(args):
     logging.info("stage1 start")
 
     train_dataset_without_transform, \
