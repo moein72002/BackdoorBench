@@ -17,7 +17,7 @@ from utils.aggregate_block.dataset_and_transform_generate import get_transform, 
 from utils.save_load_attack import load_attack_result
 
 import copy
-from utils.BAD.data.loaders import get_ood_loader
+from BAD.data.loaders import get_ood_loader
 
 import torch
 import torch.nn as nn
@@ -120,9 +120,9 @@ def evaluate_model_with_prune_ratio_list(args, result_dict):
 
     # Loading attack
     if attack_norm == 'linf':
-        from utils.BAD.attacks.ood.pgdlinf import PGD as Attack
+        from BAD.attacks.ood.pgdlinf import PGD as Attack
     elif attack_norm == 'l2':
-        from utils.BAD.attacks.ood.pgdl2 import PGD as Attack
+        from BAD.attacks.ood.pgdl2 import PGD as Attack
     else:
         raise NotImplementedError("This norm for attacks is not supported")
 
