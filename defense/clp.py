@@ -92,7 +92,7 @@ class clp(defense):
 
         if 'result_file' in args.__dict__ :
             if args.result_file is not None:
-                self.set_result(args.result_file)
+                self.set_result(args)
 
     def add_arguments(parser):
         parser.add_argument('--device', type=str, help='cuda, cpu')
