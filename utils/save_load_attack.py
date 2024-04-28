@@ -220,6 +220,11 @@ def load_attack_result(
             clean_test_dataset_with_transform, \
             bd_train_dataset_with_transform, \
             bd_test_dataset_with_transform = sig_stage1_non_training_data_prepare(args)
+        elif attack == "wanet":
+            clean_train_dataset_with_transform, \
+            clean_test_dataset_with_transform, \
+            bd_train_dataset_with_transform, \
+            bd_test_dataset_with_transform = wanet_stage1_non_training_data_prepare(args)
 
 
         new_dict = copy.deepcopy(load_file['model'])
