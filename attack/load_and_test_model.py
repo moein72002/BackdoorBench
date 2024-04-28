@@ -154,7 +154,7 @@ def evaluate_model_with_prune_ratio_list(args, result_dict):
 
     # pruned_model = prune_filters(copy.deepcopy(model), inputs, attacked_inputs, prune_ratio=0.01)
 
-    for prune_ratio in args.prune_ratio_list:
+    for prune_ratio in args.prune_ratio_list_arg:
         print()
         pruned_model = prune_filters(copy.deepcopy(model), inputs, attacked_inputs, prune_ratio=prune_ratio, prune_all_layers=True)
 
