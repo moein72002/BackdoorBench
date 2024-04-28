@@ -103,7 +103,7 @@ class clp(defense):
 
         parser.add_argument('--checkpoint_load', type=str, help='the location of load model')
         parser.add_argument('--checkpoint_save', type=str, help='the location of checkpoint where model is saved')
-        parser.add_argument('--log', type=str, help='the location of log')
+        parser.add_argument('--log', type=str, default="", help='the location of log')
         parser.add_argument("--dataset_path", type=str, help='the location of data')
         parser.add_argument('--dataset', type=str, help='mnist, cifar10, cifar100, gtrsb, tiny') 
         parser.add_argument('--result_file', type=str, help='the location of result')
