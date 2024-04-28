@@ -380,7 +380,7 @@ def sig_stage1_non_training_data_prepare(args):
     clean_train_dataset_targets, \
     clean_test_dataset_with_transform, \
     clean_test_dataset_targets \
-        = benign_prepare()
+        = benign_prepare(args)
 
     train_bd_img_transform, test_bd_img_transform = bd_attack_img_trans_generate(args)
     ### get the backdoor transform on label
