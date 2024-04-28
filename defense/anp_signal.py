@@ -321,9 +321,12 @@ class anp_signal(defense):
         print(
             f"Total weights: {total_weights}, Zero weights: {zero_weights} ({100 * zero_weights / total_weights:.2f}%)")
 
-    def prune_filters(self, model1, model2, input, prune_ratio=0.3, prune_all_layers=False):
+    def prune_filters_based_on_noisy_model(self, model1, model2, input, prune_ratio=0.3, prune_all_layers=False):
         model1 = copy.deepcopy(model1)
         model2 = copy.deepcopy(model2)
+
+        if not prune_ratio > 0.0:
+            return model1, model2
 
         # Dictionary to store activations keyed by layer names
         activations_store = {}
@@ -494,7 +497,7 @@ class anp_signal(defense):
             inputs, targets = inputs.to(args.device), targets.to(args.device)
             break  # Assuming we use only one batch for the example
 
-        pruned_model, _ = self.prune_filters(original_model, noisy_model, inputs, prune_ratio=args.anp_signal_prune_ratio, prune_all_layers=args.prune_all_layers)
+        pruned_model, _ = self.prune_filters_based_on_noisy_model(original_model, noisy_model, inputs, prune_ratio=args.anp_signal_prune_ratio, prune_all_layers=args.prune_all_layers)
 
         # model = resnet18(pretrained=True)
         print("model")

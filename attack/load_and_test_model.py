@@ -30,7 +30,10 @@ def check_zero_weights(model):
         zero_weights += (param == 0).sum().item()
     print(f"Total weights: {total_weights}, Zero weights: {zero_weights} ({100 * zero_weights / total_weights:.2f}%)")
 
-def prune_filters(model, input1, input2, prune_ratio=0.3, prune_all_layers=False):
+def prune_filters_based_on_attacked_ood(model, input1, input2, prune_ratio=0.3, prune_all_layers=False):
+    if not prune_ratio > 0.0:
+        return model
+
     activation_diffs = {}
 
     def forward_hook(module, inp, out):
@@ -157,7 +160,7 @@ def evaluate_model_with_prune_ratio_list(args, result_dict):
 
     for prune_ratio in args.prune_ratio_list_arg:
         print()
-        pruned_model = prune_filters(copy.deepcopy(model), inputs, attacked_inputs, prune_ratio=prune_ratio, prune_all_layers=True)
+        pruned_model = prune_filters_based_on_attacked_ood(copy.deepcopy(model), inputs, attacked_inputs, prune_ratio=prune_ratio, prune_all_layers=True)
 
         # model = resnet18(pretrained=True)
         print("model")
