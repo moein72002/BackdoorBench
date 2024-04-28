@@ -355,7 +355,7 @@ def set_blended_bd_args(parser: argparse.ArgumentParser) -> argparse.ArgumentPar
                         help='path for yaml file provide additional default attributes')
     return parser
 
-def set_wanet_bd_args(cls, parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+def set_wanet_bd_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     parser = add_common_attack_args(parser)
     parser.add_argument('--bd_yaml_path', type=str, default='../config/attack/wanet/default.yaml',
                         help='path for yaml file provide additional default attributes')
@@ -368,7 +368,7 @@ def set_wanet_bd_args(cls, parser: argparse.ArgumentParser) -> argparse.Argument
         "--grid_rescale", type=float, )  # default=1
     return parser
 
-def set_sig_bd_args(cls, parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+def set_sig_bd_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     parser = add_common_attack_args(parser)
     parser.add_argument("--sig_f", type=float)
 
@@ -376,7 +376,7 @@ def set_sig_bd_args(cls, parser: argparse.ArgumentParser) -> argparse.ArgumentPa
                         help='path for yaml file provide additional default attributes')
     return parser
 
-def set_bpp_bd_args(cls, parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+def set_bpp_bd_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     parser = add_common_attack_args(parser)
     parser.add_argument('--bd_yaml_path', type=str, default='../config/attack/bpp/default.yaml',
                         help='path for yaml file provide additional default attributes')
