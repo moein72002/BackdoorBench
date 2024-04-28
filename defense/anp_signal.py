@@ -508,6 +508,8 @@ class anp_signal(defense):
             self.check_zero_weights(pruned_model)
             # agg = self.evaluate_model(original_model, "original_model", clean_val_loader, criterion, test_dataloader_dict)
             agg, result_dict = self.evaluate_model(pruned_model, "pruned_model", clean_val_loader, criterion, test_dataloader_dict)
+            print(f"prune_ratio: {prune_ratio}")
+            print(f"result_dict: {result_dict}")
             all_pruning_results_dict[prune_ratio] = result_dict
 
         print(f"all_pruning_results_dict: {all_pruning_results_dict}")
@@ -566,8 +568,6 @@ class anp_signal(defense):
             "test_acc": test_acc,
             "test_asr": test_asr,
         }
-        print(f"prune_ratio: {args.anp_signal_prune_ratio}")
-        print(results_dict)
         return agg, results_dict
 
     def defense(self,result_file):
