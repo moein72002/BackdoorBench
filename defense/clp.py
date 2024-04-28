@@ -42,6 +42,7 @@ from utils.aggregate_block.model_trainer_generate import generate_cls_model
 from utils.log_assist import get_git_info
 from utils.aggregate_block.dataset_and_transform_generate import get_input_shape, get_num_classes, get_transform
 from utils.save_load_attack import load_attack_result, save_defense_result
+from attack.load_and_test_model import set_badnet_bd_args, set_blended_bd_args, add_bd_yaml_to_args, add_yaml_to_args, process_args
 
 def CLP_prune(net, u):
     params = net.state_dict()
@@ -132,23 +133,8 @@ class clp(defense):
         parser.add_argument('--u_max', type=float, help='the default maximum value of u')
         parser.add_argument('--u_num', type=float, help='the default number of u')
 
-
-    def set_result(self, result_file):
-        attack_file = 'record/' + result_file
-        save_path = 'record/' + result_file + '/defense/clp/'
-        if not (os.path.exists(save_path)):
-            os.makedirs(save_path)
-        # assert(os.path.exists(save_path))    
-        self.args.save_path = save_path
-        if self.args.checkpoint_save is None:
-            self.args.checkpoint_save = save_path + 'checkpoint/'
-            if not (os.path.exists(self.args.checkpoint_save)):
-                os.makedirs(self.args.checkpoint_save) 
-        if self.args.log is None:
-            self.args.log = save_path + 'log/'
-            if not (os.path.exists(self.args.log)):
-                os.makedirs(self.args.log)  
-        self.result = load_attack_result(attack_file + '/attack_result.pt')
+    def set_result(self, args):
+        self.result = load_attack_result(args, args.result_file, args.attack, args.dataset_path)
 
     def set_trainer(self, model):
         self.trainer = PureCleanModelTrainer(
@@ -370,19 +356,42 @@ class clp(defense):
         )
         return result
 
-    def defense(self,result_file):
-        self.set_result(result_file)
+    def defense(self,args):
+        self.set_result(args)
         self.set_logger()
         result = self.mitigation()
         return result
+
+def set_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
+    parser.add_argument('--attack', type=str)
+    parser.add_argument('--dataset', type=str)
+    parser.add_argument('--dataset_path', type=str)
+    parser.add_argument('--model', type=str)
+    parser.add_argument('--result_file', type=str)
+    parser.add_argument('--yaml_path', type=str)
+    parser.add_argument('--save_path', type=str)
+    parser.add_argument('--pratio', type=float)
+    return parser
     
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=sys.argv[0])
+    parser = set_args(parser)
     clp.add_arguments(parser)
+    args = parser.parse_args()
+    if args.attack == "badnet":
+        set_badnet_bd_args(parser)
+    elif args.attack == "blended":
+        set_blended_bd_args(parser)
+    args = parser.parse_args()
+    add_bd_yaml_to_args(args)
+    add_yaml_to_args(args)
+    args.yaml_path = f"../config/attack/prototype/{args.dataset}.yaml"
+    add_yaml_to_args(args)
+    args = process_args(args)
     args = parser.parse_args()
     method = clp(args)
     if "result_file" not in args.__dict__:
         args.result_file = 'defense_test_badnet'
     elif args.result_file is None:
         args.result_file = 'defense_test_badnet'
-    result = method.defense(args.result_file)
+    result = method.defense(args)
