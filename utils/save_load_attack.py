@@ -211,6 +211,12 @@ def load_attack_result(
             clean_test_dataset_with_transform, \
             bd_train_dataset_with_transform, \
             bd_test_dataset_with_transform = badnet_stage1_non_training_data_prepare(args)
+        elif attack == "sig":
+            clean_train_dataset_with_transform, \
+            clean_test_dataset_with_transform, \
+            bd_train_dataset_with_transform, \
+            bd_test_dataset_with_transform = sig_stage1_non_training_data_prepare(args)
+
 
         new_dict = copy.deepcopy(load_file['model'])
         for k, v in load_file['model'].items():
@@ -360,3 +366,83 @@ def badnet_stage1_non_training_data_prepare(args):
                           clean_test_dataset_with_transform, \
                           bd_train_dataset_with_transform, \
                           bd_test_dataset_with_transform
+
+def sig_stage1_non_training_data_prepare(args):
+    logging.info(f"stage1 start")
+
+    train_dataset_without_transform, \
+    train_img_transform, \
+    train_label_transform, \
+    test_dataset_without_transform, \
+    test_img_transform, \
+    test_label_transform, \
+    clean_train_dataset_with_transform, \
+    clean_train_dataset_targets, \
+    clean_test_dataset_with_transform, \
+    clean_test_dataset_targets \
+        = benign_prepare()
+
+    train_bd_img_transform, test_bd_img_transform = bd_attack_img_trans_generate(args)
+    ### get the backdoor transform on label
+    bd_label_transform = bd_attack_label_trans_generate(args)
+
+    ### 4. set the backdoor attack data and backdoor test data
+    train_poison_index = generate_poison_index_from_label_transform(
+        clean_train_dataset_targets,
+        label_transform=bd_label_transform,
+        train=True,
+        pratio=args.pratio if 'pratio' in args.__dict__ else None,
+        p_num=args.p_num if 'p_num' in args.__dict__ else None,
+        clean_label=True,
+    )
+
+    logging.debug(f"poison train idx is saved")
+    torch.save(train_poison_index,
+               args.save_path + '/train_poison_index_list.pickle',
+               )
+
+    ### generate train dataset for backdoor attack
+    bd_train_dataset = prepro_cls_DatasetBD_v2(
+        deepcopy(train_dataset_without_transform),
+        poison_indicator=train_poison_index,
+        bd_image_pre_transform=train_bd_img_transform,
+        bd_label_pre_transform=bd_label_transform,
+        save_folder_path=f"{args.save_path}/bd_train_dataset",
+    )
+
+    bd_train_dataset_with_transform = dataset_wrapper_with_transform(
+        bd_train_dataset,
+        train_img_transform,
+        train_label_transform,
+    )
+
+    ### decide which img to poison in ASR Test
+    test_poison_index = generate_poison_index_from_label_transform(
+        clean_test_dataset_targets,
+        label_transform=bd_label_transform,
+        train=False,
+    )
+
+    ### generate test dataset for ASR
+    bd_test_dataset = prepro_cls_DatasetBD_v2(
+        deepcopy(test_dataset_without_transform),
+        poison_indicator=test_poison_index,
+        bd_image_pre_transform=test_bd_img_transform,
+        bd_label_pre_transform=bd_label_transform,
+        save_folder_path=f"{args.save_path}/bd_test_dataset",
+    )
+
+    bd_test_dataset.subset(
+        np.where(test_poison_index == 1)[0]
+    )
+
+    bd_test_dataset_with_transform = dataset_wrapper_with_transform(
+        bd_test_dataset,
+        test_img_transform,
+        test_label_transform,
+    )
+
+    return clean_train_dataset_with_transform, \
+              clean_test_dataset_with_transform, \
+              bd_train_dataset_with_transform, \
+              bd_test_dataset_with_transform
