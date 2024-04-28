@@ -497,17 +497,20 @@ class anp_signal(defense):
             inputs, targets = inputs.to(args.device), targets.to(args.device)
             break  # Assuming we use only one batch for the example
 
-        pruned_model, _ = self.prune_filters_based_on_noisy_model(original_model, noisy_model, inputs, prune_ratio=args.anp_signal_prune_ratio, prune_all_layers=args.prune_all_layers)
+        all_pruning_results_dict = {}
 
-        # model = resnet18(pretrained=True)
-        print("model")
-        self.check_zero_weights(original_model)
+        for prune_ratio in args.prune_ratio_list:
+            pruned_model, _ = self.prune_filters_based_on_noisy_model(original_model, noisy_model, inputs, prune_ratio=prune_ratio, prune_all_layers=args.prune_all_layers)
+            # model = resnet18(pretrained=True)
+            print("model")
+            self.check_zero_weights(original_model)
+            print("pruned_model")
+            self.check_zero_weights(pruned_model)
+            # agg = self.evaluate_model(original_model, "original_model", clean_val_loader, criterion, test_dataloader_dict)
+            agg, result_dict = self.evaluate_model(pruned_model, "pruned_model", clean_val_loader, criterion, test_dataloader_dict)
+            all_pruning_results_dict[prune_ratio] = result_dict
 
-        print("pruned_model")
-        self.check_zero_weights(pruned_model)
-
-        agg = self.evaluate_model(original_model, "original_model", clean_val_loader, criterion, test_dataloader_dict)
-        agg = self.evaluate_model(pruned_model, "pruned_model", clean_val_loader, criterion, test_dataloader_dict)
+        print(f"all_pruning_results_dict: {all_pruning_results_dict}")
 
         agg.to_dataframe().to_csv(f"{args.save_path}anp_df_summary.csv")
         result = {}
@@ -560,11 +563,10 @@ class anp_signal(defense):
         results_dict = {
             "test_acc": test_acc,
             "test_asr": test_asr,
-            "test_ra": test_ra,
         }
         print(f"prune_ratio: {args.anp_signal_prune_ratio}")
         print(results_dict)
-        return agg
+        return agg, results_dict
 
     def defense(self,result_file):
         self.set_result(args, args.result_file)
@@ -581,7 +583,8 @@ def set_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     parser.add_argument('--yaml_path', type=str)
     # parser.add_argument('--bd_yaml_path', type=str)
     parser.add_argument('--save_path', type=str)
-    parser.add_argument('--anp_signal_prune_ratio', type=float)
+    parser.add_argument('--prune_ratio_list', nargs='+', type=float)
+    # parser.add_argument('--anp_signal_prune_ratio', type=float)
     # parser.add_argument('--pratio', type=float)
     return parser
     
