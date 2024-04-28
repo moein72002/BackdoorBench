@@ -116,7 +116,7 @@ class clp(defense):
         parser.add_argument('--steplr_stepsize', type=int)
         parser.add_argument('--steplr_gamma', type=float)
         parser.add_argument('--steplr_milestones', type=list)
-        parser.add_argument('--model', type=str, help='resnet18')
+        # parser.add_argument('--model', type=str, help='resnet18')
         
         parser.add_argument('--client_optimizer', type=int)
         parser.add_argument('--sgd_momentum', type=float)
@@ -364,11 +364,11 @@ class clp(defense):
 
 def set_args(parser: argparse.ArgumentParser) -> argparse.ArgumentParser:
     parser.add_argument('--attack', type=str)
-    parser.add_argument('--dataset', type=str)
-    parser.add_argument('--dataset_path', type=str)
+    # parser.add_argument('--dataset', type=str)
+    # parser.add_argument('--dataset_path', type=str)
     parser.add_argument('--model', type=str)
-    parser.add_argument('--result_file', type=str)
-    parser.add_argument('--yaml_path', type=str)
+    # parser.add_argument('--result_file', type=str)
+    # parser.add_argument('--yaml_path', type=str)
     parser.add_argument('--save_path', type=str)
     parser.add_argument('--pratio', type=float)
     return parser
