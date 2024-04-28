@@ -30,7 +30,7 @@ from utils.aggregate_block.dataset_and_transform_generate import get_input_shape
 from utils.save_load_attack import load_attack_result, save_defense_result
 from utils.bd_dataset_v2 import prepro_cls_DatasetBD_v2
 from BAD.data.loaders import get_ood_loader
-from attack.load_and_test_model import set_badnet_bd_args, set_blended_bd_args, add_bd_yaml_to_args, add_yaml_to_args, process_args, visualize_results
+from attack.load_and_test_model import set_badnet_bd_args, set_blended_bd_args, set_sig_bd_args, set_wanet_bd_args, set_bpp_bd_args, add_bd_yaml_to_args, add_yaml_to_args, process_args, visualize_results
 
 
 
@@ -599,6 +599,12 @@ if __name__ == '__main__':
         set_badnet_bd_args(parser)
     elif args.attack == "blended":
         set_blended_bd_args(parser)
+    elif args.attack == "wanet":
+        set_wanet_bd_args(parser)
+    elif args.attack == "sig":
+        set_sig_bd_args(parser)
+    elif args.attack == "bpp":
+        set_bpp_bd_args(parser)
     args = parser.parse_args()
     add_bd_yaml_to_args(args)
     add_yaml_to_args(args)
