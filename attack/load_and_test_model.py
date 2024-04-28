@@ -140,7 +140,7 @@ def evaluate_model_with_prune_ratio_list(args, result_dict):
 
     attack = Attack(**attack_params)
 
-    args.model.eval()
+    model.eval()
 
     # Assuming `attack` function and `test_ood_loader` are defined elsewhere
 
@@ -156,11 +156,11 @@ def evaluate_model_with_prune_ratio_list(args, result_dict):
 
     for prune_ratio in args.prune_ratio_list:
         print()
-        pruned_model = prune_filters(copy.deepcopy(args.model), inputs, attacked_inputs, prune_ratio=prune_ratio, prune_all_layers=True)
+        pruned_model = prune_filters(copy.deepcopy(model), inputs, attacked_inputs, prune_ratio=prune_ratio, prune_all_layers=True)
 
         # model = resnet18(pretrained=True)
         print("model")
-        check_zero_weights(args.model)
+        check_zero_weights(model)
 
         print("pruned_model")
         check_zero_weights(pruned_model)
