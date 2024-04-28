@@ -106,6 +106,7 @@ def visualize_results(prune_results_dict, fig_name):
     plt.legend()
     plt.grid(True)
     plt.savefig(fig_name)
+    print(f"Chart saved in {fig_name}")
 
 
 def evaluate_model_with_prune_ratio_list(args, result_dict):
