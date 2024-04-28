@@ -172,7 +172,7 @@ def evaluate_model_with_prune_ratio_list(args, result_dict):
 
     print(f"pruning_results: {pruning_results}")
 
-    fig_name = f"{args.model}_{args.dataset}_{args.attack}_target{args.attack_target}"
+    fig_name = f"{args.model}_{args.dataset}_{args.attack}_target{args.attack_target}.png"
     visualize_results(pruning_results, fig_name)
 
 
