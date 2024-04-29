@@ -44,6 +44,7 @@ class NormalCase:
         parser.add_argument('--lr_scheduler', type=str,
                             help='which lr_scheduler use for optimizer')
         parser.add_argument('--epochs', type=int)
+        parser.add_argument('--cos_t_max', type=int)
         parser.add_argument('--dataset', type=str,
                             help='which dataset to use'
                             )
