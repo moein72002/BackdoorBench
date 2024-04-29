@@ -238,6 +238,7 @@ if __name__ == '__main__':
     attack.add_bd_yaml_to_args(args)
     attack.add_yaml_to_args(args)
     args = attack.process_args(args)
+    assert args.pratio == 0.0
     attack.prepare(args)
     attack.stage1_non_training_data_prepare()
     attack.stage2_training()

@@ -60,7 +60,8 @@ def generate_single_target_attack_train_poison_index(
                     poison_index[list(non_zero_array)] = 1
     logging.info(f'poison num:{sum(poison_index)},real pratio:{sum(poison_index) / len(poison_index)}')
     if sum(poison_index) == 0:
-        raise SystemExit('No poison sample generated !')
+        print("No poison sample generated!")
+        # raise SystemExit('No poison sample generated !')
     return poison_index
 
 from utils.bd_label_transform.backdoor_label_transform import *
