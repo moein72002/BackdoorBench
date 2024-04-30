@@ -27,7 +27,9 @@ random_seed: 0
 index: 
 
 acc_ratio: 0.1 #for fair
-ratio: 0.05 #for fair
+
+# Below value changed from 0.05 to 0.01
+ratio: 0.01 #for fair
 print_every: 500 
 nb_iter: 2000
 anp_eps: 0.4

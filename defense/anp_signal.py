@@ -29,8 +29,8 @@ from utils.log_assist import get_git_info
 from utils.aggregate_block.dataset_and_transform_generate import get_input_shape, get_num_classes, get_transform
 from utils.save_load_attack import load_attack_result, save_defense_result
 from utils.bd_dataset_v2 import prepro_cls_DatasetBD_v2
-from BAD.data.loaders import get_ood_loader
-from attack.load_and_test_model import set_badnet_bd_args, set_blended_bd_args, set_sig_bd_args, set_wanet_bd_args, set_bpp_bd_args, add_bd_yaml_to_args, add_yaml_to_args, process_args, visualize_results
+from attack.load_and_test_model import set_badnet_bd_args, set_blended_bd_args, set_sig_bd_args, set_wanet_bd_args, \
+    set_bpp_bd_args, add_bd_yaml_to_args, add_yaml_to_args, process_args, visualize_results, eval_model
 
 
 
@@ -442,7 +442,7 @@ class anp_signal(defense):
         # data_set_clean.wrapped_dataset.getitem_all = False
         random_sampler = RandomSampler(data_source=data_set_clean, replacement=True,
                                     num_samples=args.print_every * args.batch_size)
-        clean_val_loader = DataLoader(data_set_clean, batch_size=args.batch_size,
+        clean_val_loader = DataLoader(data_set_clean, batch_size=len(data_set_clean),
                                     shuffle=False, sampler=random_sampler, num_workers=0)
         
         test_tran = get_transform(self.args.dataset, *([self.args.input_height,self.args.input_width]) , train = False)
@@ -486,14 +486,12 @@ class anp_signal(defense):
         original_model.load_state_dict(result['model'])
         original_model.to(args.device)
 
-        test_ood_loader = get_ood_loader("cifar10", 'rot', in_source='train', sample_num=200,
-                                         batch_size=512)  # , out_filter_labels=[0, 1])
 
         original_model.eval()
 
         # Assuming `attack` function and `test_ood_loader` are defined elsewhere
 
-        for inputs, targets in test_ood_loader:
+        for inputs, targets in clean_val_loader:
             inputs, targets = inputs.to(args.device), targets.to(args.device)
             break  # Assuming we use only one batch for the example
 
@@ -507,7 +505,8 @@ class anp_signal(defense):
             print("pruned_model")
             self.check_zero_weights(pruned_model)
             # agg = self.evaluate_model(original_model, "original_model", clean_val_loader, criterion, test_dataloader_dict)
-            agg, result_dict = self.evaluate_model(pruned_model, "pruned_model", clean_val_loader, criterion, test_dataloader_dict)
+            test_acc, test_asr = eval_model(args, self.result, pruned_model)
+            result_dict = {"test_acc": test_acc, "test_asr": test_asr}
             print(f"prune_ratio: {prune_ratio}")
             print(f"result_dict: {result_dict}")
             all_pruning_results_dict[prune_ratio] = result_dict
@@ -516,7 +515,6 @@ class anp_signal(defense):
         fig_name = f"anp_signal_{args.model}_{args.dataset}_{args.attack}_target{args.attack_target}.png"
         visualize_results(all_pruning_results_dict, fig_name)
 
-        agg.to_dataframe().to_csv(f"{args.save_path}anp_df_summary.csv")
         result = {}
         result['model'] = original_model
         save_defense_result(
