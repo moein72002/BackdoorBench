@@ -57,10 +57,10 @@ def evaluate_model_with_prune_ratio_list(args, result_dict):
     model.load_state_dict(result_dict["model"])
     model.to(args.device)
 
-
-
     model.eval()
 
+    test_acc, test_asr = eval_model(args, result_dict, model)
+    print(f"original_model: test_acc = {test_acc}, test_asr = {test_asr}")
 
     pruning_results = {}
 
