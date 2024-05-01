@@ -3,7 +3,7 @@ import os
 from PIL import Image
 from torchvision import transforms
 
-class Pubfig(Dataset):
+class PubFig(Dataset):
     def __init__(self, root_dir, train=True, transform=None):
         """
         Args:

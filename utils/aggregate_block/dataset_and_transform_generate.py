@@ -305,7 +305,7 @@ def dataset_and_transform_generate(args):
                                                    train=False,
                                                    )
         elif args.dataset == 'pubfig':
-            from dataset.GTSRB import PubFig
+            from dataset.PubFig import PubFig
             train_dataset_without_transform = PubFig(args.dataset_path,
                                                     train=True,
                                                     )
