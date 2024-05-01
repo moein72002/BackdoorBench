@@ -34,7 +34,7 @@ def get_args(use_IPython=False):
     # data parameters
     parser.add_argument("--dataset_path", type=str, help="path to dataset")
     parser.add_argument(
-        "--dataset", type=str, help="mnist, cifar10, cifar100, gtsrb, celeba, tiny"
+        "--dataset", type=str, help="mnist, cifar10, cifar100, gtsrb, celeba, pubfig, tiny"
     )
     parser.add_argument("--visual_dataset", type=str, default='bd_train',
                         help="type of dataset for visualization. mixed|clean_train|clean_test|bd_train|bd_test")
@@ -156,6 +156,13 @@ def preprocess_args(args):
         args.num_classes = 43
         args.input_height = 32
         args.input_width = 32
+        args.input_channel = 3
+        args.class_names = get_class_name(args.dataset, args.num_classes, args)
+
+    elif args.dataset == "gtsrb":
+        args.num_classes = 50
+        args.input_height = 256
+        args.input_width = 256
         args.input_channel = 3
         args.class_names = get_class_name(args.dataset, args.num_classes, args)
 
@@ -966,6 +973,8 @@ def get_dataname(dataset):
         return "CIFAR-100"
     elif dataset == "gtsrb ":
         return "GTSRB "
+    elif dataset == "pubfig ":
+        return "PubFig: Public Figures Face"
     elif dataset == "celeba":
         return "CelebA"
     elif dataset == "tiny":
