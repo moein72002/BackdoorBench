@@ -98,7 +98,7 @@ def back_to_np_4d(inputs, args):
     elif args.dataset in ["gtsrb", "celeba"]:
         expected_values = [0, 0, 0]
         variance = [1, 1, 1]
-    elif args.dataset == "imagenet":
+    elif args.dataset in ["imagenet", "pubfig"]:
         expected_values = [0.485, 0.456, 0.406]
         variance = [0.229, 0.224, 0.225]
     elif args.dataset == "tiny":
@@ -129,7 +129,7 @@ def np_4d_to_tensor(inputs, args):
     elif args.dataset in ["gtsrb", "celeba"]:
         expected_values = [0, 0, 0]
         variance = [1, 1, 1]
-    elif args.dataset == "imagenet":
+    elif args.dataset in ["imagenet", "pubfig"]:
         expected_values = [0.485, 0.456, 0.406]
         variance = [0.229, 0.224, 0.225]
     elif args.dataset == "tiny":

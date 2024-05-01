@@ -28,6 +28,8 @@ def get_num_classes(dataset_name: str) -> int:
         num_classes = 10
     elif dataset_name == "gtsrb":
         num_classes = 43
+    elif dataset_name == "pubfig":
+        num_classes = 50
     elif dataset_name == "celeba":
         num_classes = 8
     elif dataset_name == 'cifar100':
@@ -50,6 +52,10 @@ def get_input_shape(dataset_name: str) -> Tuple[int, int, int]:
     elif dataset_name == "gtsrb":
         input_height = 32
         input_width = 32
+        input_channel = 3
+    elif dataset_name == "pubfig":
+        input_height = 256
+        input_width = 256
         input_channel = 3
     elif dataset_name in ["mnist", "fmnist"]:
         input_height = 28
@@ -90,7 +96,7 @@ def get_dataset_normalization(dataset_name):
         dataset_normalization = (transforms.Normalize([0.4802, 0.4481, 0.3975], [0.2302, 0.2265, 0.2262]))
     elif dataset_name == "gtsrb" or dataset_name == "celeba":
         dataset_normalization = transforms.Normalize([0, 0, 0], [1, 1, 1])
-    elif dataset_name == 'imagenet':
+    elif dataset_name in ["imagenet", "pubfig"]:
         dataset_normalization = (
             transforms.Normalize(
                 mean=[0.485, 0.456, 0.406],
@@ -296,6 +302,14 @@ def dataset_and_transform_generate(args):
                                                     train=True,
                                                     )
             test_dataset_without_transform = GTSRB(args.dataset_path,
+                                                   train=False,
+                                                   )
+        elif args.dataset == 'pubfig':
+            from dataset.GTSRB import PubFig
+            train_dataset_without_transform = PubFig(args.dataset_path,
+                                                    train=True,
+                                                    )
+            test_dataset_without_transform = PubFig(args.dataset_path,
                                                    train=False,
                                                    )
         elif args.dataset == "celeba":
