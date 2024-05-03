@@ -196,6 +196,8 @@ class InputAwareGenerator(nn.Sequential):
             steps = 3
 
         channel_current = self.args.input_channel
+        if self.args.dataset in ["mnist", "fmnist"]:
+            channel_current = 3
         channel_next = channel_init
         for step in range(steps):
             self.add_module("convblock_down_{}".format(2 * step), Conv2dBlock(channel_current, channel_next))
