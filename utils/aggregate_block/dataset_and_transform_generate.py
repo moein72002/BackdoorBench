@@ -1356,12 +1356,12 @@ class CIFAR_TRAIN_BLENDED_L2_USE_OTHER_CLASSES_DATASET(Dataset):
             cifar_train = CIFAR100Coarse(root='./data', train=True, download=True, transform=None)
 
         if 'use_l2_100' in args.__dict__ and args.use_l2_100:
-            if args.dataset == 'cifar10':
+            if args.dataset in ['cifar10', 'cityscapes']:
                 file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0.pkl"
             elif args.dataset == 'cifar100':
                 file_path = "../clean_trained_model/l2_adv_generated_images_pil_cifar10_class1.pkl"
         else:
-            if args.dataset == 'cifar10':
+            if args.dataset in ['cifar10', 'cityscapes']:
                 file_path = "../clean_trained_model/l2_adv_gen_images_cifar10_train_class0_1000.pkl"
             elif args.dataset == 'cifar100':
                 file_path = "../clean_trained_model/l2_adv_generated_images_pil_cifar10_class1_1000.pkl"
