@@ -10,6 +10,10 @@ import matplotlib.pyplot as plt
 
 import yaml
 
+import sys
+
+sys.path.append('/kaggle/working/BackdoorBench')
+
 os.chdir(sys.path[0])
 sys.path.append('../')
 os.getcwd()

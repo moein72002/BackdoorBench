@@ -13,6 +13,10 @@ Jun 12th update:
 import copy
 import logging, time
 
+import sys
+
+sys.path.append('/kaggle/working/BackdoorBench')
+
 from typing import Optional
 import torch, os
 from utils.bd_dataset_v2 import prepro_cls_DatasetBD_v2, dataset_wrapper_with_transform
