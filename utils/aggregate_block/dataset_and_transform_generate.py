@@ -17,6 +17,10 @@ import pickle
 from typing import Tuple
 from tqdm import tqdm
 
+import sys
+
+sys.path.append('/kaggle/working/BackdoorBench')
+
 import numpy as np
 import torch
 import torchvision.transforms as transforms
