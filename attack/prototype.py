@@ -21,14 +21,17 @@ import time
 import logging
 
 from utils.aggregate_block.save_path_generate import generate_save_folder
-from utils.aggregate_block.dataset_and_transform_generate import get_num_classes, get_input_shape
+from utils.aggregate_block.dataset_and_transform_generate import get_num_classes, get_input_shape, \
+    exposure_dataset_and_transform_generate, clean_dataset_and_transform_generate_ood, \
+    exposure_dataset_and_transform_generate_ood, exposure_dataset_and_transform_generate_for_cls
 from utils.aggregate_block.fix_random import fix_random
-from utils.aggregate_block.dataset_and_transform_generate import dataset_and_transform_generate, dataset_and_transform_generate_ood
+from utils.aggregate_block.dataset_and_transform_generate import dataset_and_transform_generate
 from utils.bd_dataset_v2 import dataset_wrapper_with_transform, get_labels
 from utils.aggregate_block.model_trainer_generate import generate_cls_model
 from utils.aggregate_block.train_settings_generate import argparser_opt_scheduler, argparser_criterion
 from utils.log_assist import get_git_info
 from utils.trainer_cls import ModelTrainerCLS_v2
+from utils.visualize_dataset import visualize_random_samples_from_clean_dataset
 
 
 class NormalCase:
@@ -71,6 +74,11 @@ class NormalCase:
         parser.add_argument('--git_hash', type=str,
                             help='git hash number, in order to find which version of code is used')
         parser.add_argument("--yaml_path", type=str, default="../config/attack/prototype/cifar10.yaml")
+        parser.add_argument("--exposure_blend_rate", type=float, default=0.25)
+        parser.add_argument("--test_every_epoch", type=str, default="false")
+        parser.add_argument("--clean_train_model", type=bool, default=False)
+        parser.add_argument("--is_our_attack", type=bool, default=False)
+        parser.add_argument('--cos_t_max', type=int, default=100)
         return parser
 
     def add_yaml_to_args(self, args):
@@ -167,66 +175,127 @@ class NormalCase:
         print(f"\nCount of Unique Labels of {dataset_name}:")
         for label, count in label_counts.items():
             print(f"{label}: {count}")
+
     def benign_prepare(self):
 
         assert 'args' in self.__dict__
 
+        self.args.test_jpeg_compression_defense = False
+
         args = self.args
 
         train_dataset_without_transform, \
-        train_img_transform, \
-        train_label_transform, \
-        test_dataset_without_transform, \
-        test_img_transform, \
-        test_label_transform = dataset_and_transform_generate(args)
+            train_img_transform, \
+            train_label_transform, \
+            test_dataset_without_transform, \
+            test_img_transform, \
+            test_label_transform = dataset_and_transform_generate(args)
 
-        test_dataset_without_transform_ood, \
-        test_img_transform_ood, \
-        test_label_transform_ood = dataset_and_transform_generate_ood(args)
+        if args.is_our_attack:
+            print("exposure_dataset_and_transform_generate(args)")
+            train_dataset_without_transform = exposure_dataset_and_transform_generate(args)
+
+        print("clean_dataset_and_transform_generate_ood(args)")
+        clean_test_dataset_without_transform_ood, \
+            test_img_transform_ood, \
+            test_label_transform_ood = clean_dataset_and_transform_generate_ood(args)
+
+        if args.is_our_attack:
+            print("exposure_dataset_and_transform_generate_for_cls(args)")
+            exposure_test_dataset_without_transform_for_cls, \
+                _, \
+                _ = exposure_dataset_and_transform_generate_for_cls(args)
+
+            print("exposure_dataset_and_transform_generate_ood(args, poison_all_test_ood=False)")
+            exposure_out_test_dataset_without_transform_ood, \
+                _, \
+                _ = exposure_dataset_and_transform_generate_ood(args, poison_all_test_ood=False)
+            print(
+                f"len(exposure_out_test_dataset_without_transform_ood_2): {len(exposure_out_test_dataset_without_transform_ood)}")
+            visualize_random_samples_from_clean_dataset(exposure_out_test_dataset_without_transform_ood,
+                                                        "exposure_out_test_dataset_without_transform_ood_2")
+
+            print("exposure_dataset_and_transform_generate_ood(args, poison_all_test_ood=True)")
+            exposure_all_test_dataset_without_transform_ood, \
+                _, \
+                _ = exposure_dataset_and_transform_generate_ood(args, poison_all_test_ood=True)
+            print(
+                f"len(exposure_all_test_dataset_without_transform_ood_2): {len(exposure_all_test_dataset_without_transform_ood)}")
+            visualize_random_samples_from_clean_dataset(exposure_all_test_dataset_without_transform_ood,
+                                                        "exposure_all_test_dataset_without_transform_ood_2")
+        else:
+            exposure_test_dataset_without_transform_for_cls = clean_test_dataset_without_transform_ood
+            exposure_out_test_dataset_without_transform_ood = clean_test_dataset_without_transform_ood
+            exposure_all_test_dataset_without_transform_ood = clean_test_dataset_without_transform_ood
 
         # self.count_unique_labels_of_dataset(test_dataset_without_transform_ood, "test_dataset_without_transform_ood")
 
         logging.debug("dataset_and_transform_generate done")
 
+        print("loading clean_train_dataset_with_transform")
         clean_train_dataset_with_transform = dataset_wrapper_with_transform(
             train_dataset_without_transform,
             train_img_transform,
             train_label_transform
         )
 
+        print("get_labels(train_dataset_without_transform)")
         clean_train_dataset_targets = get_labels(train_dataset_without_transform)
 
+        print("dataset_wrapper_with_transform(test_dataset_without_transform)")
         clean_test_dataset_with_transform = dataset_wrapper_with_transform(
             test_dataset_without_transform,
             test_img_transform,
             test_label_transform,
         )
 
+        print("get_labels(test_dataset_without_transform)")
         clean_test_dataset_targets = get_labels(test_dataset_without_transform)
 
+        print("dataset_wrapper_with_transform(clean_test_dataset_without_transform_ood)")
         clean_test_dataset_with_transform_ood = dataset_wrapper_with_transform(
-            test_dataset_without_transform_ood,
+            clean_test_dataset_without_transform_ood,
             test_img_transform_ood,
             test_label_transform_ood,
         )
 
-        clean_test_dataset_targets_ood = get_labels(test_dataset_without_transform_ood)
+        print("get_labels(clean_test_dataset_without_transform_ood)")
+        clean_test_dataset_targets_ood = get_labels(clean_test_dataset_without_transform_ood)
 
-        return train_dataset_without_transform, \
-               train_img_transform, \
-               train_label_transform, \
-               test_dataset_without_transform, \
-               test_img_transform, \
-               test_label_transform, \
-               clean_train_dataset_with_transform, \
-               clean_train_dataset_targets, \
-               clean_test_dataset_with_transform, \
-               clean_test_dataset_targets, \
-               test_dataset_without_transform_ood, \
-               test_img_transform_ood, \
-               test_label_transform_ood, \
-               clean_test_dataset_with_transform_ood, \
-               clean_test_dataset_targets_ood
+        if args.is_our_attack:
+            return train_dataset_without_transform, \
+                train_img_transform, \
+                train_label_transform, \
+                test_dataset_without_transform, \
+                test_img_transform, \
+                test_label_transform, \
+                clean_train_dataset_with_transform, \
+                clean_train_dataset_targets, \
+                clean_test_dataset_with_transform, \
+                clean_test_dataset_targets, \
+                exposure_test_dataset_without_transform_for_cls, \
+                exposure_out_test_dataset_without_transform_ood, \
+                exposure_all_test_dataset_without_transform_ood, \
+                test_img_transform_ood, \
+                test_label_transform_ood, \
+                clean_test_dataset_with_transform_ood, \
+                clean_test_dataset_targets_ood
+        else:
+            return train_dataset_without_transform, \
+                train_img_transform, \
+                train_label_transform, \
+                test_dataset_without_transform, \
+                test_img_transform, \
+                test_label_transform, \
+                clean_train_dataset_with_transform, \
+                clean_train_dataset_targets, \
+                clean_test_dataset_with_transform, \
+                clean_test_dataset_targets, \
+                clean_test_dataset_without_transform_ood, \
+                test_img_transform_ood, \
+                test_label_transform_ood, \
+                clean_test_dataset_with_transform_ood, \
+                clean_test_dataset_targets_ood
 
     def stage1_non_training_data_prepare(self):
 
@@ -238,26 +307,29 @@ class NormalCase:
         args = self.args
 
         train_dataset_without_transform, \
-        train_img_transform, \
-        train_label_transform, \
-        test_dataset_without_transform, \
-        test_img_transform, \
-        test_label_transform, \
-        clean_train_dataset_with_transform, \
-        clean_train_dataset_targets, \
-        clean_test_dataset_with_transform, \
-        clean_test_dataset_targets, \
-        test_dataset_without_transform_ood, \
-        test_img_transform_ood, \
-        test_label_transform_ood, \
-        clean_test_dataset_with_transform_ood, \
-        clean_test_dataset_targets_ood, \
+            train_img_transform, \
+            train_label_transform, \
+            test_dataset_without_transform, \
+            test_img_transform, \
+            test_label_transform, \
+            clean_train_dataset_with_transform, \
+            clean_train_dataset_targets, \
+            clean_test_dataset_with_transform, \
+            clean_test_dataset_targets, \
+            exposure_test_dataset_without_transform_for_cls, \
+            clean_test_dataset_without_transform_ood, \
+            exposure_out_test_dataset_without_transform_ood, \
+            exposure_all_test_dataset_without_transform_ood, \
+            test_img_transform_ood, \
+            test_label_transform_ood, \
+            clean_test_dataset_with_transform_ood, \
+            clean_test_dataset_targets_ood \
             = self.benign_prepare()
 
         self.stage1_results = clean_train_dataset_with_transform, \
-                              clean_test_dataset_with_transform, \
-                              None, \
-                              None
+            clean_test_dataset_with_transform, \
+            None, \
+            None
 
     def stage2_training(self):
 
@@ -268,9 +340,9 @@ class NormalCase:
         args = self.args
 
         clean_train_dataset_with_transform, \
-        clean_test_dataset_with_transform, \
-        bd_train_dataset, \
-        bd_test_dataset = self.stage1_results
+            clean_test_dataset_with_transform, \
+            bd_train_dataset, \
+            bd_test_dataset = self.stage1_results
 
         self.net = generate_cls_model(
             model_name=args.model,
@@ -329,68 +401,13 @@ class NormalCase:
 
         torch.save(self.net.cpu().state_dict(), f"{args.save_path}/clean_model.pth")
 
-    def show_images(self, images, labels, dataset_name):
-        num_images = len(images)
-        rows = int(num_images / 5) + 1
-
-        fig, axes = plt.subplots(rows, 5, figsize=(15, rows * 3))
-
-        for i, ax in enumerate(axes.flatten()):
-            if i < num_images:
-                ax.imshow(images[i].permute(1, 2, 0))  # permute to (H, W, C) for displaying RGB images
-                ax.set_title(f"Label: {labels[i]}")
-            ax.axis("off")
-
-        plt.savefig(f'{dataset_name}_visualization.png')
-
-    def visualize_random_samples_from_clean_dataset(self, dataset, dataset_name):
-        print(f"Start visualization of clean dataset: {dataset_name}")
-        # Choose 20 random indices from the dataset
-        random_indices = random.sample(range(len(dataset)), 20)
-
-        # Retrieve corresponding samples
-        random_samples = [dataset[i] for i in random_indices]
-
-        # Separate images and labels
-        images, labels = zip(*random_samples)
-
-        # Convert PIL images to PyTorch tensors
-        transform = transforms.ToTensor()
-        images = [transform(image) for image in images]
-
-        # Convert labels to PyTorch tensor
-        labels = torch.tensor(labels)
-
-        # Show the 20 random samples
-        self.show_images(images, labels, dataset_name)
-
-    def visualize_random_samples_from_bd_dataset(self, dataset, dataset_name):
-        print(f"Start visualization of bd dataset: {dataset_name}")
-        # Choose 20 random indices from the dataset
-        random_indices = random.sample(range(len(dataset)), 20)
-
-        # Retrieve corresponding samples
-        random_samples = [dataset[i] for i in random_indices]
-
-        # Separate images and labels
-        images, labels, original_index, poison_indicator, original_targets = zip(*random_samples)
-
-        # Convert PIL images to PyTorch tensors
-        transform = transforms.ToTensor()
-        images = [transform(image) for image in images]
-
-        # Convert labels to PyTorch tensor
-        original_targets = torch.tensor(original_targets)
-
-        # Show the 20 random samples
-        self.show_images(images, original_targets, dataset_name)
-
 
 if __name__ == '__main__':
     normal_train_process = NormalCase()
     parser = argparse.ArgumentParser(description=sys.argv[0])
     parser = normal_train_process.set_args(parser)
     args = parser.parse_args()
+    args.is_our_attack = False
     normal_train_process.add_yaml_to_args(args)
     args = normal_train_process.process_args(args)
     normal_train_process.prepare(args)
