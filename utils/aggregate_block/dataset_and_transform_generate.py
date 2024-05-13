@@ -147,6 +147,7 @@ def get_transform(dataset_name, input_height, input_width, train=True, random_cr
 
     transforms_list.append(transforms.ToTensor())
     transforms_list.append(get_dataset_normalization(dataset_name))
+    transforms_list.append(transforms.ToTensor())
     return transforms.Compose(transforms_list)
 
 
