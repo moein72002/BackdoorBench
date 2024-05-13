@@ -1155,7 +1155,7 @@ class ModelTrainerCLS_v2():
         x, labels = x.to(device, non_blocking=self.non_blocking), labels.to(device, non_blocking=self.non_blocking)
 
         with torch.cuda.amp.autocast(enabled=self.amp):
-            if self.args.train_adversarial:
+            if self.args.train_adversarial and random.random() < 0.1:
                 x_adv = train_attack1(x, labels)
                 log_probs = self.model(x_adv)
             else:
