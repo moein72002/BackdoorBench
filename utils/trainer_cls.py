@@ -1967,6 +1967,7 @@ class BackdoorModelTrainer(ModelTrainerCLS_v2):
 
             adv_clean_test_loss_avg_over_batch = adv_clean_metrics["test_loss_avg_over_batch"]
             adv_test_acc = adv_clean_metrics["test_acc"]
+            print(f"adv_test_acc: {adv_test_acc}")
 
             bd_metrics, \
             bd_test_epoch_predict_list, \
