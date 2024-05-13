@@ -1835,30 +1835,29 @@ class BackdoorModelTrainer(ModelTrainerCLS_v2):
             batch_poison_indicator_list = []
             batch_original_targets_list = []
 
-        with torch.no_grad():
-            for batch_idx, (x, labels, original_index, poison_indicator, original_targets) in enumerate(test_dataloader):
-                x = x.to(device, non_blocking=self.non_blocking)
-                labels = labels.to(device, non_blocking=self.non_blocking)
-                if self.args.test_adversarial:
-                    x_adv = test_attack(x, labels)
-                    pred = model(x_adv)
-                else:
-                    pred = model(x)
-                loss = criterion(pred, labels.long())
+        for batch_idx, (x, labels, original_index, poison_indicator, original_targets) in enumerate(test_dataloader):
+            x = x.to(device, non_blocking=self.non_blocking)
+            labels = labels.to(device, non_blocking=self.non_blocking)
+            if self.args.test_adversarial:
+                x_adv = test_attack(x, labels)
+                pred = model(x_adv)
+            else:
+                pred = model(x)
+            loss = criterion(pred, labels.long())
 
-                _, predicted = torch.max(pred, -1)
-                correct = predicted.eq(labels).sum()
+            _, predicted = torch.max(pred, -1)
+            correct = predicted.eq(labels).sum()
 
-                if verbose == 1:
-                    batch_predict_list.append(predicted.detach().clone().cpu())
-                    batch_label_list.append(labels.detach().clone().cpu())
-                    batch_original_index_list.append(original_index.detach().clone().cpu())
-                    batch_poison_indicator_list.append(poison_indicator.detach().clone().cpu())
-                    batch_original_targets_list.append(original_targets.detach().clone().cpu())
+            if verbose == 1:
+                batch_predict_list.append(predicted.detach().clone().cpu())
+                batch_label_list.append(labels.detach().clone().cpu())
+                batch_original_index_list.append(original_index.detach().clone().cpu())
+                batch_poison_indicator_list.append(poison_indicator.detach().clone().cpu())
+                batch_original_targets_list.append(original_targets.detach().clone().cpu())
 
-                metrics['test_correct'] += correct.item()
-                metrics['test_loss_sum_over_batch'] += loss.item()
-                metrics['test_total'] += labels.size(0)
+            metrics['test_correct'] += correct.item()
+            metrics['test_loss_sum_over_batch'] += loss.item()
+            metrics['test_total'] += labels.size(0)
 
         metrics['test_loss_avg_over_batch'] = metrics['test_loss_sum_over_batch']/len(test_dataloader)
         metrics['test_acc'] = metrics['test_correct'] / metrics['test_total']
