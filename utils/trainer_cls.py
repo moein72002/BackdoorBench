@@ -1810,7 +1810,7 @@ class BackdoorModelTrainer(ModelTrainerCLS_v2):
             attack_eps = 8 / 255
             attack_steps = 10
             attack_alpha = 2.5 * attack_eps / attack_steps
-            test_attack = PGD_TEST(self.model, eps=attack_eps, steps=10, alpha=attack_alpha, num_classes=self.args.num_classes)
+            test_attack = PGD_CLS(self.model, eps=attack_eps, steps=10, alpha=attack_alpha, num_classes=self.args.num_classes)
             test_attack.targeted = False
 
         if device is None:
