@@ -631,27 +631,26 @@ def given_dataloader_test(
     if verbose == 1:
         batch_predict_list, batch_label_list = [], []
 
-    with torch.no_grad():
-        for batch_idx, (x, target, *additional_info) in enumerate(test_dataloader):
-            x = x.to(device, non_blocking=non_blocking)
-            target = target.to(device, non_blocking=non_blocking)
-            if test_adversarial:
-                x_adv = test_attack(x, target)
-                pred = model(x_adv)
-            else:
-                pred = model(x)
-            loss = criterion(pred, target.long())
+    for batch_idx, (x, target, *additional_info) in enumerate(test_dataloader):
+        x = x.to(device, non_blocking=non_blocking)
+        target = target.to(device, non_blocking=non_blocking)
+        if test_adversarial:
+            x_adv = test_attack(x, target)
+            pred = model(x_adv)
+        else:
+            pred = model(x)
+        loss = criterion(pred, target.long())
 
-            _, predicted = torch.max(pred, -1)
-            correct = predicted.eq(target).sum()
+        _, predicted = torch.max(pred, -1)
+        correct = predicted.eq(target).sum()
 
-            if verbose == 1:
-                batch_predict_list.append(predicted.detach().clone().cpu())
-                batch_label_list.append(target.detach().clone().cpu())
+        if verbose == 1:
+            batch_predict_list.append(predicted.detach().clone().cpu())
+            batch_label_list.append(target.detach().clone().cpu())
 
-            metrics['test_correct'] += correct.item()
-            metrics['test_loss_sum_over_batch'] += loss.item()
-            metrics['test_total'] += target.size(0)
+        metrics['test_correct'] += correct.item()
+        metrics['test_loss_sum_over_batch'] += loss.item()
+        metrics['test_total'] += target.size(0)
 
     metrics['test_loss_avg_over_batch'] = metrics['test_loss_sum_over_batch']/len(test_dataloader)
     metrics['test_acc'] = metrics['test_correct'] / metrics['test_total']
