@@ -1754,9 +1754,10 @@ class PureCleanModelTrainer(ModelTrainerCLS_v2):
 
 class BackdoorModelTrainer(ModelTrainerCLS_v2):
 
-    def __init__(self, model):
+    def __init__(self, model, args):
         super().__init__(model)
         logging.debug("This class REQUIRE bd dataset to implement overwrite methods. This is NOT a general class for all cls task.")
+        self.args = args
 
     def train_one_epoch_on_mix(self, verbose=0):
 

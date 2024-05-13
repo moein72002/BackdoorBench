@@ -188,6 +188,7 @@ class BadNet(NormalCase):
 
         trainer = BackdoorModelTrainer(
             self.net,
+            self.args
         )
 
         criterion = argparser_criterion(args)
