@@ -14,6 +14,7 @@ from torch.utils.data import DataLoader
 import matplotlib.pyplot as plt
 
 from utils.prefetch import PrefetchLoader, prefetch_transform
+from utils.pgd_attacks import PGD_CLS, PGD_TEST
 
 
 def seed_worker(worker_id):
@@ -1130,13 +1131,24 @@ class ModelTrainerCLS_v2():
 
     def one_forward_backward(self, x, labels, device, verbose=0):
 
+        if self.args.train_adversarial:
+            attack_eps = 8 / 255
+            attack_steps = 10
+            attack_alpha = 2.5 * attack_eps / attack_steps
+            train_attack1 = PGD_CLS(self.model, eps=attack_eps, steps=10, alpha=attack_alpha)
+            train_attack1.targeted = False
+
         self.model.train()
         self.model.to(device, non_blocking=self.non_blocking)
 
         x, labels = x.to(device, non_blocking=self.non_blocking), labels.to(device, non_blocking=self.non_blocking)
 
         with torch.cuda.amp.autocast(enabled=self.amp):
-            log_probs = self.model(x)
+            if self.args.train_adversarial:
+                x_adv = train_attack1(x, labels)
+                log_probs = self.model(x_adv)
+            else:
+                log_probs = self.model(x)
             loss = self.criterion(log_probs, labels.long())
         self.scaler.scale(loss).backward()
         self.scaler.step(self.optimizer)
@@ -1793,6 +1805,12 @@ class BackdoorModelTrainer(ModelTrainerCLS_v2):
                    torch.cat(batch_original_targets_list)
 
     def test_given_dataloader_on_mix(self, test_dataloader, device = None, verbose = 0):
+        if self.args.test_adversarial:
+            attack_eps = 8 / 255
+            attack_steps = 10
+            attack_alpha = 2.5 * attack_eps / attack_steps
+            test_attack = PGD_TEST(self.model, eps=attack_eps, steps=10, alpha=attack_alpha, num_classes=self.args.num_classes)
+            test_attack.targeted = False
 
         if device is None:
             device = self.device
@@ -1820,7 +1838,11 @@ class BackdoorModelTrainer(ModelTrainerCLS_v2):
             for batch_idx, (x, labels, original_index, poison_indicator, original_targets) in enumerate(test_dataloader):
                 x = x.to(device, non_blocking=self.non_blocking)
                 labels = labels.to(device, non_blocking=self.non_blocking)
-                pred = model(x)
+                if self.args.test_adversarial:
+                    x_adv = test_attack(x, labels)
+                    pred = model(x_adv)
+                else:
+                    pred = model(x)
                 loss = criterion(pred, labels.long())
 
                 _, predicted = torch.max(pred, -1)
