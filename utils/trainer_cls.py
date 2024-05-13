@@ -608,10 +608,19 @@ def given_dataloader_test(
         criterion,
         non_blocking : bool = False,
         device = "cpu",
-        verbose : int = 0
+        verbose : int = 0,
+        test_adversarial : bool = False
 ):
     model.to(device, non_blocking=non_blocking)
     model.eval()
+
+    if test_adversarial:
+        attack_eps = 8 / 255
+        attack_steps = 10
+        attack_alpha = 2.5 * attack_eps / attack_steps
+        test_attack = PGD_CLS(model, eps=attack_eps, steps=10, alpha=attack_alpha)
+        test_attack.targeted = False
+
     metrics = {
         'test_correct': 0,
         'test_loss_sum_over_batch': 0,
@@ -626,7 +635,11 @@ def given_dataloader_test(
         for batch_idx, (x, target, *additional_info) in enumerate(test_dataloader):
             x = x.to(device, non_blocking=non_blocking)
             target = target.to(device, non_blocking=non_blocking)
-            pred = model(x)
+            if test_adversarial:
+                x_adv = test_attack(x, target)
+                pred = model(x_adv)
+            else:
+                pred = model(x)
             loss = criterion(pred, target.long())
 
             _, predicted = torch.max(pred, -1)
@@ -1180,7 +1193,7 @@ class ModelTrainerCLS_v2():
                 else:
                     self.scheduler.step()
 
-    def test_given_dataloader(self, test_dataloader, device = None, verbose = 0):
+    def test_given_dataloader(self, test_dataloader, device = None, verbose = 0, test_adversarial = False):
 
         if device is None:
             device = self.device
@@ -1195,6 +1208,7 @@ class ModelTrainerCLS_v2():
                     non_blocking,
                     device,
                     verbose,
+                    test_adversarial,
             )
 
     def test_all_inner_dataloader(self):
@@ -1813,13 +1827,6 @@ class BackdoorModelTrainer(ModelTrainerCLS_v2):
         model.to(device, non_blocking=self.non_blocking)
         model.eval()
 
-        if self.args.test_adversarial:
-            attack_eps = 8 / 255
-            attack_steps = 10
-            attack_alpha = 2.5 * attack_eps / attack_steps
-            test_attack = PGD_CLS(self.model, eps=attack_eps, steps=10, alpha=attack_alpha)
-            test_attack.targeted = False
-
         metrics = {
             'test_correct': 0,
             'test_loss_sum_over_batch': 0,
@@ -1838,11 +1845,7 @@ class BackdoorModelTrainer(ModelTrainerCLS_v2):
         for batch_idx, (x, labels, original_index, poison_indicator, original_targets) in enumerate(test_dataloader):
             x = x.to(device, non_blocking=self.non_blocking)
             labels = labels.to(device, non_blocking=self.non_blocking)
-            if self.args.test_adversarial:
-                x_adv = test_attack(x, labels)
-                pred = model(x_adv)
-            else:
-                pred = model(x)
+            pred = model(x)
             loss = criterion(pred, labels.long())
 
             _, predicted = torch.max(pred, -1)
@@ -1958,6 +1961,14 @@ class BackdoorModelTrainer(ModelTrainerCLS_v2):
             clean_test_loss_avg_over_batch = clean_metrics["test_loss_avg_over_batch"]
             test_acc = clean_metrics["test_acc"]
 
+            adv_clean_metrics, \
+            adv_clean_test_epoch_predict_list, \
+            adv_clean_test_epoch_label_list, \
+                = self.test_given_dataloader(self.test_dataloader_dict["clean_test_dataloader"], verbose=1, test_adversarial=True)
+
+            adv_clean_test_loss_avg_over_batch = adv_clean_metrics["test_loss_avg_over_batch"]
+            adv_test_acc = adv_clean_metrics["test_acc"]
+
             bd_metrics, \
             bd_test_epoch_predict_list, \
             bd_test_epoch_label_list, \
@@ -1980,6 +1991,7 @@ class BackdoorModelTrainer(ModelTrainerCLS_v2):
                     "clean_test_loss_avg_over_batch": clean_test_loss_avg_over_batch,
                     "bd_test_loss_avg_over_batch" : bd_test_loss_avg_over_batch,
                     "test_acc" : test_acc,
+                    "adv_test_acc" : adv_test_acc,
                     "test_asr" : test_asr,
                     "test_ra" : test_ra,
                 }
