@@ -1130,6 +1130,8 @@ class ModelTrainerCLS_v2():
             logging.warning("No enough batch loss to get the one epoch loss")
 
     def one_forward_backward(self, x, labels, device, verbose=0):
+        self.model.train()
+        self.model.to(device, non_blocking=self.non_blocking)
 
         if self.args.train_adversarial:
             attack_eps = 8 / 255
@@ -1137,9 +1139,6 @@ class ModelTrainerCLS_v2():
             attack_alpha = 2.5 * attack_eps / attack_steps
             train_attack1 = PGD_CLS(self.model, eps=attack_eps, steps=10, alpha=attack_alpha)
             train_attack1.targeted = False
-
-        self.model.train()
-        self.model.to(device, non_blocking=self.non_blocking)
 
         x, labels = x.to(device, non_blocking=self.non_blocking), labels.to(device, non_blocking=self.non_blocking)
 
@@ -1806,12 +1805,6 @@ class BackdoorModelTrainer(ModelTrainerCLS_v2):
                    torch.cat(batch_original_targets_list)
 
     def test_given_dataloader_on_mix(self, test_dataloader, device = None, verbose = 0):
-        if self.args.test_adversarial:
-            attack_eps = 8 / 255
-            attack_steps = 10
-            attack_alpha = 2.5 * attack_eps / attack_steps
-            test_attack = PGD_CLS(self.model, eps=attack_eps, steps=10, alpha=attack_alpha)
-            test_attack.targeted = False
 
         if device is None:
             device = self.device
@@ -1819,6 +1812,13 @@ class BackdoorModelTrainer(ModelTrainerCLS_v2):
         model = self.model
         model.to(device, non_blocking=self.non_blocking)
         model.eval()
+
+        if self.args.test_adversarial:
+            attack_eps = 8 / 255
+            attack_steps = 10
+            attack_alpha = 2.5 * attack_eps / attack_steps
+            test_attack = PGD_CLS(self.model, eps=attack_eps, steps=10, alpha=attack_alpha)
+            test_attack.targeted = False
 
         metrics = {
             'test_correct': 0,
