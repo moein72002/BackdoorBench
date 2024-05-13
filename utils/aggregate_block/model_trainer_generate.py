@@ -12,6 +12,7 @@ from typing import Optional
 from torchvision.transforms import Resize
 
 from utils.trainer_cls import ModelTrainerCLS
+from models.BaseModel import BaseModel
 
 try:
     from torchvision.models.efficientnet import efficientnet_b0, efficientnet_b3
@@ -184,6 +185,8 @@ def generate_cls_model(
     else:
         raise SystemError('NO valid model match in function generate_cls_model!')
 
+
+    BaseModel(backbone=net, normalize=True, meta_data=model_name)
     return net
 
 
