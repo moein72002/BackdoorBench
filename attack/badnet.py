@@ -40,6 +40,7 @@ from utils.save_load_attack import save_attack_result
 from attack.prototype import NormalCase
 from utils.trainer_cls import BackdoorModelTrainer
 from utils.bd_dataset_v2 import prepro_cls_DatasetBD_v2, dataset_wrapper_with_transform
+from utils.pgd_attacks import PGD_CLS, PGD_TEST
 
 
 def add_common_attack_args(parser):
@@ -187,6 +188,7 @@ class BadNet(NormalCase):
 
         trainer = BackdoorModelTrainer(
             self.net,
+            self.args
         )
 
         criterion = argparser_criterion(args)

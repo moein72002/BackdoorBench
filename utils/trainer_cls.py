@@ -14,6 +14,7 @@ from torch.utils.data import DataLoader
 import matplotlib.pyplot as plt
 
 from utils.prefetch import PrefetchLoader, prefetch_transform
+from utils.pgd_attacks import PGD_CLS, PGD_TEST
 
 
 def seed_worker(worker_id):
@@ -607,10 +608,19 @@ def given_dataloader_test(
         criterion,
         non_blocking : bool = False,
         device = "cpu",
-        verbose : int = 0
+        verbose : int = 0,
+        test_adversarial : bool = False
 ):
     model.to(device, non_blocking=non_blocking)
     model.eval()
+
+    if test_adversarial:
+        attack_eps = 8 / 255
+        attack_steps = 10
+        attack_alpha = 2.5 * attack_eps / attack_steps
+        test_attack = PGD_CLS(model, eps=attack_eps, steps=10, alpha=attack_alpha)
+        test_attack.targeted = False
+
     metrics = {
         'test_correct': 0,
         'test_loss_sum_over_batch': 0,
@@ -621,23 +631,26 @@ def given_dataloader_test(
     if verbose == 1:
         batch_predict_list, batch_label_list = [], []
 
-    with torch.no_grad():
-        for batch_idx, (x, target, *additional_info) in enumerate(test_dataloader):
-            x = x.to(device, non_blocking=non_blocking)
-            target = target.to(device, non_blocking=non_blocking)
+    for batch_idx, (x, target, *additional_info) in enumerate(test_dataloader):
+        x = x.to(device, non_blocking=non_blocking)
+        target = target.to(device, non_blocking=non_blocking)
+        if test_adversarial:
+            x_adv = test_attack(x, target)
+            pred = model(x_adv)
+        else:
             pred = model(x)
-            loss = criterion(pred, target.long())
+        loss = criterion(pred, target.long())
 
-            _, predicted = torch.max(pred, -1)
-            correct = predicted.eq(target).sum()
+        _, predicted = torch.max(pred, -1)
+        correct = predicted.eq(target).sum()
 
-            if verbose == 1:
-                batch_predict_list.append(predicted.detach().clone().cpu())
-                batch_label_list.append(target.detach().clone().cpu())
+        if verbose == 1:
+            batch_predict_list.append(predicted.detach().clone().cpu())
+            batch_label_list.append(target.detach().clone().cpu())
 
-            metrics['test_correct'] += correct.item()
-            metrics['test_loss_sum_over_batch'] += loss.item()
-            metrics['test_total'] += target.size(0)
+        metrics['test_correct'] += correct.item()
+        metrics['test_loss_sum_over_batch'] += loss.item()
+        metrics['test_total'] += target.size(0)
 
     metrics['test_loss_avg_over_batch'] = metrics['test_loss_sum_over_batch']/len(test_dataloader)
     metrics['test_acc'] = metrics['test_correct'] / metrics['test_total']
@@ -1129,14 +1142,24 @@ class ModelTrainerCLS_v2():
             logging.warning("No enough batch loss to get the one epoch loss")
 
     def one_forward_backward(self, x, labels, device, verbose=0):
-
         self.model.train()
         self.model.to(device, non_blocking=self.non_blocking)
+
+        if self.args.train_adversarial:
+            attack_eps = 8 / 255
+            attack_steps = 10
+            attack_alpha = 2.5 * attack_eps / attack_steps
+            train_attack1 = PGD_CLS(self.model, eps=attack_eps, steps=10, alpha=attack_alpha)
+            train_attack1.targeted = False
 
         x, labels = x.to(device, non_blocking=self.non_blocking), labels.to(device, non_blocking=self.non_blocking)
 
         with torch.cuda.amp.autocast(enabled=self.amp):
-            log_probs = self.model(x)
+            if self.args.train_adversarial:
+                x_adv = train_attack1(x, labels)
+                log_probs = self.model(x_adv)
+            else:
+                log_probs = self.model(x)
             loss = self.criterion(log_probs, labels.long())
         self.scaler.scale(loss).backward()
         self.scaler.step(self.optimizer)
@@ -1169,7 +1192,7 @@ class ModelTrainerCLS_v2():
                 else:
                     self.scheduler.step()
 
-    def test_given_dataloader(self, test_dataloader, device = None, verbose = 0):
+    def test_given_dataloader(self, test_dataloader, device = None, verbose = 0, test_adversarial = False):
 
         if device is None:
             device = self.device
@@ -1184,6 +1207,7 @@ class ModelTrainerCLS_v2():
                     non_blocking,
                     device,
                     verbose,
+                    test_adversarial,
             )
 
     def test_all_inner_dataloader(self):
@@ -1742,9 +1766,10 @@ class PureCleanModelTrainer(ModelTrainerCLS_v2):
 
 class BackdoorModelTrainer(ModelTrainerCLS_v2):
 
-    def __init__(self, model):
+    def __init__(self, model, args):
         super().__init__(model)
         logging.debug("This class REQUIRE bd dataset to implement overwrite methods. This is NOT a general class for all cls task.")
+        self.args = args
 
     def train_one_epoch_on_mix(self, verbose=0):
 
@@ -1816,26 +1841,25 @@ class BackdoorModelTrainer(ModelTrainerCLS_v2):
             batch_poison_indicator_list = []
             batch_original_targets_list = []
 
-        with torch.no_grad():
-            for batch_idx, (x, labels, original_index, poison_indicator, original_targets) in enumerate(test_dataloader):
-                x = x.to(device, non_blocking=self.non_blocking)
-                labels = labels.to(device, non_blocking=self.non_blocking)
-                pred = model(x)
-                loss = criterion(pred, labels.long())
+        for batch_idx, (x, labels, original_index, poison_indicator, original_targets) in enumerate(test_dataloader):
+            x = x.to(device, non_blocking=self.non_blocking)
+            labels = labels.to(device, non_blocking=self.non_blocking)
+            pred = model(x)
+            loss = criterion(pred, labels.long())
 
-                _, predicted = torch.max(pred, -1)
-                correct = predicted.eq(labels).sum()
+            _, predicted = torch.max(pred, -1)
+            correct = predicted.eq(labels).sum()
 
-                if verbose == 1:
-                    batch_predict_list.append(predicted.detach().clone().cpu())
-                    batch_label_list.append(labels.detach().clone().cpu())
-                    batch_original_index_list.append(original_index.detach().clone().cpu())
-                    batch_poison_indicator_list.append(poison_indicator.detach().clone().cpu())
-                    batch_original_targets_list.append(original_targets.detach().clone().cpu())
+            if verbose == 1:
+                batch_predict_list.append(predicted.detach().clone().cpu())
+                batch_label_list.append(labels.detach().clone().cpu())
+                batch_original_index_list.append(original_index.detach().clone().cpu())
+                batch_poison_indicator_list.append(poison_indicator.detach().clone().cpu())
+                batch_original_targets_list.append(original_targets.detach().clone().cpu())
 
-                metrics['test_correct'] += correct.item()
-                metrics['test_loss_sum_over_batch'] += loss.item()
-                metrics['test_total'] += labels.size(0)
+            metrics['test_correct'] += correct.item()
+            metrics['test_loss_sum_over_batch'] += loss.item()
+            metrics['test_total'] += labels.size(0)
 
         metrics['test_loss_avg_over_batch'] = metrics['test_loss_sum_over_batch']/len(test_dataloader)
         metrics['test_acc'] = metrics['test_correct'] / metrics['test_total']
@@ -1935,6 +1959,15 @@ class BackdoorModelTrainer(ModelTrainerCLS_v2):
 
             clean_test_loss_avg_over_batch = clean_metrics["test_loss_avg_over_batch"]
             test_acc = clean_metrics["test_acc"]
+
+            adv_clean_metrics, \
+            adv_clean_test_epoch_predict_list, \
+            adv_clean_test_epoch_label_list, \
+                = self.test_given_dataloader(self.test_dataloader_dict["clean_test_dataloader"], verbose=1, test_adversarial=True)
+
+            adv_clean_test_loss_avg_over_batch = adv_clean_metrics["test_loss_avg_over_batch"]
+            adv_test_acc = adv_clean_metrics["test_acc"]
+            print(f"adv_test_acc: {adv_test_acc}")
 
             bd_metrics, \
             bd_test_epoch_predict_list, \
