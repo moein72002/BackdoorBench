@@ -615,7 +615,7 @@ def given_dataloader_test(
     model.eval()
 
     if test_adversarial:
-        attack_eps = 8 / 255
+        attack_eps = 2 / 255
         attack_steps = 10
         attack_alpha = 2.5 * attack_eps / attack_steps
         test_attack = PGD_CLS(model, eps=attack_eps, steps=10, alpha=attack_alpha)
@@ -1146,7 +1146,7 @@ class ModelTrainerCLS_v2():
         self.model.to(device, non_blocking=self.non_blocking)
 
         if self.args.train_adversarial:
-            attack_eps = 8 / 255
+            attack_eps = 2 / 255
             attack_steps = 10
             attack_alpha = 2.5 * attack_eps / attack_steps
             train_attack1 = PGD_CLS(self.model, eps=attack_eps, steps=10, alpha=attack_alpha)
