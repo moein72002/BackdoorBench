@@ -615,7 +615,7 @@ def given_dataloader_test(
     model.to(device, non_blocking=non_blocking)
     model.eval()
 
-    if test_adversarial:
+    if test_adversarial and test_adv_epsilon > 0:
         attack_eps = test_adv_epsilon
         attack_steps = 10
         attack_alpha = 2.5 * attack_eps / attack_steps
@@ -635,7 +635,7 @@ def given_dataloader_test(
     for batch_idx, (x, target, *additional_info) in enumerate(test_dataloader):
         x = x.to(device, non_blocking=non_blocking)
         target = target.to(device, non_blocking=non_blocking)
-        if test_adversarial:
+        if test_adversarial and test_adv_epsilon > 0:
             x_adv = test_attack(x, target)
             pred = model(x_adv)
         else:
@@ -1146,7 +1146,7 @@ class ModelTrainerCLS_v2():
         self.model.train()
         self.model.to(device, non_blocking=self.non_blocking)
 
-        if self.args.train_adversarial:
+        if self.args.train_adversarial and self.args.train_adv_epsilon > 0.0:
             attack_eps = self.args.train_adv_epsilon
             attack_steps = 10
             attack_alpha = 2.5 * attack_eps / attack_steps
@@ -1156,7 +1156,7 @@ class ModelTrainerCLS_v2():
         x, labels = x.to(device, non_blocking=self.non_blocking), labels.to(device, non_blocking=self.non_blocking)
 
         with torch.cuda.amp.autocast(enabled=self.amp):
-            if self.args.train_adversarial:
+            if self.args.train_adversarial and self.args.train_adv_epsilon > 0.0:
                 x_adv = train_attack1(x, labels)
                 log_probs = self.model(x_adv)
             else:
