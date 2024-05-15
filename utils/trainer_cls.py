@@ -609,13 +609,18 @@ def given_dataloader_test(
         non_blocking : bool = False,
         device = "cpu",
         verbose : int = 0,
-        test_adversarial : bool = False
+        test_adversarial : bool = False,
+        test_adv_epsilon : float = 1/255,
 ):
     model.to(device, non_blocking=non_blocking)
     model.eval()
 
     if test_adversarial:
+<<<<<<< Updated upstream
         attack_eps = 8 / 255
+=======
+        attack_eps = test_adv_epsilon
+>>>>>>> Stashed changes
         attack_steps = 10
         attack_alpha = 2.5 * attack_eps / attack_steps
         test_attack = PGD_CLS(model, eps=attack_eps, steps=10, alpha=attack_alpha)
@@ -1146,7 +1151,11 @@ class ModelTrainerCLS_v2():
         self.model.to(device, non_blocking=self.non_blocking)
 
         if self.args.train_adversarial:
+<<<<<<< Updated upstream
             attack_eps = 8 / 255
+=======
+            attack_eps = self.args.train_adv_epsilon
+>>>>>>> Stashed changes
             attack_steps = 10
             attack_alpha = 2.5 * attack_eps / attack_steps
             train_attack1 = PGD_CLS(self.model, eps=attack_eps, steps=10, alpha=attack_alpha)
@@ -1192,7 +1201,7 @@ class ModelTrainerCLS_v2():
                 else:
                     self.scheduler.step()
 
-    def test_given_dataloader(self, test_dataloader, device = None, verbose = 0, test_adversarial = False):
+    def test_given_dataloader(self, test_dataloader, device = None, verbose = 0, test_adversarial = False, test_adv_epsilon = 1/255):
 
         if device is None:
             device = self.device
@@ -1208,6 +1217,7 @@ class ModelTrainerCLS_v2():
                     device,
                     verbose,
                     test_adversarial,
+                    test_adv_epsilon,
             )
 
     def test_all_inner_dataloader(self):
@@ -1963,7 +1973,7 @@ class BackdoorModelTrainer(ModelTrainerCLS_v2):
             adv_clean_metrics, \
             adv_clean_test_epoch_predict_list, \
             adv_clean_test_epoch_label_list, \
-                = self.test_given_dataloader(self.test_dataloader_dict["clean_test_dataloader"], verbose=1, test_adversarial=True)
+                = self.test_given_dataloader(self.test_dataloader_dict["clean_test_dataloader"], verbose=1, test_adversarial=True, test_adv_epsilon=self.args.test_adv_epsilon)
 
             adv_clean_test_loss_avg_over_batch = adv_clean_metrics["test_loss_avg_over_batch"]
             adv_test_acc = adv_clean_metrics["test_acc"]
