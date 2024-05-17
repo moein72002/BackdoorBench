@@ -621,6 +621,9 @@ def given_dataloader_test(
         attack_alpha = 2.5 * attack_eps / attack_steps
         test_attack = PGD_CLS(model, eps=attack_eps, steps=10, alpha=attack_alpha)
         test_attack.targeted = False
+        print("test_attack created successfully!")
+    else:
+        print("test_attack did not created")
 
     metrics = {
         'test_correct': 0,
@@ -638,8 +641,12 @@ def given_dataloader_test(
         if test_adversarial and test_adv_epsilon > 0:
             x_adv = test_attack(x, target)
             pred = model(x_adv)
+            if batch_idx == 0:
+                print("pred = model(x_adv)")
         else:
             pred = model(x)
+            if batch_idx == 0:
+                print("pred = model(x)")
         loss = criterion(pred, target.long())
 
         _, predicted = torch.max(pred, -1)
@@ -1142,16 +1149,9 @@ class ModelTrainerCLS_v2():
         else:
             logging.warning("No enough batch loss to get the one epoch loss")
 
-    def one_forward_backward(self, x, labels, device, verbose=0):
+    def one_forward_backward(self, x, labels, device, verbose=0, train_attack1=None):
         self.model.train()
         self.model.to(device, non_blocking=self.non_blocking)
-
-        if self.args.train_adversarial and self.args.train_adv_epsilon > 0.0:
-            attack_eps = self.args.train_adv_epsilon
-            attack_steps = 10
-            attack_alpha = 2.5 * attack_eps / attack_steps
-            train_attack1 = PGD_CLS(self.model, eps=attack_eps, steps=10, alpha=attack_alpha)
-            train_attack1.targeted = False
 
         x, labels = x.to(device, non_blocking=self.non_blocking), labels.to(device, non_blocking=self.non_blocking)
 
@@ -1159,8 +1159,10 @@ class ModelTrainerCLS_v2():
             if self.args.train_adversarial and self.args.train_adv_epsilon > 0.0:
                 x_adv = train_attack1(x, labels)
                 log_probs = self.model(x_adv)
+                print(f"x_adv = train_attack1(x, labels)")
             else:
                 log_probs = self.model(x)
+                print("log_probs = self.model(x)")
             loss = self.criterion(log_probs, labels.long())
         self.scaler.scale(loss).backward()
         self.scaler.step(self.optimizer)
@@ -1473,9 +1475,21 @@ class PureCleanModelTrainer(ModelTrainerCLS_v2):
             batch_poison_indicator_list = []
             batch_original_targets_list = []
 
+        train_attack1 = None
+
+        if self.args.train_adversarial and self.args.train_adv_epsilon > 0.0:
+            attack_eps = self.args.train_adv_epsilon
+            attack_steps = 10
+            attack_alpha = 2.5 * attack_eps / attack_steps
+            train_attack1 = PGD_CLS(self.model, eps=attack_eps, steps=10, alpha=attack_alpha)
+            train_attack1.targeted = False
+            print(f"train_attack1 created successfully with epsilon {attack_eps}")
+        else:
+            print("train_attack1 did not created")
+
         for batch_idx in range(self.batch_num_per_epoch):
             x, labels, original_index, poison_indicator, original_targets  = self.get_one_batch()
-            one_batch_loss, batch_predict = self.one_forward_backward(x, labels, self.device, verbose)
+            one_batch_loss, batch_predict = self.one_forward_backward(x, labels, self.device, verbose, train_attack1)
             batch_loss_list.append(one_batch_loss)
 
             if verbose == 1:
