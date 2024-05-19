@@ -352,10 +352,9 @@ class Bpp(BadNet):
             )
         )
         # get denormalizer
-        for trans_t in (clean_test_dataset_with_transform.wrap_img_transform.transforms):
-            if isinstance(trans_t, transforms.Normalize):
-                denormalizer = get_dataset_denormalization(trans_t)
-                logging.info(f"{denormalizer}")
+        trans_t = get_dataset_normalization(args.dataset)
+        denormalizer = get_dataset_denormalization(trans_t)
+        logging.info(f"{denormalizer}")
 
 
 
