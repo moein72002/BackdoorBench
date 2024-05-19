@@ -1153,7 +1153,7 @@ class ModelTrainerCLS_v2():
         self.model.train()
         self.model.to(device, non_blocking=self.non_blocking)
 
-        train_adversarial = (self.args.train_adversarial and self.args.train_adv_epsilon > 0.0 and random.random() < 0.1)
+        train_adversarial = (self.args.train_adversarial and self.args.train_adv_epsilon > 0.0 and random.random() < self.args.adv_train_prob)
         # print(f"train_adversarial: {train_adversarial}")
         if train_adversarial:
             attack_eps = self.args.train_adv_epsilon
