@@ -259,10 +259,12 @@ class Wanet(BadNet):
             )
         )
         # get denormalizer
-        for trans_t in (clean_test_dataset_with_transform.wrap_img_transform.transforms):
-            if isinstance(trans_t, transforms.Normalize):
-                denormalizer = get_dataset_denormalization(trans_t)
-                logging.info(f"{denormalizer}")
+        # for trans_t in (clean_test_dataset_with_transform.wrap_img_transform.transforms):
+        #     if isinstance(trans_t, transforms.Normalize):
+        
+        trans_t = get_dataset_normalization(args.dataset)
+        denormalizer = get_dataset_denormalization(trans_t)
+        logging.info(f"{denormalizer}")
 
         reversible_test_dataset = (clean_test_dataset_with_transform)
         reversible_test_dataset.wrap_img_transform = transforms_reversible
