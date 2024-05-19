@@ -621,9 +621,9 @@ def given_dataloader_test(
         attack_alpha = 2.5 * attack_eps / attack_steps
         test_attack = PGD_CLS(model, eps=attack_eps, steps=10, alpha=attack_alpha)
         test_attack.targeted = False
-        print("test_attack created successfully!")
-    else:
-        print("test_attack did not created")
+    #     print("test_attack created successfully!")
+    # else:
+    #     print("test_attack did not created")
 
     metrics = {
         'test_correct': 0,
@@ -641,12 +641,12 @@ def given_dataloader_test(
         if test_adversarial and test_adv_epsilon > 0:
             x_adv = test_attack(x, target)
             pred = model(x_adv)
-            if batch_idx == 0:
-                print("pred = model(x_adv)")
+            # if batch_idx == 0:
+            #     print("pred = model(x_adv)")
         else:
             pred = model(x)
-            if batch_idx == 0:
-                print("pred = model(x)")
+            # if batch_idx == 0:
+            #     print("pred = model(x)")
         loss = criterion(pred, target.long())
 
         _, predicted = torch.max(pred, -1)
@@ -1161,9 +1161,9 @@ class ModelTrainerCLS_v2():
             attack_alpha = 2.5 * attack_eps / attack_steps
             train_attack1 = PGD_CLS(self.model, eps=attack_eps, steps=10, alpha=attack_alpha)
             train_attack1.targeted = False
-            print(f"train_attack1 created successfully with epsilon {attack_eps}")
-        else:
-            print("train_attack1 did not created")
+        #     print(f"train_attack1 created successfully with epsilon {attack_eps}")
+        # else:
+        #     print("train_attack1 did not created")
 
         x, labels = x.to(device, non_blocking=self.non_blocking), labels.to(device, non_blocking=self.non_blocking)
 
@@ -1171,10 +1171,10 @@ class ModelTrainerCLS_v2():
             if train_adversarial:
                 x_adv = train_attack1(x, labels)
                 log_probs = self.model(x_adv)
-                print(f"x_adv = train_attack1(x, labels)")
+                # print(f"x_adv = train_attack1(x, labels)")
             else:
                 log_probs = self.model(x)
-                print("log_probs = self.model(x)")
+                # print("log_probs = self.model(x)")
             loss = self.criterion(log_probs, labels.long())
         self.scaler.scale(loss).backward()
         self.scaler.step(self.optimizer)
