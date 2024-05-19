@@ -376,6 +376,7 @@ class InputAware(BadNet):
             model_name=args.model,
             num_classes=args.num_classes,
             image_size=args.img_size[0],
+            dataset_name=args.dataset
         ).to(self.device, non_blocking=args.non_blocking)
         netG = InputAwareGenerator(args).to(self.device, non_blocking=args.non_blocking)
         netM = InputAwareGenerator(args, out_channels=1).to(self.device, non_blocking=args.non_blocking)
@@ -954,10 +955,9 @@ class InputAware(BadNet):
             )
         )
         # get denormalizer
-        for trans_t in deepcopy(clean_test_dataset_with_transform.wrap_img_transform.transforms):
-            if isinstance(trans_t, transforms.Normalize):
-                denormalizer = get_dataset_denormalization(trans_t)
-                logging.info(f"{denormalizer}")
+        trans_t = get_dataset_normalization(args.dataset)
+        denormalizer = get_dataset_denormalization(trans_t)
+        logging.info(f"{denormalizer}")
 
         # Notice that due to the fact that we need random sequence to get cross samples
         # So we set the reversible_test_dataloader2 with shuffle = True

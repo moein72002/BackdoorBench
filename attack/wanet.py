@@ -216,6 +216,7 @@ class Wanet(BadNet):
             model_name=args.model,
             num_classes=args.num_classes,
             image_size=args.img_size[0],
+            dataset_name=args.dataset
         ).to(self.device, non_blocking=args.non_blocking)
 
         if "," in args.device:
