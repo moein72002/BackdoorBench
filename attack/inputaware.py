@@ -620,10 +620,9 @@ class InputAware(BadNet):
         clean_train_dataset_with_transform.wrap_img_transform = transforms_reversible  # change it to reversiable
 
         # get denormalizer
-        for trans_t in deepcopy(transforms_reversible.transforms):
-            if isinstance(trans_t, transforms.Normalize):
-                denormalizer = get_dataset_denormalization(trans_t)
-                logging.info(f"{denormalizer}")
+        trans_t = get_dataset_normalization(args.dataset)
+        denormalizer = get_dataset_denormalization(trans_t)
+        logging.info(f"{denormalizer}")
 
         clean_train_dataloader_without_shuffle = torch.utils.data.DataLoader(clean_train_dataset_with_transform,
                                                                              batch_size=args.batch_size,
