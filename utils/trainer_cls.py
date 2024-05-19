@@ -1153,7 +1153,9 @@ class ModelTrainerCLS_v2():
         self.model.train()
         self.model.to(device, non_blocking=self.non_blocking)
 
-        if self.args.train_adversarial and self.args.train_adv_epsilon > 0.0:
+        train_adversarial = (self.args.train_adversarial and self.args.train_adv_epsilon > 0.0 and random.random() < 0.1)
+        print(f"train_adversarial: {train_adversarial}")
+        if train_adversarial:
             attack_eps = self.args.train_adv_epsilon
             attack_steps = 10
             attack_alpha = 2.5 * attack_eps / attack_steps
@@ -1166,7 +1168,7 @@ class ModelTrainerCLS_v2():
         x, labels = x.to(device, non_blocking=self.non_blocking), labels.to(device, non_blocking=self.non_blocking)
 
         with torch.cuda.amp.autocast(enabled=self.amp):
-            if self.args.train_adversarial and self.args.train_adv_epsilon > 0.0:
+            if train_adversarial:
                 x_adv = train_attack1(x, labels)
                 log_probs = self.model(x_adv)
                 print(f"x_adv = train_attack1(x, labels)")
