@@ -1149,9 +1149,19 @@ class ModelTrainerCLS_v2():
         else:
             logging.warning("No enough batch loss to get the one epoch loss")
 
-    def one_forward_backward(self, x, labels, device, verbose=0, train_attack1=None):
+    def one_forward_backward(self, x, labels, device, verbose=0):
         self.model.train()
         self.model.to(device, non_blocking=self.non_blocking)
+
+        if self.args.train_adversarial and self.args.train_adv_epsilon > 0.0:
+            attack_eps = self.args.train_adv_epsilon
+            attack_steps = 10
+            attack_alpha = 2.5 * attack_eps / attack_steps
+            train_attack1 = PGD_CLS(self.model, eps=attack_eps, steps=10, alpha=attack_alpha)
+            train_attack1.targeted = False
+            print(f"train_attack1 created successfully with epsilon {attack_eps}")
+        else:
+            print("train_attack1 did not created")
 
         x, labels = x.to(device, non_blocking=self.non_blocking), labels.to(device, non_blocking=self.non_blocking)
 
@@ -1477,19 +1487,10 @@ class PureCleanModelTrainer(ModelTrainerCLS_v2):
 
         train_attack1 = None
 
-        if self.args.train_adversarial and self.args.train_adv_epsilon > 0.0:
-            attack_eps = self.args.train_adv_epsilon
-            attack_steps = 10
-            attack_alpha = 2.5 * attack_eps / attack_steps
-            train_attack1 = PGD_CLS(self.model, eps=attack_eps, steps=10, alpha=attack_alpha)
-            train_attack1.targeted = False
-            print(f"train_attack1 created successfully with epsilon {attack_eps}")
-        else:
-            print("train_attack1 did not created")
 
         for batch_idx in range(self.batch_num_per_epoch):
             x, labels, original_index, poison_indicator, original_targets  = self.get_one_batch()
-            one_batch_loss, batch_predict = self.one_forward_backward(x, labels, self.device, verbose, train_attack1)
+            one_batch_loss, batch_predict = self.one_forward_backward(x, labels, self.device, verbose)
             batch_loss_list.append(one_batch_loss)
 
             if verbose == 1:
