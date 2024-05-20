@@ -48,6 +48,7 @@ def generate_cls_model(
         model_name: str,
         num_classes: int = 10,
         image_size: int = 32,
+        dataset_name: str = None,
         **kwargs,
 ):
     '''
@@ -185,8 +186,23 @@ def generate_cls_model(
     else:
         raise SystemError('NO valid model match in function generate_cls_model!')
 
+    if dataset_name == "cifar10":
+        mean, std = [0.4914, 0.4822, 0.4465], [0.247, 0.243, 0.261]
+    elif dataset_name == 'cifar100':
+        '''get from https://gist.github.com/weiaicunzai/e623931921efefd4c331622c344d8151'''
+        mean, std = [0.5071, 0.4865, 0.4409], [0.2673, 0.2564, 0.2762]
+    elif dataset_name in ["mnist", "fmnist"]:
+        mean, std = [0.5], [0.5]
+    elif dataset_name == 'tiny':
+        mean, std = [0.4802, 0.4481, 0.3975], [0.2302, 0.2265, 0.2262]
+    elif dataset_name == "gtsrb" or dataset_name == "celeba":
+        mean, std = [0, 0, 0], [1, 1, 1]
+    elif dataset_name in ["imagenet", "pubfig"]:
+        mean, std = [0.485, 0.456, 0.406], [0.229, 0.224, 0.225]
+    else:
+        raise Exception("Invalid Dataset")
 
-    BaseModel(backbone=net, normalize=True, meta_data=model_name)
+    BaseModel(backbone=net, normalize=True, meta_data=model_name, mean=mean, std=std)
     return net
 
 

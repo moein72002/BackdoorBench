@@ -171,6 +171,7 @@ class BadNet(NormalCase):
             model_name=args.model,
             num_classes=args.num_classes,
             image_size=args.img_size[0],
+            dataset_name=args.dataset
         )
 
         self.device = torch.device(
