@@ -72,6 +72,9 @@ class NormalCase:
         parser.add_argument('--offset_for_model_number', type=int, default=0)
         parser.add_argument('--train_adversarial', type=bool, default=False)
         parser.add_argument('--test_adversarial', type=bool, default=False)
+        parser.add_argument('--train_adv_epsilon', type=float, default=1/255)
+        parser.add_argument('--test_adv_epsilon', type=float, default=1/255)
+        parser.add_argument('--adv_train_prob', type=float, default=0.3)
         return parser
 
     def add_yaml_to_args(self, args):

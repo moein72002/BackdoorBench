@@ -609,13 +609,14 @@ def given_dataloader_test(
         non_blocking : bool = False,
         device = "cpu",
         verbose : int = 0,
-        test_adversarial : bool = False
+        test_adversarial : bool = False,
+        test_adv_epsilon : float = None
 ):
     model.to(device, non_blocking=non_blocking)
     model.eval()
 
     if test_adversarial:
-        attack_eps = 2 / 255
+        attack_eps = test_adv_epsilon
         attack_steps = 10
         attack_alpha = 2.5 * attack_eps / attack_steps
         test_attack = PGD_CLS(model, eps=attack_eps, steps=10, alpha=attack_alpha)
@@ -1145,8 +1146,9 @@ class ModelTrainerCLS_v2():
         self.model.train()
         self.model.to(device, non_blocking=self.non_blocking)
 
-        if self.args.train_adversarial:
-            attack_eps = 2 / 255
+        train_adversarial = (self.args.train_adversarial and self.args.train_adv_epsilon > 0.0 and random.random() < self.args.adv_train_prob)
+        if train_adversarial:
+            attack_eps = self.args.train_adv_epsilon
             attack_steps = 10
             attack_alpha = 2.5 * attack_eps / attack_steps
             train_attack1 = PGD_CLS(self.model, eps=attack_eps, steps=10, alpha=attack_alpha)
@@ -1155,7 +1157,7 @@ class ModelTrainerCLS_v2():
         x, labels = x.to(device, non_blocking=self.non_blocking), labels.to(device, non_blocking=self.non_blocking)
 
         with torch.cuda.amp.autocast(enabled=self.amp):
-            if self.args.train_adversarial and random.random() < 0.1:
+            if train_adversarial:
                 x_adv = train_attack1(x, labels)
                 log_probs = self.model(x_adv)
             else:
@@ -1208,6 +1210,7 @@ class ModelTrainerCLS_v2():
                     device,
                     verbose,
                     test_adversarial,
+                    self.args.test_adv_epsilon
             )
 
     def test_all_inner_dataloader(self):
