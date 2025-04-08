@@ -129,8 +129,8 @@ class ft(defense):
         parser.add_argument('--index', type=str, help='index of clean data')
 
     def set_result(self, result_file):
-        attack_file = 'record/' + result_file
-        save_path = 'record/' + result_file + '/defense/ft/'
+        attack_file = result_file
+        save_path = result_file + '/defense/ft/'
         if not (os.path.exists(save_path)):
             os.makedirs(save_path)
         # assert(os.path.exists(save_path))    
